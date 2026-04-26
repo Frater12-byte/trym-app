@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/auth/actions";
+import { ReceiptUploader } from "@/components/ReceiptUploader";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -107,6 +108,9 @@ export default async function DashboardPage() {
             accent
           />
         </div>
+
+        {/* ── RECEIPT UPLOADER ── */}
+        <ReceiptUploader />
 
         {/* ── WEEK PLAN PLACEHOLDER ── */}
         <div
