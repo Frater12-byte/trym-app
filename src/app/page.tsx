@@ -253,6 +253,73 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
+          FEATURES
+          ══════════════════════════════════════════════════════════ */}
+      <section id="features" className="bg-green-tint py-[100px] relative z-10">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <SectionEyebrow>Features</SectionEyebrow>
+          <SectionTitle>
+            The math you don&apos;t <span className="text-tangerine">want to do.</span>
+          </SectionTitle>
+          <p className="text-[19px] text-ink-soft max-w-[600px] mb-14 leading-[1.5]">
+            Other apps suggest recipes you can&apos;t afford, that take an hour to cook,
+            or that blow your daily calories. Trym solves all three at once — quietly, every Sunday.
+          </p>
+
+          <div className="grid lg:grid-cols-3 gap-5 mb-12">
+            {[
+              { icon: "🎯", title: "Calorie targeting", body: "Calculates your personal daily target from your weight, height, age, and goal pace — not generic ranges.", color: "bg-tangerine text-cream" },
+              { icon: "🛒", title: "Real Dubai prices", body: "Ingredient prices from Carrefour, Lulu, Spinneys, and Kibsons refreshed weekly. We pick the cheapest list for you.", color: "bg-green text-cream" },
+              { icon: "⏱", title: "Under your time limit", body: "Every meal is filtered to your max prep time. If you said 20 minutes, you will never see a 25-minute recipe.", color: "bg-saffron text-ink" },
+              { icon: "🌙", title: "Halal & dietary filters", body: "Tell us once — Halal, vegetarian, vegan, gluten-free, or allergy filters. Applied to every meal, every week.", color: "bg-peach text-ink" },
+              { icon: "🔄", title: "One-tap meal swaps", body: "Don't feel like chicken tonight? Swap it in two taps. The calorie and budget targets auto-adjust.", color: "bg-tangerine text-cream" },
+              { icon: "📊", title: "Weekly progress nudges", body: "Log your weight every few days and we tell you if you're on track — or quietly adjust your plan if not.", color: "bg-green text-cream" },
+            ].map((f, i) => (
+              <div
+                key={f.title}
+                className="bg-white border-2 border-ink rounded-[24px] p-7 shadow-[6px_6px_0_#1A1A1A]"
+                style={{ transform: `rotate(${["-0.5deg","1deg","-1deg","0.5deg","-0.5deg","1deg"][i]})` }}
+              >
+                <div
+                  className={`w-14 h-14 rounded-full border-2 border-ink flex items-center justify-center text-2xl mb-5 shadow-[3px_3px_0_#1A1A1A] ${f.color}`}
+                >
+                  {f.icon}
+                </div>
+                <h3 className="font-display font-extrabold text-[22px] tracking-tight leading-snug mb-3">{f.title}</h3>
+                <p className="text-[16px] text-ink-soft leading-relaxed">{f.body}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Sample plan card */}
+          <div
+            id="sample"
+            className="bg-white border-2 border-ink rounded-[24px] shadow-[6px_6px_0_#1A1A1A] p-7 max-w-2xl"
+            style={{ transform: "rotate(-0.5deg)" }}
+          >
+            <p className="text-[11px] text-ink-mute uppercase tracking-widest mb-4 font-bold">Sunday&apos;s plan</p>
+            {[
+              { icon: "🎯", label: "Calories target",        value: "1,820", suffix: "/day" },
+              { icon: "🛒", label: "This week's groceries",  value: "387",   suffix: "AED" },
+              { icon: "⏱", label: "Total prep this week",   value: "2h 15m" },
+              { icon: "🥗", label: "Tomorrow's lunch",       value: "Lemon chicken bowl", small: true },
+            ].map((r) => (
+              <div key={r.label} className="flex justify-between items-center bg-peach rounded-xl p-4 mb-2 last:mb-0 gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs text-ink-soft mb-0.5">{r.label}</div>
+                  <div className={`font-display font-extrabold tracking-tight ${r.small ? "text-lg truncate" : "text-3xl"}`}>
+                    {r.value}
+                    {r.suffix && <span className="text-xs text-ink-mute ml-1 font-sans font-normal">{r.suffix}</span>}
+                  </div>
+                </div>
+                <div className="text-2xl flex-none">{r.icon}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
           WHY TRYM COMPARISON
           ══════════════════════════════════════════════════════════ */}
       <section className="bg-peach py-[100px] relative z-10">
@@ -266,7 +333,46 @@ export default function Home() {
             Most tools pick one and ignore the rest.
           </p>
 
-          <CompareTable />
+          {/* Horizontal scroll on mobile */}
+          <div className="overflow-x-auto -mx-6 px-6 lg:mx-0 lg:px-0 pb-2">
+            <div style={{ minWidth: 620 }}>
+              <CompareTable />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          FAQ
+          ══════════════════════════════════════════════════════════ */}
+      <section id="faq" className="bg-cream py-[100px] relative z-10">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <SectionEyebrow>FAQ</SectionEyebrow>
+          <SectionTitle>Questions?</SectionTitle>
+          <div className="max-w-3xl space-y-3">
+            {[
+              { q: "Where do you get the prices from?", a: "Carrefour UAE, Lulu, Spinneys, and Kibsons. We refresh prices weekly. Pro users see all four side by side and pick the cheapest list." },
+              { q: "What if I don't lose weight?", a: "We adjust your plan. If you're behind pace by week 3, we tighten calories and suggest cheaper, lighter swaps. If it still doesn't work, we'll help you figure out what's actually happening." },
+              { q: "Halal? Vegetarian? Food allergies?", a: "All respected. Tell us once during signup and Trym will never suggest those ingredients. You can change preferences anytime in settings." },
+              { q: "What about eating out?", a: "We factor it in. Tell us how often you eat out per week and we plan the home meals around it — and budget for it too." },
+              { q: "Can I cancel anytime?", a: "Yes. One click in settings. No contracts, no calls, no email back-and-forth." },
+              { q: "Is my data private?", a: "Yes. Weight, eating habits, payment info — all encrypted, never sold. Made in Dubai by a small team that hates spam as much as you do." },
+            ].map((item, i) => (
+              <details
+                key={item.q}
+                className="bg-white border-2 border-ink rounded-[20px] shadow-[4px_4px_0_#1A1A1A] group overflow-hidden"
+                style={{ transform: `rotate(${i % 2 === 0 ? "-0.3deg" : "0.3deg"})` }}
+              >
+                <summary className="cursor-pointer list-none px-6 py-5 flex justify-between items-center gap-4 font-display font-bold text-[18px] tracking-tight">
+                  <span className="flex-1">{item.q}</span>
+                  <span className="text-tangerine text-2xl group-open:rotate-45 transition-transform flex-none leading-none">+</span>
+                </summary>
+                <div className="px-6 pb-5 text-[16px] text-ink-soft leading-relaxed border-t border-ink/10 pt-3">
+                  {item.a}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

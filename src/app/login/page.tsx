@@ -64,7 +64,7 @@ function LoginForm() {
       footer={
         <>
           New to Trym?{" "}
-          <Link href="/signup" className="text-coral font-medium">
+          <Link href="/signup" className="font-bold" style={{ color: "#FF6B35" }}>
             Create account
           </Link>
         </>
@@ -103,7 +103,7 @@ function LoginForm() {
         <div className="text-center mt-3">
           <Link
             href="/forgot-password"
-            className="text-sm text-ink-soft hover:text-coral transition"
+            className="text-sm text-ink-soft hover:text-tangerine transition"
           >
             Forgot your password?
           </Link>

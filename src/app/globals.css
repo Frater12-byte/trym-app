@@ -2,6 +2,7 @@
 
 /* ── Design tokens ─────────────────────────────────────────── */
 @theme {
+  /* Brand palette */
   --color-tangerine:      #FF6B35;
   --color-tangerine-dark: #E0531F;
   --color-green:          #0E4D3F;
@@ -15,14 +16,26 @@
   --color-ink-mute:       #888888;
   --color-green-tint:     #E8F0EC;
 
+  /* Compat aliases — used by auth / onboarding / dashboard pages */
+  --color-surface:        #FFF3E8;
+  --color-sun:            #FF6B35;
+  --color-sun-soft:       #FFE8DA;
+  --color-sun-ink:        #FFF8EE;
+  --color-coral:          #FF6B35;
+  --color-coral-ink:      #FFF8EE;
+  --color-leaf:           #D8EBE3;
+  --color-leaf-ink:       #0E4D3F;
+  --color-leaf-accent:    #0E4D3F;
+  --color-warn:           #FFD9D2;
+  --color-warn-ink:       #B8311A;
+
+  /* Fonts */
   --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
   --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ── Base ──────────────────────────────────────────────────── */
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background-color: var(--color-cream);
@@ -44,16 +57,16 @@ body::before {
   z-index: 0;
 }
 
-/* Tangerine scrollbar for meal carousel */
-.scrollbar-tangerine {
+/* Dark scrollbar for meal carousel */
+.scrollbar-dark {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-tangerine) var(--color-peach);
+  scrollbar-color: #1A1A1A #FFE8DA;
 }
-.scrollbar-tangerine::-webkit-scrollbar { height: 4px; }
-.scrollbar-tangerine::-webkit-scrollbar-track { background: var(--color-peach); border-radius: 2px; }
-.scrollbar-tangerine::-webkit-scrollbar-thumb { background: var(--color-tangerine); border-radius: 2px; }
+.scrollbar-dark::-webkit-scrollbar { height: 10px; }
+.scrollbar-dark::-webkit-scrollbar-track { background: #FFE8DA; border-radius: 10px; }
+.scrollbar-dark::-webkit-scrollbar-thumb { background: #1A1A1A; border-radius: 10px; }
 
-/* ── Buttons ───────────────────────────────────────────────── */
+/* ── Marketing buttons ─────────────────────────────────────── */
 @utility btn-primary {
   display: inline-flex;
   align-items: center;
@@ -98,6 +111,27 @@ body::before {
   &:active { transform: translate(2px, 2px);   box-shadow: 0 0 0 var(--color-ink); }
 }
 
+@utility btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 15px;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  box-shadow: 4px 4px 0 var(--color-ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+  &:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-ink); }
+  &:active { transform: translate(2px, 2px);   box-shadow: 0 0 0 var(--color-ink); }
+}
+
 /* ── Cards ─────────────────────────────────────────────────── */
 @utility trym-card {
   background-color: #fff;
@@ -108,7 +142,33 @@ body::before {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* ── Stickers / floating badges ────────────────────────────── */
+/* Used by dashboard / onboarding */
+@utility card {
+  background: #ffffff;
+  border: 2px solid var(--color-ink);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+/* ── Feedback cards ─────────────────────────────────────────── */
+@utility coach-card {
+  background: #D8EBE3;
+  border: 1.5px solid var(--color-green);
+  border-radius: 16px;
+  padding: 16px;
+  color: var(--color-green);
+}
+
+@utility warn-card {
+  background: #FFD9D2;
+  border: 1.5px solid var(--color-ink);
+  border-radius: 16px;
+  padding: 12px 16px;
+  color: var(--color-ink);
+}
+
+/* ── Stickers ───────────────────────────────────────────────── */
 @utility trym-sticker {
   display: inline-flex;
   align-items: center;

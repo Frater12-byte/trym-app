@@ -1,0 +1,2150 @@
+[
+  {
+    "name": "Shawarma-Style Chicken Wrap",
+    "description": "A flavorful chicken wrap with shawarma spices and fresh vegetables.",
+    "calories": 450,
+    "protein_g": 35,
+    "carbs_g": 45,
+    "fat_g": 15,
+    "fiber_g": 6,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "high_protein"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf2f",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Mix olive oil, cumin, paprika, and salt in a bowl. Add chicken and coat well.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Cook chicken in a pan over medium heat until fully cooked.",
+        "duration_min": 15
+      },
+      {
+        "step": 3,
+        "text": "Place cooked chicken, lettuce, and cucumber slices on a tortilla wrap.",
+        "duration_min": 0
+      },
+      {
+        "step": 4,
+        "text": "Wrap tightly and serve with a side of yogurt.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Chicken breast",
+        "quantity": 150,
+        "unit": "g",
+        "notes": "Sliced"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Paprika",
+        "quantity": 1,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Tortilla wraps",
+        "quantity": 1,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Lettuce",
+        "quantity": 30,
+        "unit": "g",
+        "notes": "Shredded"
+      },
+      {
+        "name": "Cucumber",
+        "quantity": 30,
+        "unit": "g",
+        "notes": "Sliced"
+      },
+      {
+        "name": "Plain yogurt",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "For serving"
+      }
+    ]
+  },
+  {
+    "name": "Fattoush Salad",
+    "description": "A refreshing Levantine salad with crunchy vegetables and tangy dressing.",
+    "calories": 220,
+    "protein_g": 5,
+    "carbs_g": 30,
+    "fat_g": 10,
+    "fiber_g": 5,
+    "prep_minutes": 10,
+    "cook_minutes": 0,
+    "servings": 1,
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "vegan",
+      "dairy_free",
+      "gluten_free"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83e\udd57",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Chop lettuce, tomatoes, cucumber, and bell peppers.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Toss vegetables with parsley and mint in a large bowl.",
+        "duration_min": 0
+      },
+      {
+        "step": 3,
+        "text": "In a small bowl, whisk together olive oil and lemon juice. Drizzle over salad.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Lettuce",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Tomatoes",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Cucumber",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Bell pepper red",
+        "quantity": 30,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Parsley",
+        "quantity": 10,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Mint",
+        "quantity": 5,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Lemon",
+        "quantity": 0.5,
+        "unit": "piece",
+        "notes": "Juiced"
+      }
+    ]
+  },
+  {
+    "name": "Mujadara",
+    "description": "A comforting dish of lentils, rice, and caramelized onions.",
+    "calories": 400,
+    "protein_g": 15,
+    "carbs_g": 65,
+    "fat_g": 10,
+    "fiber_g": 12,
+    "prep_minutes": 10,
+    "cook_minutes": 20,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "vegan",
+      "dairy_free",
+      "gluten_free",
+      "meal_prep_friendly"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf5b",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Cook lentils in boiling water until tender, then drain.",
+        "duration_min": 10
+      },
+      {
+        "step": 2,
+        "text": "Cook rice according to package instructions.",
+        "duration_min": 10
+      },
+      {
+        "step": 3,
+        "text": "Slice onions and cook in olive oil until caramelized.",
+        "duration_min": 20
+      },
+      {
+        "step": 4,
+        "text": "Mix lentils, rice, and onions together and season with salt and cumin.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Lentils (green)",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "White rice",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 100,
+        "unit": "g",
+        "notes": "Sliced"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Koshari",
+    "description": "A classic Egyptian dish with rice, pasta, and lentils topped with crispy onions.",
+    "calories": 500,
+    "protein_g": 20,
+    "carbs_g": 90,
+    "fat_g": 10,
+    "fiber_g": 15,
+    "prep_minutes": 15,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "meal_prep_friendly"
+    ],
+    "difficulty": "medium",
+    "emoji": "\ud83c\udf72",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Cook lentils and rice separately until tender.",
+        "duration_min": 10
+      },
+      {
+        "step": 2,
+        "text": "Boil pasta until al dente.",
+        "duration_min": 10
+      },
+      {
+        "step": 3,
+        "text": "Slice onions and fry in olive oil until crispy.",
+        "duration_min": 15
+      },
+      {
+        "step": 4,
+        "text": "Layer rice, lentils, and pasta on a plate, top with crispy onions and tomato sauce.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Lentils (green)",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "White rice",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Pasta (spaghetti)",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 100,
+        "unit": "g",
+        "notes": "Sliced"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Canned tomatoes",
+        "quantity": 100,
+        "unit": "g",
+        "notes": "For sauce"
+      },
+      {
+        "name": "Salt",
+        "quantity": 3,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Falafel Wrap",
+    "description": "A delicious falafel wrap with fresh vegetables and tahini sauce.",
+    "calories": 350,
+    "protein_g": 12,
+    "carbs_g": 50,
+    "fat_g": 15,
+    "fiber_g": 10,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "lunch",
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "vegan",
+      "dairy_free"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf2f",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Mash chickpeas and mix with garlic, parsley, and spices to form a dough.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Shape dough into balls and fry in olive oil until golden brown.",
+        "duration_min": 15
+      },
+      {
+        "step": 3,
+        "text": "Place falafel in a pita with lettuce, cucumber, and tahini sauce.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Chickpeas (canned)",
+        "quantity": 150,
+        "unit": "g",
+        "notes": "Drained"
+      },
+      {
+        "name": "Garlic",
+        "quantity": 5,
+        "unit": "g",
+        "notes": "Minced"
+      },
+      {
+        "name": "Parsley",
+        "quantity": 10,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Coriander seeds (ground)",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Pita bread",
+        "quantity": 1,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Lettuce",
+        "quantity": 30,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Cucumber",
+        "quantity": 30,
+        "unit": "g",
+        "notes": "Sliced"
+      },
+      {
+        "name": "Tahini",
+        "quantity": 20,
+        "unit": "g",
+        "notes": "For sauce"
+      }
+    ]
+  },
+  {
+    "name": "Spinach and Feta Omelette",
+    "description": "A fluffy omelette with fresh spinach and tangy feta cheese.",
+    "calories": 300,
+    "protein_g": 20,
+    "carbs_g": 5,
+    "fat_g": 20,
+    "fiber_g": 2,
+    "prep_minutes": 5,
+    "cook_minutes": 10,
+    "servings": 1,
+    "meal_type": [
+      "breakfast"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "low_carb"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf73",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Beat eggs in a bowl with salt and pepper.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Heat butter in a pan, add spinach, and cook until wilted.",
+        "duration_min": 5
+      },
+      {
+        "step": 3,
+        "text": "Pour beaten eggs over spinach and cook until set.",
+        "duration_min": 5
+      },
+      {
+        "step": 4,
+        "text": "Sprinkle feta cheese over the omelette and fold it in half before serving.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Spinach",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Fresh"
+      },
+      {
+        "name": "Feta cheese",
+        "quantity": 30,
+        "unit": "g",
+        "notes": "Crumbled"
+      },
+      {
+        "name": "Butter",
+        "quantity": 10,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Za'atar Roasted Chicken Thighs",
+    "description": "Juicy chicken thighs roasted with aromatic za'atar spice.",
+    "calories": 480,
+    "protein_g": 35,
+    "carbs_g": 5,
+    "fat_g": 35,
+    "fiber_g": 2,
+    "prep_minutes": 5,
+    "cook_minutes": 25,
+    "servings": 2,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "low_carb",
+      "meal_prep_friendly"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf57",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Preheat oven to 200\u00b0C (400\u00b0F).",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Rub chicken thighs with olive oil and za'atar.",
+        "duration_min": 0
+      },
+      {
+        "step": 3,
+        "text": "Place chicken on a baking sheet and roast for 25 minutes or until cooked through.",
+        "duration_min": 25
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Chicken thighs",
+        "quantity": 300,
+        "unit": "g",
+        "notes": "Bone-in, skinless"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 15,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Za'atar",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Chicken Tikka",
+    "description": "Grilled chicken marinated in a blend of yogurt and spices.",
+    "calories": 320,
+    "protein_g": 27.5,
+    "carbs_g": 5,
+    "fat_g": 20,
+    "fiber_g": 0.5,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "high_protein"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf57",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Mix 100g Greek yogurt, 5g cumin, 5g paprika, and 5g garlic powder in a bowl.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Add 150g chicken breast, coat well, and let marinate for 10 minutes.",
+        "duration_min": 10
+      },
+      {
+        "step": 3,
+        "text": "Preheat grill or pan to medium-high heat.",
+        "duration_min": 0
+      },
+      {
+        "step": 4,
+        "text": "Grill chicken for 7 minutes on each side until cooked through.",
+        "duration_min": 15
+      },
+      {
+        "step": 5,
+        "text": "Serve hot with a wedge of lemon.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Greek yogurt",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Paprika",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Garlic powder",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Chicken breast",
+        "quantity": 150,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Lemon",
+        "quantity": 0.5,
+        "unit": "piece",
+        "notes": "Wedge for serving"
+      }
+    ]
+  },
+  {
+    "name": "Simple Dal",
+    "description": "A comforting lentil stew with aromatic spices.",
+    "calories": 220,
+    "protein_g": 14,
+    "carbs_g": 34,
+    "fat_g": 4,
+    "fiber_g": 12,
+    "prep_minutes": 10,
+    "cook_minutes": 20,
+    "servings": 1,
+    "meal_type": [
+      "lunch"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "vegan",
+      "dairy_free"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf72",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Rinse 100g red lentils under cold water.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "In a pot, heat 5ml olive oil and saut\u00e9 50g onions until translucent.",
+        "duration_min": 5
+      },
+      {
+        "step": 3,
+        "text": "Add 5g turmeric and 5g cumin, stir for 1 minute.",
+        "duration_min": 1
+      },
+      {
+        "step": 4,
+        "text": "Add lentils and 300ml water, bring to a boil. Simmer for 15 minutes until lentils are soft.",
+        "duration_min": 15
+      },
+      {
+        "step": 5,
+        "text": "Season with salt and serve hot.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Lentils (red)",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 5,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Turmeric",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Quick Chicken Biryani",
+    "description": "A simplified biryani with flavorful spices and chicken.",
+    "calories": 480,
+    "protein_g": 32,
+    "carbs_g": 55,
+    "fat_g": 15,
+    "fiber_g": 3,
+    "prep_minutes": 10,
+    "cook_minutes": 20,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "meal_prep_friendly"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf5b",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Cook 100g basmati rice as per package instructions.",
+        "duration_min": 15
+      },
+      {
+        "step": 2,
+        "text": "In a pan, heat 10ml sunflower oil and saut\u00e9 60g onions until golden.",
+        "duration_min": 5
+      },
+      {
+        "step": 3,
+        "text": "Add 150g chicken thighs, 5g garam masala, and 5g cumin. Cook until chicken is browned.",
+        "duration_min": 10
+      },
+      {
+        "step": 4,
+        "text": "Mix in cooked rice and allow to heat through, stirring occasionally.",
+        "duration_min": 5
+      },
+      {
+        "step": 5,
+        "text": "Garnish with 5g coriander and serve hot.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Basmati rice",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Sunflower oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 60,
+        "unit": "g",
+        "notes": "Sliced"
+      },
+      {
+        "name": "Chicken thighs",
+        "quantity": 150,
+        "unit": "g",
+        "notes": "Boneless"
+      },
+      {
+        "name": "Garam masala",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Coriander (cilantro)",
+        "quantity": 5,
+        "unit": "g",
+        "notes": "Chopped"
+      }
+    ]
+  },
+  {
+    "name": "Paneer Stir Fry",
+    "description": "A quick stir fry of paneer, vegetables, and spices.",
+    "calories": 390,
+    "protein_g": 16,
+    "carbs_g": 20,
+    "fat_g": 28,
+    "fiber_g": 3,
+    "prep_minutes": 10,
+    "cook_minutes": 10,
+    "servings": 1,
+    "meal_type": [
+      "lunch"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf73",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Cut 100g halloumi into cubes and set aside.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "In a pan, heat 10ml olive oil and saute 50g bell pepper red and 50g onions for 5 minutes.",
+        "duration_min": 5
+      },
+      {
+        "step": 3,
+        "text": "Add halloumi cubes, 5g curry powder, and 5g turmeric. Stir fry for another 5 minutes.",
+        "duration_min": 5
+      },
+      {
+        "step": 4,
+        "text": "Season with salt and serve immediately.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Halloumi",
+        "quantity": 100,
+        "unit": "g",
+        "notes": "Substitute for paneer"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Bell pepper red",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Onions",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Curry powder",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Turmeric",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Curry-Spiced Eggs",
+    "description": "Eggs seasoned with fragrant curry spices.",
+    "calories": 260,
+    "protein_g": 18,
+    "carbs_g": 3,
+    "fat_g": 20,
+    "fiber_g": 0,
+    "prep_minutes": 5,
+    "cook_minutes": 10,
+    "servings": 1,
+    "meal_type": [
+      "breakfast"
+    ],
+    "tags": [
+      "halal",
+      "high_protein"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83e\udd5a",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Beat 2 eggs with 5g curry powder and 5g salt in a bowl.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "In a pan, heat 10g butter over medium heat.",
+        "duration_min": 0
+      },
+      {
+        "step": 3,
+        "text": "Pour egg mixture into the pan and scramble until cooked, about 5 minutes.",
+        "duration_min": 5
+      },
+      {
+        "step": 4,
+        "text": "Serve hot with a sprinkle of black pepper.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Curry powder",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Butter",
+        "quantity": 10,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 2,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Vegetable Keema",
+    "description": "A minced vegetable curry with spices.",
+    "calories": 240,
+    "protein_g": 8,
+    "carbs_g": 32,
+    "fat_g": 10,
+    "fiber_g": 5,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "vegan",
+      "dairy_free"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83e\udd66",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Chop 100g cauliflower and 50g carrots finely.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "In a pan, heat 10ml olive oil and saut\u00e9 50g onions until soft.",
+        "duration_min": 5
+      },
+      {
+        "step": 3,
+        "text": "Add 5g garlic, 5g cumin, and 5g garam masala, cook for 1 minute.",
+        "duration_min": 1
+      },
+      {
+        "step": 4,
+        "text": "Add chopped vegetables and 200ml canned tomatoes, simmer for 10 minutes.",
+        "duration_min": 10
+      },
+      {
+        "step": 5,
+        "text": "Season with salt and serve hot.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Cauliflower",
+        "quantity": 100,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Carrots",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Garlic",
+        "quantity": 5,
+        "unit": "g",
+        "notes": "Minced"
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Garam masala",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Canned tomatoes",
+        "quantity": 200,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Chickpea Spinach Curry",
+    "description": "A nutritious curry with chickpeas and spinach.",
+    "calories": 310,
+    "protein_g": 16,
+    "carbs_g": 42,
+    "fat_g": 10,
+    "fiber_g": 12,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "lunch"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "vegan",
+      "dairy_free"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83e\udd58",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "In a pan, heat 10ml olive oil and saut\u00e9 50g onions until golden.",
+        "duration_min": 5
+      },
+      {
+        "step": 2,
+        "text": "Add 5g cumin, 5g turmeric, and 5g garlic powder, stir for 1 minute.",
+        "duration_min": 1
+      },
+      {
+        "step": 3,
+        "text": "Add 150g canned chickpeas and 100g frozen spinach. Cook for 5 minutes.",
+        "duration_min": 5
+      },
+      {
+        "step": 4,
+        "text": "Stir in 100ml coconut milk and simmer for 5 minutes until thickened.",
+        "duration_min": 5
+      },
+      {
+        "step": 5,
+        "text": "Season with salt and serve with basmati rice if desired.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 50,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Cumin (ground)",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Turmeric",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Garlic powder",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Chickpeas (canned)",
+        "quantity": 150,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Frozen spinach",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Coconut milk",
+        "quantity": 100,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Eggplant Masala",
+    "description": "A spicy masala curry with eggplant and tomatoes.",
+    "calories": 230,
+    "protein_g": 7,
+    "carbs_g": 30,
+    "fat_g": 12,
+    "fiber_g": 10,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "vegetarian",
+      "vegan",
+      "dairy_free"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf46",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Dice 150g eggplant into cubes.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "In a pan, heat 10ml olive oil and saut\u00e9 60g onions until soft.",
+        "duration_min": 5
+      },
+      {
+        "step": 3,
+        "text": "Add 10g curry powder and cook for 1 minute.",
+        "duration_min": 1
+      },
+      {
+        "step": 4,
+        "text": "Add eggplant and 200g canned tomatoes, simmer for 10 minutes until tender.",
+        "duration_min": 10
+      },
+      {
+        "step": 5,
+        "text": "Season with salt and serve hot.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Eggplant",
+        "quantity": 150,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 10,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 60,
+        "unit": "g",
+        "notes": "Chopped"
+      },
+      {
+        "name": "Curry powder",
+        "quantity": 10,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Canned tomatoes",
+        "quantity": 200,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "name": "Mediterranean Quinoa Salad",
+    "description": "A refreshing salad with quinoa, vegetables, and feta cheese, drizzled with lemon and olive oil dressing.",
+    "calories": 450,
+    "protein_g": 15,
+    "carbs_g": 60,
+    "fat_g": 18,
+    "fiber_g": 8,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "lunch"
+    ],
+    "tags": [
+      "vegetarian",
+      "halal",
+      "gluten_free",
+      "high_protein"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83e\udd57",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Rinse 80g quinoa under cold water.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Cook quinoa in 160ml water until absorbed, about 15 minutes. Let cool.",
+        "duration_min": 15
+      },
+      {
+        "step": 3,
+        "text": "Chop 50g cucumber, 50g cherry tomatoes, and 30g red onions.",
+        "duration_min": 0
+      },
+      {
+        "step": 4,
+        "text": "In a bowl, combine cooled quinoa, chopped vegetables, 50g feta cheese, and 10g parsley.",
+        "duration_min": 0
+      },
+      {
+        "step": 5,
+        "text": "Drizzle with 15ml olive oil and juice of 1 lemon. Mix well.",
+        "duration_min": 0
+      },
+      {
+        "step": 6,
+        "text": "Season with salt and pepper to taste.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Quinoa",
+        "quantity": 80,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cucumber",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cherry tomatoes",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Red onions",
+        "quantity": 30,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Feta cheese",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 15,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Lemon",
+        "quantity": 1,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Parsley",
+        "quantity": 10,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  },
+  {
+    "name": "Italian Panzanella",
+    "description": "A traditional Italian bread salad with tomatoes, cucumber, and basil.",
+    "calories": 400,
+    "protein_g": 12,
+    "carbs_g": 50,
+    "fat_g": 18,
+    "fiber_g": 4,
+    "prep_minutes": 10,
+    "cook_minutes": 10,
+    "servings": 1,
+    "meal_type": [
+      "lunch"
+    ],
+    "tags": [
+      "vegetarian",
+      "halal"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf45",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Tear 1 piece of whole wheat bread into bite-sized pieces.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Toast bread pieces in a pan until crispy.",
+        "duration_min": 10
+      },
+      {
+        "step": 3,
+        "text": "Chop 100g tomatoes and 50g cucumber.",
+        "duration_min": 0
+      },
+      {
+        "step": 4,
+        "text": "Mix crispy bread, chopped tomatoes, cucumber, and 5g basil in a bowl.",
+        "duration_min": 0
+      },
+      {
+        "step": 5,
+        "text": "Drizzle with 15ml olive oil and a splash of balsamic vinegar.",
+        "duration_min": 0
+      },
+      {
+        "step": 6,
+        "text": "Season with salt and pepper to taste and let sit for 10 minutes to allow flavors to meld.",
+        "duration_min": 10
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Whole wheat bread",
+        "quantity": 1,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Tomatoes",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cucumber",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Basil",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 15,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Balsamic vinegar",
+        "quantity": 5,
+        "unit": "ml",
+        "notes": "a splash"
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  },
+  {
+    "name": "Spinach and Feta Frittata",
+    "description": "A quick and easy frittata with spinach and feta cheese, perfect for breakfast or brunch.",
+    "calories": 350,
+    "protein_g": 20,
+    "carbs_g": 10,
+    "fat_g": 26,
+    "fiber_g": 2,
+    "prep_minutes": 5,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "breakfast"
+    ],
+    "tags": [
+      "vegetarian",
+      "halal",
+      "gluten_free",
+      "high_protein"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf73",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Whisk 2 eggs in a bowl with salt and pepper.",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Heat 15g olive oil in a non-stick pan over medium heat.",
+        "duration_min": 0
+      },
+      {
+        "step": 3,
+        "text": "Add 50g frozen spinach to the pan and cook until thawed.",
+        "duration_min": 5
+      },
+      {
+        "step": 4,
+        "text": "Pour eggs into the pan, sprinkle 30g feta cheese on top.",
+        "duration_min": 0
+      },
+      {
+        "step": 5,
+        "text": "Cook on low heat until eggs are set.",
+        "duration_min": 10
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Frozen spinach",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Feta cheese",
+        "quantity": 30,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 15,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  },
+  {
+    "name": "Salmon Pesto Pasta",
+    "description": "Delicious pasta with salmon fillet and homemade pesto.",
+    "calories": 650,
+    "protein_g": 32,
+    "carbs_g": 56,
+    "fat_g": 36,
+    "fiber_g": 4,
+    "prep_minutes": 10,
+    "cook_minutes": 20,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal"
+    ],
+    "difficulty": "medium",
+    "emoji": "\ud83c\udf5d",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Cook 80g pasta (penne) according to package instructions.",
+        "duration_min": 10
+      },
+      {
+        "step": 2,
+        "text": "Season 150g salmon fillet with salt and pepper, cook in a pan with 10ml olive oil until done.",
+        "duration_min": 10
+      },
+      {
+        "step": 3,
+        "text": "Blend 30g basil, 20g Parmesan, 15g olive oil, and 1 clove garlic for pesto.",
+        "duration_min": 0
+      },
+      {
+        "step": 4,
+        "text": "Mix cooked pasta with 3 tablespoons of pesto and top with cooked salmon.",
+        "duration_min": 0
+      },
+      {
+        "step": 5,
+        "text": "Garnish with extra Parmesan if desired.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Pasta (penne)",
+        "quantity": 80,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salmon fillet",
+        "quantity": 150,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 25,
+        "unit": "ml",
+        "notes": "10ml for cooking salmon"
+      },
+      {
+        "name": "Basil",
+        "quantity": 30,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Parmesan",
+        "quantity": 20,
+        "unit": "g",
+        "notes": "plus extra for garnish, optional"
+      },
+      {
+        "name": "Garlic",
+        "quantity": 1,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  },
+  {
+    "name": "Mediterranean Baked Fish",
+    "description": "Flavorful white fish fillet baked with tomatoes, olives, and herbs.",
+    "calories": 300,
+    "protein_g": 30,
+    "carbs_g": 10,
+    "fat_g": 15,
+    "fiber_g": 3,
+    "prep_minutes": 5,
+    "cook_minutes": 20,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "halal",
+      "gluten_free",
+      "low_carb"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83d\udc1f",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Preheat oven to 180\u00b0C (356\u00b0F).",
+        "duration_min": 0
+      },
+      {
+        "step": 2,
+        "text": "Place 200g white fish fillet in a baking dish.",
+        "duration_min": 0
+      },
+      {
+        "step": 3,
+        "text": "Add 100g canned tomatoes, 50g black olives (canned), and 5g dried oregano on top.",
+        "duration_min": 0
+      },
+      {
+        "step": 4,
+        "text": "Drizzle with 15ml olive oil, season with salt and pepper.",
+        "duration_min": 0
+      },
+      {
+        "step": 5,
+        "text": "Bake for 20 minutes or until fish is cooked.",
+        "duration_min": 20
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "White fish fillet",
+        "quantity": 200,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Canned tomatoes",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 15,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Oregano (dried)",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  },
+  {
+    "name": "Vegetable Risotto",
+    "description": "Creamy risotto with a mix of colorful vegetables and Parmesan.",
+    "calories": 550,
+    "protein_g": 15,
+    "carbs_g": 75,
+    "fat_g": 18,
+    "fiber_g": 4,
+    "prep_minutes": 10,
+    "cook_minutes": 20,
+    "servings": 1,
+    "meal_type": [
+      "dinner"
+    ],
+    "tags": [
+      "vegetarian",
+      "halal"
+    ],
+    "difficulty": "medium",
+    "emoji": "\ud83c\udf5a",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Heat 15ml olive oil in a pan, add 50g onions and 1 clove garlic, saut\u00e9 until soft.",
+        "duration_min": 5
+      },
+      {
+        "step": 2,
+        "text": "Add 100g arborio rice, toast for 2 minutes.",
+        "duration_min": 2
+      },
+      {
+        "step": 3,
+        "text": "Pour in 500ml vegetable stock gradually, stirring continuously until absorbed.",
+        "duration_min": 10
+      },
+      {
+        "step": 4,
+        "text": "Add 50g frozen mixed vegetables, cook until rice is creamy and tender.",
+        "duration_min": 5
+      },
+      {
+        "step": 5,
+        "text": "Stir in 30g Parmesan and season with salt and pepper.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Olive oil",
+        "quantity": 15,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Onions",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Garlic",
+        "quantity": 1,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Basmati rice",
+        "quantity": 100,
+        "unit": "g",
+        "notes": "arborio or risotto rice"
+      },
+      {
+        "name": "Stock cubes (vegetable)",
+        "quantity": 500,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Frozen mixed vegetables",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Parmesan",
+        "quantity": 30,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  },
+  {
+    "name": "Pasta Primavera",
+    "description": "Colorful pasta with a mix of seasonal vegetables and light olive oil dressing.",
+    "calories": 450,
+    "protein_g": 14,
+    "carbs_g": 68,
+    "fat_g": 14,
+    "fiber_g": 6,
+    "prep_minutes": 10,
+    "cook_minutes": 15,
+    "servings": 1,
+    "meal_type": [
+      "lunch"
+    ],
+    "tags": [
+      "vegetarian",
+      "halal"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83c\udf3f",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Cook 80g pasta (spaghetti) according to package instructions.",
+        "duration_min": 10
+      },
+      {
+        "step": 2,
+        "text": "Heat 15ml olive oil in a pan, add 50g bell pepper, 50g zucchini, and saut\u00e9 until tender.",
+        "duration_min": 5
+      },
+      {
+        "step": 3,
+        "text": "Add 100g cherry tomatoes and 50g mushrooms, cook for 5 minutes.",
+        "duration_min": 5
+      },
+      {
+        "step": 4,
+        "text": "Toss cooked pasta with saut\u00e9ed vegetables and 5g basil.",
+        "duration_min": 0
+      },
+      {
+        "step": 5,
+        "text": "Season with salt, pepper, and a squeeze of lemon.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Pasta (spaghetti)",
+        "quantity": 80,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 15,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Bell pepper red",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Zucchini",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Cherry tomatoes",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Mushrooms",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Basil",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Lemon",
+        "quantity": 1,
+        "unit": "piece",
+        "notes": "for squeezing"
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  },
+  {
+    "name": "Caprese Avocado Toast",
+    "description": "Simple toast topped with fresh mozzarella, tomatoes, avocado, and basil.",
+    "calories": 400,
+    "protein_g": 12,
+    "carbs_g": 40,
+    "fat_g": 24,
+    "fiber_g": 6,
+    "prep_minutes": 5,
+    "cook_minutes": 5,
+    "servings": 1,
+    "meal_type": [
+      "snack"
+    ],
+    "tags": [
+      "vegetarian",
+      "halal"
+    ],
+    "difficulty": "easy",
+    "emoji": "\ud83e\udd51",
+    "instructions": [
+      {
+        "step": 1,
+        "text": "Toast 1 piece of sourdough lightly in a toaster or pan.",
+        "duration_min": 5
+      },
+      {
+        "step": 2,
+        "text": "Slice 1 avocado and 100g tomatoes.",
+        "duration_min": 0
+      },
+      {
+        "step": 3,
+        "text": "Layer sliced avocado, tomatoes, and 50g mozzarella on top of toasted sourdough.",
+        "duration_min": 0
+      },
+      {
+        "step": 4,
+        "text": "Sprinkle with 5g basil, drizzle with olive oil, and season with salt and pepper.",
+        "duration_min": 0
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "Sourdough",
+        "quantity": 40,
+        "unit": "g",
+        "notes": "1 piece, toasted"
+      },
+      {
+        "name": "Avocado",
+        "quantity": 1,
+        "unit": "piece",
+        "notes": ""
+      },
+      {
+        "name": "Tomatoes",
+        "quantity": 100,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Mozzarella",
+        "quantity": 50,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Basil",
+        "quantity": 5,
+        "unit": "g",
+        "notes": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 5,
+        "unit": "ml",
+        "notes": ""
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      },
+      {
+        "name": "Black pepper",
+        "quantity": 1,
+        "unit": "g",
+        "notes": "to taste"
+      }
+    ]
+  }
+]
