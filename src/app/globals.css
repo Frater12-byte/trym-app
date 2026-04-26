@@ -2,48 +2,140 @@
 
 /* ── Design tokens ─────────────────────────────────────────── */
 @theme {
-  --color-cream:       #FFFBF5;
-  --color-sun:         #F5A623;
-  --color-sun-soft:    #FEF3C7;
-  --color-sun-ink:     #78350F;
-  --color-ink:         #1C1917;
-  --color-ink-soft:    #78716C;
-  --color-ink-mute:    #A8A29E;
-  --color-leaf:        #ECFDF5;
-  --color-leaf-ink:    #064E3B;
-  --color-leaf-accent: #34D399;
-  --color-coral:       #D05C3C;
-  --color-coral-ink:   #FDF4F2;
+  --color-tangerine:      #FF6B35;
+  --color-tangerine-dark: #E0531F;
+  --color-green:          #0E4D3F;
+  --color-green-light:    #1B6B58;
+  --color-saffron:        #FFD23F;
+  --color-cream:          #FFF8EE;
+  --color-peach:          #FFE8DA;
+  --color-peach-deep:     #FFD4B8;
+  --color-ink:            #1A1A1A;
+  --color-ink-soft:       #4A4A4A;
+  --color-ink-mute:       #888888;
+  --color-green-tint:     #E8F0EC;
 
-  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ── Base ──────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--color-cream);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Component utilities (Tailwind v4: @utility, not @layer) ── */
-@utility btn-primary {
-  display: block;
-  width: 100%;
-  text-align: center;
-  border-radius: 1rem;
-  background-color: var(--color-sun);
-  color: #fff;
-  font-weight: 500;
-  transition: opacity 0.15s ease;
-
-  &:hover  { opacity: 0.9; }
-  &:active { opacity: 0.8; }
+/* Paper grain texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(26,26,26,0.04) 1px, transparent 0);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
 }
 
-@utility card {
+/* Tangerine scrollbar for meal carousel */
+.scrollbar-tangerine {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-tangerine) var(--color-peach);
+}
+.scrollbar-tangerine::-webkit-scrollbar { height: 4px; }
+.scrollbar-tangerine::-webkit-scrollbar-track { background: var(--color-peach); border-radius: 2px; }
+.scrollbar-tangerine::-webkit-scrollbar-thumb { background: var(--color-tangerine); border-radius: 2px; }
+
+/* ── Buttons ───────────────────────────────────────────────── */
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  background-color: var(--color-tangerine);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 16px;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  box-shadow: 4px 4px 0 var(--color-ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-ink); }
+  &:active { transform: translate(2px, 2px);   box-shadow: 0 0 0 var(--color-ink); }
+}
+
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 16px;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  box-shadow: 4px 4px 0 var(--color-ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-ink); }
+  &:active { transform: translate(2px, 2px);   box-shadow: 0 0 0 var(--color-ink); }
+}
+
+/* ── Cards ─────────────────────────────────────────────────── */
+@utility trym-card {
   background-color: #fff;
-  border-radius: 1rem;
-  padding: 1rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08);
+  border: 2px solid var(--color-ink);
+  border-radius: 24px;
+  box-shadow: 6px 6px 0 var(--color-ink);
+  padding: 28px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* ── Stickers / floating badges ────────────────────────────── */
+@utility trym-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* ── Check bubble ───────────────────────────────────────────── */
+@utility check-bubble {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background-color: var(--color-green);
+  border: 1.5px solid var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-cream);
+  font-size: 11px;
+  font-weight: 700;
 }
