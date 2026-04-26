@@ -1,26 +1,42 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Design tokens ─────────────────────────────────────────── */
+@theme {
+  /* Palette */
+  --color-cream:      #FFFBF5;
+  --color-sun:        #F5A623;
+  --color-sun-soft:   #FEF3C7;
+  --color-sun-ink:    #78350F;
+  --color-ink:        #1C1917;
+  --color-ink-soft:   #78716C;
+  --color-ink-mute:   #A8A29E;
+  --color-leaf:       #ECFDF5;
+  --color-leaf-ink:   #064E3B;
+  --color-leaf-accent:#34D399;
+  --color-coral:      #D05C3C;
+  --color-coral-ink:  #FDF4F2;
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ── Base ──────────────────────────────────────────────────── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Components ────────────────────────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply block w-full text-center rounded-2xl bg-sun text-white font-medium
+           transition-opacity hover:opacity-90 active:opacity-80;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl p-4 shadow-sm;
+  }
 }
