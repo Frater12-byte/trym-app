@@ -9,7 +9,8 @@
     "lint": "eslint",
     "seed:ingredients": "tsx scripts/seed-ingredients.ts",
     "generate:meals": "tsx scripts/generate-meals.ts",
-    "seed:meals": "tsx scripts/seed-meals.ts"
+    "seed:meals": "tsx scripts/seed-meals.ts",
+    "seed:starter": "tsx scripts/seed-starter-meals.ts"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.4",
