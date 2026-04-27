@@ -21,16 +21,16 @@ export default async function SettingsPage() {
     .single();
   if (!profile?.onboarding_completed) redirect("/onboarding");
 
-  // How many receipts so far?
   const { count: receiptCount } = await supabase
     .from("receipts")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user.id);
 
-  // Last 5 receipts for quick preview
   const { data: recentReceipts } = await supabase
     .from("receipts")
-    .select("id, supermarket, total_aed, receipt_date, status, matched_items_count")
+    .select(
+      "id, supermarket, total_aed, receipt_date, status, matched_items_count"
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(5);
@@ -41,47 +41,47 @@ export default async function SettingsPage() {
     <main className="min-h-screen bg-cream pb-20">
       <AppHeader firstName={firstName} />
 
-      <div className="max-w-3xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
+      <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
         <header className="mb-8">
           <p className="eyebrow">Settings</p>
-          <h1 className="font-display text-4xl lg:text-5xl">
-            Your account.
-          </h1>
+          <h1 className="font-display text-4xl lg:text-5xl">Your account.</h1>
         </header>
 
-        {/* Profile preview */}
-        <section className="card mb-5">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-display text-2xl">Profile</h2>
-            <Link
-              href="/onboarding"
-              className="text-sm text-tangerine font-bold"
-            >
-              Edit →
-            </Link>
+        {/* Quick links */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 mb-6">
+          <Link
+            href="/settings/profile"
+            className="card rotate-left hover:-translate-y-1 transition"
+          >
+            <div className="text-4xl mb-3">👤</div>
+            <h2 className="font-display text-2xl mb-1">Profile</h2>
+            <p className="text-sm text-ink-soft">
+              Body, goal, budget, diet — all editable in one place.
+            </p>
+            <p className="text-tangerine font-bold mt-4 text-sm">Edit →</p>
+          </Link>
+
+          <div className="card-cream rotate-right">
+            <div className="text-4xl mb-3">💎</div>
+            <h2 className="font-display text-2xl mb-1">Plan</h2>
+            <p className="text-sm text-ink-soft mb-3">
+              You&apos;re on the{" "}
+              <span className="font-bold capitalize">
+                {profile.subscription_status || "free"}
+              </span>{" "}
+              plan.
+            </p>
+            {profile.subscription_status !== "paid" && (
+              <p className="text-xs text-ink-mute">
+                Pro features (full recipes, email delivery, multi-supermarket
+                comparison) launching soon.
+              </p>
+            )}
           </div>
-          <ul className="space-y-2 text-sm">
-            <Row label="Name" value={profile.full_name || "—"} />
-            <Row label="Email" value={profile.email} />
-            <Row
-              label="Goal"
-              value={`${profile.current_weight_kg?.toFixed(1)} → ${profile.goal_weight_kg?.toFixed(1)} ${profile.unit_weight}`}
-            />
-            <Row
-              label="Budget"
-              value={`${profile.weekly_budget_aed} AED/week`}
-            />
-            <Row
-              label="Plan"
-              value={
-                profile.subscription_status === "paid" ? "Pro" : "Free"
-              }
-            />
-          </ul>
         </section>
 
-        {/* Receipts (demoted, but still useful) */}
-        <section className="mb-5">
+        {/* Receipts (smaller now, in its own card) */}
+        <section className="mb-6">
           <div className="flex items-baseline justify-between mb-3">
             <h2 className="font-display text-2xl">Receipts</h2>
             <span className="text-xs text-ink-mute tabular-nums">
@@ -89,8 +89,8 @@ export default async function SettingsPage() {
             </span>
           </div>
           <p className="text-sm text-ink-soft mb-4 leading-relaxed">
-            Snapping a grocery receipt teaches Trym what real prices look
-            like in your area. Helps build better plans for everyone.
+            Snapping a grocery receipt teaches Trym what real prices look like
+            in your area. Helps build better plans for everyone.
           </p>
           <ReceiptUploader />
 
@@ -144,14 +144,5 @@ export default async function SettingsPage() {
         </section>
       </div>
     </main>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <li className="flex justify-between gap-4">
-      <span className="text-ink-soft">{label}</span>
-      <span className="font-semibold text-right">{value}</span>
-    </li>
   );
 }

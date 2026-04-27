@@ -6,7 +6,6 @@ import { logout } from "@/app/auth/actions";
 
 interface Props {
   firstName: string;
-  children?: React.ReactNode;
 }
 
 export function AppHeader({ firstName }: Props) {
@@ -15,6 +14,7 @@ export function AppHeader({ firstName }: Props) {
   const navItems = [
     { href: "/dashboard", label: "Today" },
     { href: "/plan", label: "Plan" },
+    { href: "/recipes", label: "Recipes" },
     { href: "/shopping", label: "Shopping" },
     { href: "/weight", label: "Weight" },
   ];
@@ -32,7 +32,9 @@ export function AppHeader({ firstName }: Props) {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
           {navItems.map((item) => {
-            const active = pathname === item.href;
+            const active =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.href}
@@ -70,15 +72,15 @@ export function AppHeader({ firstName }: Props) {
       <nav className="md:hidden border-t-2 border-ink overflow-x-auto">
         <div className="flex items-center gap-1 px-4 py-2 min-w-max">
           {navItems.map((item) => {
-            const active = pathname === item.href;
+            const active =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`flex-none px-4 py-2 rounded-full text-sm font-bold transition ${
-                  active
-                    ? "bg-ink text-cream"
-                    : "text-ink-soft"
+                  active ? "bg-ink text-cream" : "text-ink-soft"
                 }`}
               >
                 {item.label}

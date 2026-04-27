@@ -40,7 +40,6 @@ export default async function WeightPage() {
       : kg.toFixed(1);
   };
 
-  // Trend over last 7 days
   const recentLogs = (logs || []).slice(0, 7);
   const oldestRecent = recentLogs[recentLogs.length - 1];
   const newestRecent = recentLogs[0];
@@ -55,28 +54,21 @@ export default async function WeightPage() {
   const totalDelta =
     startWeight && lastLogged ? lastLogged - startWeight : 0;
 
-  // Today's date in YYYY-MM-DD for the form
   const today = new Date().toISOString().slice(0, 10);
-
-  // Did user already log today?
   const loggedToday = logs?.some((l) => l.logged_at === today) ?? false;
 
   return (
     <main className="min-h-screen bg-cream pb-20">
       <AppHeader firstName={firstName} />
 
-      <div className="max-w-3xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
-        {/* Header */}
-        <header className="mb-6 lg:mb-8 flex items-center justify-between">
-          <div>
-            <p className="eyebrow">Weight log</p>
-            <h1 className="font-display text-4xl lg:text-5xl">
-              Where you&apos;re at.
-            </h1>
-          </div>
+      <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
+        <header className="mb-6 lg:mb-8">
+          <p className="eyebrow">Weight log</p>
+          <h1 className="font-display text-4xl lg:text-5xl">
+            Where you&apos;re at.
+          </h1>
         </header>
 
-        {/* Stats summary */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 lg:mb-8">
           <div className="card rotate-left">
             <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-2">
@@ -144,14 +136,14 @@ export default async function WeightPage() {
               Goal:{" "}
               {goalWeight && startWeight
                 ? `${(
-                    Math.abs(goalWeight - startWeight) * (goalWeight < startWeight ? -1 : 1)
+                    Math.abs(goalWeight - startWeight) *
+                    (goalWeight < startWeight ? -1 : 1)
                   ).toFixed(1)} ${unit}`
                 : "—"}
             </p>
           </div>
         </section>
 
-        {/* Log form */}
         <section className="mb-6 lg:mb-8">
           <WeightLogForm
             unit={unit}
@@ -161,7 +153,6 @@ export default async function WeightPage() {
           />
         </section>
 
-        {/* History */}
         <section className="card">
           <h2 className="font-display text-2xl mb-4">History</h2>
           {!logs || logs.length === 0 ? (
@@ -187,9 +178,7 @@ export default async function WeightPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     {log.mood && (
-                      <span className="text-xl">
-                        {moodEmoji(log.mood)}
-                      </span>
+                      <span className="text-xl">{moodEmoji(log.mood)}</span>
                     )}
                     <span className="font-display text-2xl tabular-nums">
                       {displayWeight(log.weight_kg)}

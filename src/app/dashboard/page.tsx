@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
 
-// Force dynamic rendering — never cache the dashboard.
-// Critical so logout + back-button can't restore an authenticated view.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -34,6 +32,11 @@ export default async function DashboardPage() {
     .limit(1)
     .maybeSingle();
 
+  // Total recipes available
+  const { count: recipeCount } = await supabase
+    .from("meals")
+    .select("*", { count: "exact", head: true });
+
   const startWeight = profile.current_weight_kg;
   const goalWeight = profile.goal_weight_kg;
   const currentWeight = lastWeight?.weight_kg ?? startWeight;
@@ -60,7 +63,6 @@ export default async function DashboardPage() {
 
   const displayUnit = profile.unit_weight === "lbs" ? "lbs" : "kg";
 
-  // How long since last weight log (for "Log weight" CTA urgency)
   const daysSinceWeightLog = lastWeight?.logged_at
     ? Math.floor(
         (Date.now() - new Date(lastWeight.logged_at).getTime()) /
@@ -68,7 +70,6 @@ export default async function DashboardPage() {
       )
     : null;
 
-  // Goal deadline
   const deadlineLabel = new Date(profile.goal_deadline).toLocaleDateString(
     "en-US",
     { month: "long", day: "numeric" }
@@ -79,7 +80,7 @@ export default async function DashboardPage() {
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
-        {/* ========== GREETING ========== */}
+        {/* GREETING */}
         <header className="mb-7 lg:mb-10">
           <p className="eyebrow">{weekday}</p>
           <h1 className="font-display text-4xl lg:text-6xl">
@@ -88,39 +89,38 @@ export default async function DashboardPage() {
           </h1>
         </header>
 
-        {/* ========== PLAN STATUS — biggest card on the page ========== */}
+        {/* PLAN STATUS */}
         <section className="mb-6 lg:mb-8 relative">
-          {/* Floating sticker */}
           <div
             className="absolute z-10"
-            style={{
-              top: "-14px",
-              right: "20px",
-            }}
+            style={{ top: "-14px", right: "20px" }}
           >
             <div className="sticker">★ Coming this week</div>
           </div>
 
-          <div className="card-tangerine rotate-left">
-            <p className="text-xs uppercase tracking-widest font-bold opacity-80 mb-2">
-              This week&apos;s plan
-            </p>
-            <h2 className="font-display text-3xl lg:text-4xl mb-3 leading-[1.1]">
-              We&apos;re finishing your meal database.
-            </h2>
-            <p className="text-sm lg:text-base opacity-90 leading-relaxed mb-5 max-w-2xl">
-              Your first weekly plan will land here once we have the meals
-              ready. You&apos;ll get an email the moment it does.
-            </p>
-            <Link href="/plan" className="btn btn-secondary btn-sm">
-              See what&apos;s coming →
-            </Link>
-          </div>
+          <Link href="/plan" className="block">
+            <div className="card-tangerine rotate-left hover:-translate-y-1 transition">
+              <p className="text-xs uppercase tracking-widest font-bold opacity-80 mb-2">
+                This week&apos;s plan
+              </p>
+              <h2 className="font-display text-3xl lg:text-4xl mb-3 leading-[1.1]">
+                We&apos;re finishing your meal database.
+              </h2>
+              <p className="text-sm lg:text-base opacity-90 leading-relaxed mb-3 max-w-2xl">
+                Your first weekly plan will land here once we have the meals
+                ready. You&apos;ll get an email the moment it does.
+              </p>
+              <p className="font-bold text-sm">See what&apos;s coming →</p>
+            </div>
+          </Link>
         </section>
 
-        {/* ========== STATS ROW — 3 chunky tilted cards ========== */}
+        {/* STATS — each card deep-links to its settings section */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-6 lg:mb-8">
-          <div className="card rotate-left-2">
+          <Link
+            href="/settings/profile#body"
+            className="card rotate-left-2 hover:-translate-y-1 transition"
+          >
             <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-2">
               Now
             </p>
@@ -131,9 +131,15 @@ export default async function DashboardPage() {
             <p className="text-sm text-ink-soft mt-3">
               Started at {displayWeight(startWeight)} {displayUnit}
             </p>
-          </div>
+            <p className="text-xs text-tangerine font-bold mt-2">
+              Edit →
+            </p>
+          </Link>
 
-          <div className="card-cream rotate-right">
+          <Link
+            href="/settings/profile#goal"
+            className="card-cream rotate-right hover:-translate-y-1 transition"
+          >
             <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-2">
               Goal
             </p>
@@ -142,9 +148,13 @@ export default async function DashboardPage() {
               <span className="unit">{displayUnit}</span>
             </div>
             <p className="text-sm text-ink-soft mt-3">by {deadlineLabel}</p>
-          </div>
+            <p className="text-xs text-tangerine font-bold mt-2">Edit →</p>
+          </Link>
 
-          <div className="card-saffron rotate-left">
+          <Link
+            href="/settings/profile#budget"
+            className="card-saffron rotate-left hover:-translate-y-1 transition"
+          >
             <p className="text-xs uppercase tracking-widest font-bold mb-2">
               Budget
             </p>
@@ -153,10 +163,11 @@ export default async function DashboardPage() {
               <span className="unit">AED</span>
             </div>
             <p className="text-sm font-semibold mt-3">per week</p>
-          </div>
+            <p className="text-xs font-bold mt-2">Edit →</p>
+          </Link>
         </section>
 
-        {/* ========== PROGRESS BAR (goal tracker) ========== */}
+        {/* PROGRESS BAR */}
         {totalToLose && (
           <section className="card mb-6 lg:mb-8">
             <div className="flex justify-between items-baseline mb-3 flex-wrap gap-2">
@@ -185,12 +196,11 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* ========== ACTIONS ROW — weight + shopping ========== */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 mb-6 lg:mb-8">
-          {/* Log weight */}
+        {/* ACTIONS ROW */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-6 lg:mb-8">
           <Link
             href="/weight"
-            className="card rotate-right group hover:-translate-y-1 transition"
+            className="card rotate-right hover:-translate-y-1 transition"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="text-4xl">⚖️</div>
@@ -198,25 +208,42 @@ export default async function DashboardPage() {
                 {daysSinceWeightLog === null
                   ? "First log"
                   : daysSinceWeightLog === 0
-                  ? "Logged today"
+                  ? "Today"
                   : `${daysSinceWeightLog}d ago`}
               </div>
             </div>
             <h3 className="font-display text-2xl mb-1">Log weight</h3>
             <p className="text-sm text-ink-soft">
               {daysSinceWeightLog !== null && daysSinceWeightLog >= 3
-                ? "Time for a check-in. Takes 5 seconds."
+                ? "Time for a check-in. Five seconds."
                 : "Quick check-in keeps the plan honest."}
             </p>
-            <p className="text-tangerine font-bold mt-4 text-sm">
-              Log now →
-            </p>
+            <p className="text-tangerine font-bold mt-4 text-sm">Log now →</p>
           </Link>
 
-          {/* Shopping list */}
+          <Link
+            href="/recipes"
+            className="card-cream rotate-left hover:-translate-y-1 transition"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="text-4xl">📖</div>
+              <div className="pill">
+                {recipeCount && recipeCount > 0
+                  ? `${recipeCount} recipes`
+                  : "Loading..."}
+              </div>
+            </div>
+            <h3 className="font-display text-2xl mb-1">Browse recipes</h3>
+            <p className="text-sm text-ink-soft">
+              See everything in the catalog. Filter by halal, veg, prep time,
+              or tags.
+            </p>
+            <p className="text-tangerine font-bold mt-4 text-sm">Open →</p>
+          </Link>
+
           <Link
             href="/shopping"
-            className="card-cream rotate-left group hover:-translate-y-1 transition"
+            className="card rotate-right hover:-translate-y-1 transition"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="text-4xl">🛒</div>
@@ -227,37 +254,39 @@ export default async function DashboardPage() {
               Generated when your first plan lands. Grouped by aisle, with
               prices.
             </p>
-            <p className="text-tangerine font-bold mt-4 text-sm">
-              Preview →
-            </p>
+            <p className="text-tangerine font-bold mt-4 text-sm">Preview →</p>
           </Link>
         </section>
 
-        {/* ========== PROFILE SUMMARY (compact) ========== */}
+        {/* PROFILE SUMMARY (compact) */}
         <section className="card mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-display text-2xl">Your setup</h3>
             <Link
-              href="/onboarding"
+              href="/settings/profile"
               className="text-sm text-tangerine font-bold"
             >
-              Edit →
+              Edit all →
             </Link>
           </div>
           <ul className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
             <ProfileRow
+              href="/settings/profile#cooking"
               label="Max prep"
               value={`${profile.max_prep_minutes} min`}
             />
             <ProfileRow
+              href="/settings/profile#cooking"
               label="Meals/day"
               value={`${profile.meals_per_day}`}
             />
             <ProfileRow
+              href="/settings/profile#cooking"
               label="Eating out"
               value={`${profile.eating_out_per_week}/wk`}
             />
             <ProfileRow
+              href="/settings/profile#diet"
               label="Diet"
               value={
                 profile.dietary_prefs?.length > 0
@@ -278,7 +307,7 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        {/* ========== FOOTER ========== */}
+        {/* FOOTER */}
         <footer className="text-center pt-4 pb-8">
           <LogoutButton />
         </footer>
@@ -287,13 +316,26 @@ export default async function DashboardPage() {
   );
 }
 
-function ProfileRow({ label, value }: { label: string; value: string }) {
+function ProfileRow({
+  href,
+  label,
+  value,
+}: {
+  href: string;
+  label: string;
+  value: string;
+}) {
   return (
-    <li className="card-cream card-sm">
-      <p className="text-xs text-ink-mute uppercase tracking-wider font-bold mb-1">
-        {label}
-      </p>
-      <p className="font-bold text-ink truncate">{value}</p>
+    <li>
+      <Link
+        href={href}
+        className="card-cream card-sm block hover:-translate-y-0.5 transition"
+      >
+        <p className="text-xs text-ink-mute uppercase tracking-wider font-bold mb-1">
+          {label}
+        </p>
+        <p className="font-bold text-ink truncate">{value}</p>
+      </Link>
     </li>
   );
 }

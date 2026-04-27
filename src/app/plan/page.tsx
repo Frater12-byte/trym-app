@@ -20,9 +20,8 @@ export default async function PlanPage() {
     .single();
   if (!profile?.onboarding_completed) redirect("/onboarding");
 
-  // Find current week's plan if it exists
   const today = new Date();
-  const dow = today.getDay(); // 0 = Sunday
+  const dow = today.getDay();
   const weekStart = new Date(today);
   weekStart.setDate(today.getDate() - dow);
   weekStart.setHours(0, 0, 0, 0);
@@ -37,15 +36,12 @@ export default async function PlanPage() {
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
-  // ============================================================
-  // EMPTY STATE — no plan generated yet
-  // ============================================================
   if (!plan) {
     return (
       <main className="min-h-screen bg-cream pb-20">
         <AppHeader firstName={firstName} />
 
-        <div className="max-w-3xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
+        <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
           <header className="mb-8">
             <p className="eyebrow">This week&apos;s plan</p>
             <h1 className="font-display text-4xl lg:text-5xl">
@@ -68,7 +64,6 @@ export default async function PlanPage() {
             </p>
           </div>
 
-          {/* Preview of what the plan will look like */}
           <section className="mb-6">
             <h3 className="font-display text-2xl mb-4">
               What you&apos;ll get
@@ -97,17 +92,23 @@ export default async function PlanPage() {
 
           <div className="card-cream">
             <p className="text-sm font-semibold mb-2">
-              Want a sneak peek?
+              Want a sneak peek of what&apos;s in the catalog?
             </p>
             <p className="text-sm text-ink-soft mb-4">
-              Until your plan lands, log your weight to set the baseline and
-              edit your prep time / budget if those numbers have changed.
+              Browse all the recipes we&apos;ve already built. Filter by halal,
+              vegetarian, prep time, or anything else.
             </p>
             <div className="flex flex-wrap gap-3">
+              <Link href="/recipes" className="btn btn-primary btn-sm">
+                Browse recipes →
+              </Link>
               <Link href="/weight" className="btn btn-secondary btn-sm">
                 Log weight
               </Link>
-              <Link href="/onboarding" className="btn btn-secondary btn-sm">
+              <Link
+                href="/settings/profile"
+                className="btn btn-secondary btn-sm"
+              >
                 Edit preferences
               </Link>
             </div>
@@ -117,9 +118,6 @@ export default async function PlanPage() {
     );
   }
 
-  // ============================================================
-  // ACTIVE PLAN VIEW (builds out when Phase 2C ships)
-  // ============================================================
   return (
     <main className="min-h-screen bg-cream pb-20">
       <AppHeader firstName={firstName} />
@@ -137,7 +135,6 @@ export default async function PlanPage() {
             Your week of meals.
           </h1>
         </header>
-
         <p className="text-ink-soft text-sm">
           Plan view coming in next release.
         </p>

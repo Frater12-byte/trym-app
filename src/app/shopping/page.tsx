@@ -26,7 +26,7 @@ export default async function ShoppingPage() {
     <main className="min-h-screen bg-cream pb-20">
       <AppHeader firstName={firstName} />
 
-      <div className="max-w-3xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
+      <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
         <header className="mb-8">
           <p className="eyebrow">Shopping list</p>
           <h1 className="font-display text-4xl lg:text-5xl">
@@ -51,7 +51,7 @@ export default async function ShoppingPage() {
 
         <section className="mb-6">
           <h3 className="font-display text-2xl mb-4">How it works</h3>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Step
               n={1}
               title="Aggregated quantities"
@@ -79,10 +79,7 @@ export default async function ShoppingPage() {
           <p className="text-sm text-ink-soft mb-4">
             Want to help us learn real prices in your area?
           </p>
-          <Link
-            href="/settings"
-            className="btn btn-secondary btn-sm"
-          >
+          <Link href="/settings" className="btn btn-secondary btn-sm">
             📸 Snap a recent receipt
           </Link>
         </div>
