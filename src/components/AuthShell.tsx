@@ -1,74 +1,70 @@
 import Link from "next/link";
 
+/**
+ * Wrapper for auth pages — chunky brutalist styling.
+ */
 export function AuthShell({
   title,
+  highlight,
   subtitle,
   children,
   footer,
 }: {
   title: string;
+  highlight?: string;
   subtitle?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
   return (
-    <main
-      className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{ background: "#FFF8EE" }}
-    >
-      {/* Paper grain */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(26,26,26,0.04) 1px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      {/* Nav */}
-      <header className="relative z-10 px-6 py-6 max-w-lg mx-auto w-full">
+    <main className="min-h-screen bg-cream flex flex-col">
+      <header className="px-5 lg:px-10 py-5 max-w-3xl mx-auto w-full">
         <Link
           href="/"
-          className="inline-block font-display font-black text-[28px] tracking-[-0.03em] leading-none text-ink"
+          className="font-display text-3xl tracking-tight inline-block"
         >
-          trym<span style={{ color: "#FF6B35" }}>.</span>
+          trym<span className="text-tangerine">.</span>
         </Link>
       </header>
 
-      {/* Card */}
-      <section className="relative z-10 flex-1 flex flex-col px-6 pb-12 max-w-lg mx-auto w-full">
-        <div
-          className="bg-white border-2 border-ink rounded-[24px] p-8 shadow-[6px_6px_0_#1A1A1A] mb-6"
-          style={{ transform: "rotate(-0.3deg)" }}
-        >
-          <h1
-            className="font-display font-extrabold tracking-[-0.03em] leading-[1.05] mb-2"
-            style={{ fontSize: "clamp(28px, 5vw, 38px)" }}
-          >
+      <section className="flex-1 px-5 lg:px-10 pb-12 max-w-md mx-auto w-full flex flex-col">
+        <div className="mt-4 mb-8">
+          <h1 className="font-display text-4xl lg:text-5xl mb-3 leading-[1.05]">
             {title}
+            {highlight && (
+              <>
+                {" "}
+                <span className="relative inline-block">
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 bg-saffron -rotate-1 -z-0"
+                    style={{
+                      top: "0.15em",
+                      bottom: "0.05em",
+                      left: "-0.08em",
+                      right: "-0.08em",
+                    }}
+                  />
+                  <span className="relative z-10">{highlight}</span>
+                </span>
+              </>
+            )}
           </h1>
           {subtitle && (
-            <p className="text-[16px] text-ink-soft leading-relaxed mb-6">{subtitle}</p>
+            <p className="text-ink-soft text-base leading-relaxed">
+              {subtitle}
+            </p>
           )}
-          <div className={subtitle ? "" : "mt-6"}>
-            {children}
-          </div>
         </div>
 
+        {children}
+
         {footer && (
-          <div className="text-center text-[15px] text-ink-soft">
+          <div className="mt-auto pt-10 text-center text-sm text-ink-soft">
             {footer}
           </div>
         )}
       </section>
-
-      {/* Decorative sticker */}
-      <div
-        className="fixed bottom-10 right-6 hidden lg:flex items-center gap-2 bg-saffron border-2 border-ink rounded-full px-4 py-2 shadow-[3px_3px_0_#1A1A1A] text-[13px] font-bold text-ink z-0"
-        style={{ transform: "rotate(-4deg)" }}
-      >
-        No card needed ✓
-      </div>
     </main>
   );
 }

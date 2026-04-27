@@ -3,15 +3,6 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-/**
- * Camera-first receipt uploader.
- *
- * On mobile: tap "Snap a receipt" → opens phone camera (capture="environment")
- * On desktop: tap "Snap a receipt" → opens file picker
- *
- * Compresses to 1024px max width before upload to keep OCR cheap.
- */
-
 interface Props {
   defaultArea?: string | null;
   onUploaded?: (receipt: {
@@ -52,7 +43,6 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
     const f = e.target.files?.[0];
     if (!f) return;
 
-    // Compress before storing
     setProgress("Optimising image...");
     try {
       const compressed = await compressImage(f, 1024, 0.85);
@@ -61,7 +51,6 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
       setProgress(null);
     } catch (err) {
       console.error("Compression failed:", err);
-      // Fall back to original
       setFile(f);
       setPreviewUrl(URL.createObjectURL(f));
       setProgress(null);
@@ -96,11 +85,7 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.code === "RATE_LIMIT") {
-          setError(data.error);
-        } else {
-          setError(data.error || "Upload failed");
-        }
+        setError(data.error || "Upload failed");
         setUploading(false);
         setProgress(null);
         return;
@@ -125,13 +110,6 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
 
   return (
     <div className="card">
-      <h2 className="text-base font-medium mb-1">📸 Got a receipt?</h2>
-      <p className="text-sm text-ink-soft mb-4 leading-relaxed">
-        Snap your last grocery receipt and we&apos;ll learn what you actually
-        pay. Helps us build better plans for everyone in Dubai.
-      </p>
-
-      {/* Hidden file input — capture="environment" tells mobile to open camera */}
       <input
         ref={inputRef}
         type="file"
@@ -146,14 +124,14 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
           type="button"
           onClick={handlePick}
           disabled={uploading}
-          className="btn-primary w-full text-base py-4"
+          className="btn btn-primary w-full"
         >
           📷 Snap a receipt
         </button>
       ) : (
         <div className="space-y-3">
-          {/* Image preview */}
-          <div className="relative rounded-xl overflow-hidden bg-cream max-h-64">
+          <div className="relative rounded-2xl overflow-hidden bg-cream max-h-64 border-2 border-ink">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={previewUrl}
               alt="Receipt preview"
@@ -163,24 +141,23 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
               type="button"
               onClick={reset}
               disabled={uploading}
-              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-ink/80 text-cream flex items-center justify-center disabled:opacity-50"
+              className="absolute top-2 right-2 w-9 h-9 rounded-full bg-ink text-cream flex items-center justify-center disabled:opacity-50 border-2 border-ink font-bold"
               aria-label="Remove"
             >
               ✕
             </button>
           </div>
 
-          {/* Optional metadata */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs text-ink-soft mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1">
                 Supermarket
               </label>
               <select
                 value={supermarket}
                 onChange={(e) => setSupermarket(e.target.value)}
                 disabled={uploading}
-                className="w-full text-sm px-3 py-2 rounded-lg bg-cream border-2 border-transparent focus:border-coral focus:outline-none disabled:opacity-50"
+                className="input text-sm py-3"
               >
                 <option value="">Auto-detect</option>
                 {SUPERMARKETS.map((s) => (
@@ -191,14 +168,16 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-ink-soft mb-1">Area</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1">
+                Area
+              </label>
               <input
                 type="text"
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
                 disabled={uploading}
                 placeholder="e.g. JLT"
-                className="w-full text-sm px-3 py-2 rounded-lg bg-cream border-2 border-transparent focus:border-coral focus:outline-none disabled:opacity-50"
+                className="input text-sm py-3"
               />
             </div>
           </div>
@@ -207,7 +186,7 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
             type="button"
             onClick={handleUpload}
             disabled={uploading}
-            className="btn-primary w-full text-base py-4 disabled:opacity-50"
+            className="btn btn-primary w-full"
           >
             {uploading ? progress || "Uploading..." : "Save and learn from it →"}
           </button>
@@ -218,20 +197,27 @@ export function ReceiptUploader({ defaultArea, onUploaded }: Props) {
         <p className="text-sm text-ink-soft mt-2 text-center">{progress}</p>
       )}
 
-      {error && <div className="warn-card text-sm mt-3">{error}</div>}
+      {error && (
+        <div
+          className="card-sm border-2 mt-3 text-sm font-semibold"
+          style={{
+            backgroundColor: "var(--color-pill-warn)",
+            color: "var(--color-pill-warn-ink)",
+            borderColor: "var(--color-pill-warn-ink)",
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       <p className="text-xs text-ink-mute mt-3 leading-relaxed">
         Free plan: 10 receipts/month. We only read items and prices — your
-        personal info stays on the receipt and isn&apos;t shared.
+        personal info on the receipt isn&apos;t shared.
       </p>
     </div>
   );
 }
 
-/**
- * Compress image to maxDimension (px) on the longer side, JPEG at given quality.
- * Done client-side to save bandwidth and OpenAI cost.
- */
 async function compressImage(
   file: File,
   maxDimension: number,

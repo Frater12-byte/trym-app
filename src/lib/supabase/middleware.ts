@@ -34,33 +34,30 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
-  // ============================================================
-  // ROUTE PROTECTION RULES
-  // ============================================================
   const isAuthRoute =
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/auth");
 
+  // ALL protected routes — anything that requires authentication
   const isProtectedRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/plan") ||
     pathname.startsWith("/shopping") ||
     pathname.startsWith("/weight") ||
-    pathname.startsWith("/settings");
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/api/receipts") ||
+    pathname.startsWith("/api/weight");
 
-  // Logged-out user trying to hit protected route → /login
+  // Logged-out user trying protected route → /login with return URL
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -69,10 +66,21 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Logged-in user visiting auth pages → /dashboard
+  // (the /auth callback routes are excluded so OAuth/email confirm still work)
   if (user && isAuthRoute && !pathname.startsWith("/auth")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Add no-cache headers on protected routes so browser back-button can't
+  // restore an authenticated view after logout
+  if (isProtectedRoute) {
+    supabaseResponse.headers.set(
+      "Cache-Control",
+      "no-store, max-age=0, must-revalidate"
+    );
+    supabaseResponse.headers.set("Pragma", "no-cache");
   }
 
   return supabaseResponse;

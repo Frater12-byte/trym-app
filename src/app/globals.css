@@ -1,157 +1,247 @@
 @import "tailwindcss";
 
-/* ── Design tokens ─────────────────────────────────────────── */
+/* ============================================================
+   TRYM DESIGN TOKENS — Tailwind v4 @theme
+   ============================================================ */
 @theme {
-  /* Brand palette */
+  /* Surfaces */
+  --color-cream:        #FFF8EE;
+  --color-peach:        #FFE8DA;
+  --color-peach-deep:   #FFD4B8;
+  --color-green-tint:   #E8F0EC;
+  --color-surface:      #FFFFFF;
+
+  /* Text & lines */
+  --color-ink:          #1A1A1A;
+  --color-ink-soft:     #4A4A4A;
+  --color-ink-mute:     #8A8A8A;
+
+  /* Brand colors */
   --color-tangerine:      #FF6B35;
   --color-tangerine-dark: #E0531F;
   --color-green:          #0E4D3F;
   --color-green-light:    #1B6B58;
   --color-saffron:        #FFD23F;
-  --color-cream:          #FFF8EE;
-  --color-peach:          #FFE8DA;
-  --color-peach-deep:     #FFD4B8;
-  --color-ink:            #1A1A1A;
-  --color-ink-soft:       #4A4A4A;
-  --color-ink-mute:       #888888;
-  --color-green-tint:     #E8F0EC;
 
-  /* Compat aliases — used by auth / onboarding / dashboard pages */
-  --color-surface:        #FFF3E8;
-  --color-sun:            #FF6B35;
-  --color-sun-soft:       #FFE8DA;
-  --color-sun-ink:        #FFF8EE;
-  --color-coral:          #FF6B35;
-  --color-coral-ink:      #FFF8EE;
-  --color-leaf:           #D8EBE3;
-  --color-leaf-ink:       #0E4D3F;
-  --color-leaf-accent:    #0E4D3F;
-  --color-warn:           #FFD9D2;
-  --color-warn-ink:       #B8311A;
+  /* Pill / status */
+  --color-pill-success:     #D4E8D8;
+  --color-pill-warn:        #FFD9D2;
+  --color-pill-warn-ink:    #7A2B14;
+
+  /* Compat aliases from old design system */
+  --color-sun:          #FF6B35;
+  --color-sun-soft:     #FFE8DA;
+  --color-coral:        #FF6B35;
+  --color-coral-ink:    #FFF8EE;
+  --color-leaf:         #D8EBE3;
+  --color-leaf-ink:     #0E4D3F;
+  --color-warn:         #FFD9D2;
+  --color-warn-ink:     #B8311A;
 
   /* Fonts */
   --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
   --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* ── Base ──────────────────────────────────────────────────── */
-html { scroll-behavior: smooth; }
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
+}
 
-body {
+html, body {
   background-color: var(--color-cream);
   color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
   font-family: var(--font-sans);
   font-size: 18px;
   line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* Paper grain texture */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(circle at 1px 1px, rgba(26,26,26,0.04) 1px, transparent 0);
-  background-size: 24px 24px;
   pointer-events: none;
   z-index: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(26, 26, 26, 0.04) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
 }
 
-/* Dark scrollbar for meal carousel */
-.scrollbar-dark {
-  scrollbar-width: thin;
-  scrollbar-color: #1A1A1A #FFE8DA;
+/* Ensure content sits above the dot grain */
+main, nav, footer {
+  position: relative;
+  z-index: 1;
 }
-.scrollbar-dark::-webkit-scrollbar { height: 10px; }
-.scrollbar-dark::-webkit-scrollbar-track { background: #FFE8DA; border-radius: 10px; }
-.scrollbar-dark::-webkit-scrollbar-thumb { background: #1A1A1A; border-radius: 10px; }
 
-/* ── Marketing buttons ─────────────────────────────────────── */
-@utility btn-primary {
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+h1.font-display, h2.font-display, h3.font-display {
+  letter-spacing: -0.03em;
+}
+
+.eyebrow {
+  display: inline-block;
+  color: var(--color-tangerine);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+
+.unit {
+  font-size: 0.5em;
+  font-weight: 700;
+  margin-left: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-soft);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 32px;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+  padding: 14px 28px;
+  box-shadow: 4px 4px 0 var(--color-ink);
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--color-ink);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 4px 4px 0 var(--color-ink) !important;
+}
+
+.btn-primary {
   background-color: var(--color-tangerine);
   color: var(--color-cream);
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 16px;
-  border: 2px solid var(--color-ink);
-  border-radius: 9999px;
-  box-shadow: 4px 4px 0 var(--color-ink);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-
-  &:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-ink); }
-  &:active { transform: translate(2px, 2px);   box-shadow: 0 0 0 var(--color-ink); }
 }
 
-@utility btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
+.btn-secondary {
   background-color: var(--color-cream);
   color: var(--color-ink);
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 16px;
-  border: 2px solid var(--color-ink);
-  border-radius: 9999px;
-  box-shadow: 4px 4px 0 var(--color-ink);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-
-  &:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-ink); }
-  &:active { transform: translate(2px, 2px);   box-shadow: 0 0 0 var(--color-ink); }
 }
 
-@utility btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 24px;
-  background: transparent;
+.btn-green {
+  background-color: var(--color-green);
+  color: var(--color-cream);
+}
+
+.btn-saffron {
+  background-color: var(--color-saffron);
   color: var(--color-ink);
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 15px;
-  border: 2px solid var(--color-ink);
-  border-radius: 9999px;
-  box-shadow: 4px 4px 0 var(--color-ink);
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-
-  &:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-ink); }
-  &:active { transform: translate(2px, 2px);   box-shadow: 0 0 0 var(--color-ink); }
 }
 
-/* ── Cards ─────────────────────────────────────────────────── */
-@utility trym-card {
-  background-color: #fff;
+.btn-sm {
+  padding: 10px 20px;
+  font-size: 14px;
+  border-width: 1.5px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+.btn-sm:hover {
+  box-shadow: 5px 5px 0 var(--color-ink);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background-color: var(--color-surface);
   border: 2px solid var(--color-ink);
   border-radius: 24px;
+  padding: 24px;
   box-shadow: 6px 6px 0 var(--color-ink);
-  padding: 28px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
 }
 
-/* Used by dashboard / onboarding */
-@utility card {
-  background: #ffffff;
+.card-cream {
+  background-color: var(--color-cream);
   border: 2px solid var(--color-ink);
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+.card-tangerine {
+  background-color: var(--color-tangerine);
+  color: var(--color-cream);
+  border: 2px solid var(--color-ink);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+.card-saffron {
+  background-color: var(--color-saffron);
+  color: var(--color-ink);
+  border: 2px solid var(--color-ink);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+.card-green {
+  background-color: var(--color-green);
+  color: var(--color-cream);
+  border: 2px solid var(--color-ink);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+.card-sm {
+  border-radius: 18px;
+  padding: 16px;
   box-shadow: 4px 4px 0 var(--color-ink);
 }
 
-/* ── Feedback cards ─────────────────────────────────────────── */
+/* Legacy card utilities (used by auth / old dashboard pages) */
 @utility coach-card {
   background: #D8EBE3;
   border: 1.5px solid var(--color-green);
@@ -168,34 +258,107 @@ body::before {
   color: var(--color-ink);
 }
 
-/* ── Stickers ───────────────────────────────────────────────── */
-@utility trym-sticker {
+/* ============================================================
+   ROTATIONS
+   ============================================================ */
+.rotate-left   { transform: rotate(-1deg); }
+.rotate-right  { transform: rotate(1deg);  }
+.rotate-left-2 { transform: rotate(-2deg); }
+.rotate-right-2 { transform: rotate(2deg); }
+
+/* ============================================================
+   STICKERS
+   ============================================================ */
+.sticker {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 14px;
+  gap: 6px;
+  background: var(--color-saffron);
   border: 2px solid var(--color-ink);
-  border-radius: 9999px;
-  box-shadow: 3px 3px 0 var(--color-ink);
-  font-family: var(--font-sans);
+  border-radius: 999px;
+  padding: 6px 16px;
   font-weight: 700;
-  font-size: 13px;
-  line-height: 1.4;
-  white-space: nowrap;
+  font-size: 12px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+  transform: rotate(-3deg);
 }
 
-/* ── Check bubble ───────────────────────────────────────────── */
-@utility check-bubble {
-  width: 22px;
-  height: 22px;
-  border-radius: 9999px;
-  background-color: var(--color-green);
+.sticker-tangerine {
+  background: var(--color-tangerine);
+  color: var(--color-cream);
+}
+
+/* ============================================================
+   PILLS
+   ============================================================ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1.5px solid var(--color-ink);
-  display: flex;
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-weight: 700;
+  font-size: 12px;
+  background: var(--color-peach);
+}
+
+.pill-success  { background: var(--color-pill-success); }
+.pill-warn     { background: var(--color-pill-warn); color: var(--color-pill-warn-ink); }
+.pill-tangerine { background: var(--color-tangerine); color: var(--color-cream); }
+.pill-saffron  { background: var(--color-saffron); }
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+.input {
+  width: 100%;
+  font-weight: 500;
+  padding: 14px 18px;
+  background: var(--color-cream);
+  border: 2px solid var(--color-ink);
+  border-radius: 16px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+  font-size: 16px;
+  color: var(--color-ink);
+  transition: all 0.12s ease;
+}
+
+.input::placeholder {
+  color: var(--color-ink-mute);
+  font-weight: 400;
+}
+
+.input:focus {
+  outline: none;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--color-ink);
+}
+
+/* ============================================================
+   CHECK BUBBLE
+   ============================================================ */
+.check-bubble {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-green);
+  border: 2px solid var(--color-ink);
+  color: var(--color-cream);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
   flex-shrink: 0;
-  color: var(--color-cream);
-  font-size: 11px;
-  font-weight: 700;
 }
+
+/* ============================================================
+   SCROLLBAR (meal carousel)
+   ============================================================ */
+.scrollbar-dark {
+  scrollbar-width: thin;
+  scrollbar-color: #1A1A1A #FFE8DA;
+}
+.scrollbar-dark::-webkit-scrollbar { height: 10px; }
+.scrollbar-dark::-webkit-scrollbar-track { background: #FFE8DA; border-radius: 10px; }
+.scrollbar-dark::-webkit-scrollbar-thumb { background: #1A1A1A; border-radius: 10px; }
