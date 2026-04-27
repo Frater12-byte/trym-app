@@ -364,11 +364,12 @@ function Step2BodyMetrics({
               update("unit_weight", "kg");
               update("unit_height", "cm");
             }}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+            className={`px-3 py-1.5 rounded-md text-sm font-semibold transition ${
               data.unit_weight === "kg"
-                ? "bg-coral text-coral-ink"
+                ? "border-2 border-ink shadow-[2px_2px_0_#1A1A1A]"
                 : "text-ink-soft"
             }`}
+            style={data.unit_weight === "kg" ? { background: "#FFD23F" } : {}}
           >
             kg / cm
           </button>
@@ -378,11 +379,12 @@ function Step2BodyMetrics({
               update("unit_weight", "lbs");
               update("unit_height", "in");
             }}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+            className={`px-3 py-1.5 rounded-md text-sm font-semibold transition ${
               data.unit_weight === "lbs"
-                ? "bg-coral text-coral-ink"
+                ? "border-2 border-ink shadow-[2px_2px_0_#1A1A1A]"
                 : "text-ink-soft"
             }`}
+            style={data.unit_weight === "lbs" ? { background: "#FFD23F" } : {}}
           >
             lbs / in
           </button>
@@ -510,11 +512,12 @@ function Step4Budget({
               key={p}
               type="button"
               onClick={() => update("weekly_budget_aed", p)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              className={`px-4 py-2 rounded-lg text-sm font-semibold border-2 transition ${
                 data.weekly_budget_aed === p
-                  ? "bg-coral text-coral-ink"
-                  : "bg-surface text-ink-soft hover:bg-sun-soft"
+                  ? "border-ink shadow-[2px_2px_0_#1A1A1A]"
+                  : "border-ink/20 text-ink-soft hover:border-ink/50"
               }`}
+              style={{ background: data.weekly_budget_aed === p ? "#FFD23F" : "#ffffff" }}
             >
               {p} AED
             </button>
@@ -601,11 +604,12 @@ function Step5TimePrefs({
               key={n}
               type="button"
               onClick={() => update("eating_out_per_week", n)}
-              className={`w-12 h-12 rounded-lg text-sm font-medium transition tabular-nums ${
+              className={`w-12 h-12 rounded-lg text-sm font-bold border-2 transition tabular-nums ${
                 data.eating_out_per_week === n
-                  ? "bg-coral text-coral-ink"
-                  : "bg-surface text-ink-soft hover:bg-sun-soft"
+                  ? "border-ink shadow-[2px_2px_0_#1A1A1A] text-ink"
+                  : "border-ink/20 text-ink-soft hover:border-ink/50"
               }`}
+              style={{ background: data.eating_out_per_week === n ? "#FFD23F" : "#ffffff" }}
             >
               {n}
             </button>
@@ -681,11 +685,12 @@ function Step6DietaryPrefs({
                 key={a}
                 type="button"
                 onClick={() => toggle("allergies", a.toLowerCase())}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition ${
                   selected
-                    ? "bg-coral text-coral-ink"
-                    : "bg-surface text-ink-soft hover:bg-sun-soft"
+                    ? "border-ink shadow-[2px_2px_0_#1A1A1A] text-ink"
+                    : "border-ink/20 text-ink-soft hover:border-ink/50"
                 }`}
+                style={{ background: selected ? "#FFD23F" : "#ffffff" }}
               >
                 {a}
               </button>

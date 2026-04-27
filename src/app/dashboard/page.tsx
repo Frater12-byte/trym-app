@@ -58,15 +58,16 @@ export default async function DashboardPage() {
             trym<span style={{ color: "#FF6B35" }}>.</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Link href="/onboarding" className="text-sm font-semibold text-ink-soft hover:text-ink transition-colors px-3 py-2">
-              Settings
+            <Link href="/dashboard/profile" className="text-sm font-semibold text-ink-soft hover:text-ink transition-colors px-3 py-2">
+              Profile
             </Link>
-            <div
-              className="w-9 h-9 rounded-full border-2 border-ink flex items-center justify-center font-display font-black text-sm shadow-[2px_2px_0_#1A1A1A]"
+            <Link
+              href="/dashboard/profile"
+              className="w-9 h-9 rounded-full border-2 border-ink flex items-center justify-center font-display font-black text-sm shadow-[2px_2px_0_#1A1A1A] transition hover:shadow-[3px_3px_0_#1A1A1A]"
               style={{ background: "#FF6B35", color: "#FFF8EE" }}
             >
               {firstName.charAt(0).toUpperCase()}
-            </div>
+            </Link>
           </div>
         </div>
       </nav>
@@ -155,7 +156,7 @@ export default async function DashboardPage() {
               )}
             </ul>
             <Link
-              href="/onboarding"
+              href="/dashboard/profile"
               className="text-sm font-bold mt-4 inline-flex items-center gap-1"
               style={{ color: "#FF6B35" }}
             >
