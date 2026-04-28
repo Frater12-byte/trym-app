@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Cache for 60s — plan data doesn't change frequently mid-week
+export const revalidate = 60;
 
 export default async function PlanPage() {
   const supabase = await createClient();
@@ -13,13 +13,6 @@ export default async function PlanPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-  if (!profile?.onboarding_completed) redirect("/onboarding");
-
   const today = new Date();
   const dow = today.getDay();
   const weekStart = new Date(today);
@@ -27,18 +20,27 @@ export default async function PlanPage() {
   weekStart.setHours(0, 0, 0, 0);
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
-  const { data: plan } = await supabase
-    .from("plans")
-    .select("*, plan_meals(*, meal:meals(*))")
-    .eq("user_id", user.id)
-    .eq("week_start_date", weekStartStr)
-    .maybeSingle();
+  // PARALLEL queries
+  const [profileResult, planResult] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase
+      .from("plans")
+      .select("*, plan_meals(*, meal:meals(*))")
+      .eq("user_id", user.id)
+      .eq("week_start_date", weekStartStr)
+      .maybeSingle(),
+  ]);
+
+  const profile = profileResult.data;
+  const plan = planResult.data;
+
+  if (!profile?.onboarding_completed) redirect("/onboarding");
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
   if (!plan) {
     return (
-      <main className="min-h-screen bg-cream pb-20">
+      <main className="min-h-screen bg-cream pb-24 md:pb-20">
         <AppHeader firstName={firstName} />
 
         <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
@@ -119,7 +121,7 @@ export default async function PlanPage() {
   }
 
   return (
-    <main className="min-h-screen bg-cream pb-20">
+    <main className="min-h-screen bg-cream pb-24 md:pb-20">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { WeightLogForm } from "@/components/WeightLogForm";
 
+// Weight log page needs fresh data after each log entry
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -14,31 +15,29 @@ export default async function WeightPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  // PARALLEL queries
+  const [profileResult, logsResult] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase
+      .from("weight_logs")
+      .select("id, weight_kg, mood, notes, logged_at")
+      .eq("user_id", user.id)
+      .order("logged_at", { ascending: false })
+      .limit(60),
+  ]);
 
-  if (!profile?.onboarding_completed) {
-    redirect("/onboarding");
-  }
+  const profile = profileResult.data;
+  const logs = logsResult.data;
 
-  const { data: logs } = await supabase
-    .from("weight_logs")
-    .select("id, weight_kg, mood, notes, logged_at")
-    .eq("user_id", user.id)
-    .order("logged_at", { ascending: false })
-    .limit(60);
+  if (!profile?.onboarding_completed) redirect("/onboarding");
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
   const unit = profile.unit_weight === "lbs" ? "lbs" : "kg";
 
-  const displayWeight = (kg: number) => {
-    return profile.unit_weight === "lbs"
+  const displayWeight = (kg: number) =>
+    profile.unit_weight === "lbs"
       ? Math.round(kg * 2.20462).toString()
       : kg.toFixed(1);
-  };
 
   const recentLogs = (logs || []).slice(0, 7);
   const oldestRecent = recentLogs[recentLogs.length - 1];
@@ -58,7 +57,7 @@ export default async function WeightPage() {
   const loggedToday = logs?.some((l) => l.logged_at === today) ?? false;
 
   return (
-    <main className="min-h-screen bg-cream pb-20">
+    <main className="min-h-screen bg-cream pb-24 md:pb-20">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
@@ -105,9 +104,7 @@ export default async function WeightPage() {
                 : `${weekDelta >= 0 ? "+" : ""}${displayWeight(
                     Math.abs(weekDelta) * (weekDelta < 0 ? -1 : 1)
                   )}`}
-              {weekDelta !== null && (
-                <span className="unit">{unit}</span>
-              )}
+              {weekDelta !== null && <span className="unit">{unit}</span>}
             </div>
             <p className="text-sm text-ink-soft mt-3">
               {weekDelta === null

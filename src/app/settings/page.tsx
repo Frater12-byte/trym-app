@@ -14,31 +14,34 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  // PARALLEL queries
+  const [profileResult, receiptCountResult, recentReceiptsResult] =
+    await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).single(),
+      supabase
+        .from("receipts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id),
+      supabase
+        .from("receipts")
+        .select(
+          "id, supermarket, total_aed, receipt_date, status, matched_items_count"
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+
+  const profile = profileResult.data;
+  const receiptCount = receiptCountResult.count;
+  const recentReceipts = recentReceiptsResult.data;
+
   if (!profile?.onboarding_completed) redirect("/onboarding");
-
-  const { count: receiptCount } = await supabase
-    .from("receipts")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
-
-  const { data: recentReceipts } = await supabase
-    .from("receipts")
-    .select(
-      "id, supermarket, total_aed, receipt_date, status, matched_items_count"
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(5);
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
   return (
-    <main className="min-h-screen bg-cream pb-20">
+    <main className="min-h-screen bg-cream pb-24 md:pb-20">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
@@ -47,7 +50,6 @@ export default async function SettingsPage() {
           <h1 className="font-display text-4xl lg:text-5xl">Your account.</h1>
         </header>
 
-        {/* Quick links */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 mb-6">
           <Link
             href="/settings/profile"
@@ -80,7 +82,6 @@ export default async function SettingsPage() {
           </div>
         </section>
 
-        {/* Receipts (smaller now, in its own card) */}
         <section className="mb-6">
           <div className="flex items-baseline justify-between mb-3">
             <h2 className="font-display text-2xl">Receipts</h2>
@@ -137,7 +138,6 @@ export default async function SettingsPage() {
           )}
         </section>
 
-        {/* Sign out */}
         <section className="card-cream text-center">
           <p className="text-sm text-ink-soft mb-3">Done for now?</p>
           <LogoutButton />

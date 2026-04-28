@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { RecipesBrowser } from "@/components/RecipesBrowser";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Recipes catalog rarely changes — cache aggressively
+export const revalidate = 300; // 5 min
 
 export default async function RecipesPage() {
   const supabase = await createClient();
@@ -13,25 +13,30 @@ export default async function RecipesPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, onboarding_completed, dietary_prefs, allergies")
-    .eq("id", user.id)
-    .single();
-  if (!profile?.onboarding_completed) redirect("/onboarding");
+  // PARALLEL: profile + meals run together
+  const [profileResult, mealsResult] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("full_name, onboarding_completed, dietary_prefs, allergies")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("meals")
+      .select(
+        "id, name, description, calories, protein_g, prep_minutes, cook_minutes, servings, meal_type, tags, difficulty, emoji, estimated_cost_aed"
+      )
+      .order("name"),
+  ]);
 
-  // Fetch ALL meals — we'll filter client-side for snappy UX
-  const { data: meals } = await supabase
-    .from("meals")
-    .select(
-      "id, name, description, calories, protein_g, prep_minutes, cook_minutes, servings, meal_type, tags, difficulty, emoji, estimated_cost_aed"
-    )
-    .order("name");
+  const profile = profileResult.data;
+  const meals = mealsResult.data;
+
+  if (!profile?.onboarding_completed) redirect("/onboarding");
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
   return (
-    <main className="min-h-screen bg-cream pb-20">
+    <main className="min-h-screen bg-cream pb-24 md:pb-20">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
@@ -41,8 +46,8 @@ export default async function RecipesPage() {
             What you can cook.
           </h1>
           <p className="text-ink-soft mt-2 text-sm lg:text-base">
-            {meals?.length || 0} meals in the catalog. Filter to find your next
-            favourite.
+            {meals?.length || 0} meals in the catalog. Filter to find your
+            next favourite.
           </p>
         </header>
 

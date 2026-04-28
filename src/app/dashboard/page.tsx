@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
 
+// Keep dynamic on dashboard — auth-sensitive, back-button defense matters.
+// But we parallelise queries below to make it fast despite this.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -13,29 +15,26 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  // PARALLEL: profile + last weight + recipe count run together
+  const [profileResult, weightResult, recipeCountResult] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase
+      .from("weight_logs")
+      .select("weight_kg, logged_at")
+      .eq("user_id", user.id)
+      .order("logged_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("meals").select("*", { count: "exact", head: true }),
+  ]);
+
+  const profile = profileResult.data;
+  const lastWeight = weightResult.data;
+  const recipeCount = recipeCountResult.count;
 
   if (!profile?.onboarding_completed) {
     redirect("/onboarding");
   }
-
-  // Latest weight log
-  const { data: lastWeight } = await supabase
-    .from("weight_logs")
-    .select("weight_kg, logged_at")
-    .eq("user_id", user.id)
-    .order("logged_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  // Total recipes available
-  const { count: recipeCount } = await supabase
-    .from("meals")
-    .select("*", { count: "exact", head: true });
 
   const startWeight = profile.current_weight_kg;
   const goalWeight = profile.goal_weight_kg;
@@ -76,20 +75,17 @@ export default async function DashboardPage() {
   );
 
   return (
-    <main className="min-h-screen bg-cream pb-20">
+    <main className="min-h-screen bg-cream pb-24 md:pb-20">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
-        {/* GREETING */}
         <header className="mb-7 lg:mb-10">
           <p className="eyebrow">{weekday}</p>
           <h1 className="font-display text-4xl lg:text-6xl">
-            Hey {firstName}{" "}
-            <span className="inline-block">👋</span>
+            Hey {firstName} <span className="inline-block">👋</span>
           </h1>
         </header>
 
-        {/* PLAN STATUS */}
         <section className="mb-6 lg:mb-8 relative">
           <div
             className="absolute z-10"
@@ -115,7 +111,6 @@ export default async function DashboardPage() {
           </Link>
         </section>
 
-        {/* STATS — each card deep-links to its settings section */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-6 lg:mb-8">
           <Link
             href="/settings/profile#body"
@@ -131,9 +126,7 @@ export default async function DashboardPage() {
             <p className="text-sm text-ink-soft mt-3">
               Started at {displayWeight(startWeight)} {displayUnit}
             </p>
-            <p className="text-xs text-tangerine font-bold mt-2">
-              Edit →
-            </p>
+            <p className="text-xs text-tangerine font-bold mt-2">Edit →</p>
           </Link>
 
           <Link
@@ -167,7 +160,6 @@ export default async function DashboardPage() {
           </Link>
         </section>
 
-        {/* PROGRESS BAR */}
         {totalToLose && (
           <section className="card mb-6 lg:mb-8">
             <div className="flex justify-between items-baseline mb-3 flex-wrap gap-2">
@@ -196,7 +188,6 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* ACTIONS ROW */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-6 lg:mb-8">
           <Link
             href="/weight"
@@ -258,7 +249,6 @@ export default async function DashboardPage() {
           </Link>
         </section>
 
-        {/* PROFILE SUMMARY (compact) */}
         <section className="card mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-display text-2xl">Your setup</h3>
@@ -307,7 +297,6 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        {/* FOOTER */}
         <footer className="text-center pt-4 pb-8">
           <LogoutButton />
         </footer>

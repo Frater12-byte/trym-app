@@ -3,8 +3,8 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Recipe content basically never changes after seeding — long cache
+export const revalidate = 3600; // 1 hour
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -25,21 +25,26 @@ export default async function RecipeDetailPage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, onboarding_completed")
-    .eq("id", user.id)
-    .single();
+  // PARALLEL: profile + meal
+  const [profileResult, mealResult] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("full_name, onboarding_completed")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("meals")
+      .select(
+        `*, ingredients:meal_ingredients(quantity, unit, notes, ingredient:ingredients(id, name, category))`
+      )
+      .eq("id", id)
+      .maybeSingle(),
+  ]);
+
+  const profile = profileResult.data;
+  const meal = mealResult.data;
+
   if (!profile?.onboarding_completed) redirect("/onboarding");
-
-  const { data: meal } = await supabase
-    .from("meals")
-    .select(
-      `*, ingredients:meal_ingredients(quantity, unit, notes, ingredient:ingredients(id, name, category))`
-    )
-    .eq("id", id)
-    .maybeSingle();
-
   if (!meal) notFound();
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
@@ -48,10 +53,11 @@ export default async function RecipeDetailPage({ params }: Props) {
     ? meal.instructions
     : [];
 
-  // Group ingredients by category
   const groupedIngs: Record<string, typeof meal.ingredients> = {};
   for (const ing of meal.ingredients || []) {
-    const ingredient = Array.isArray(ing.ingredient) ? ing.ingredient[0] : ing.ingredient;
+    const ingredient = Array.isArray(ing.ingredient)
+      ? ing.ingredient[0]
+      : ing.ingredient;
     const cat = ingredient?.category || "other";
     if (!groupedIngs[cat]) groupedIngs[cat] = [];
     groupedIngs[cat].push(ing);
@@ -70,11 +76,10 @@ export default async function RecipeDetailPage({ params }: Props) {
   ];
 
   return (
-    <main className="min-h-screen bg-cream pb-20">
+    <main className="min-h-screen bg-cream pb-24 md:pb-20">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-6 lg:pt-8">
-        {/* Back link */}
         <Link
           href="/recipes"
           className="inline-block text-sm text-ink-soft hover:text-ink mb-6"
@@ -82,7 +87,6 @@ export default async function RecipeDetailPage({ params }: Props) {
           ← All recipes
         </Link>
 
-        {/* Hero */}
         <header className="mb-8 lg:mb-10">
           <div className="flex items-start gap-5 mb-4">
             <div className="text-6xl lg:text-7xl flex-none">{meal.emoji}</div>
@@ -102,7 +106,6 @@ export default async function RecipeDetailPage({ params }: Props) {
           )}
         </header>
 
-        {/* Stats grid */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
           <StatCard
             label="Total time"
@@ -136,7 +139,6 @@ export default async function RecipeDetailPage({ params }: Props) {
           />
         </section>
 
-        {/* Tags */}
         {meal.tags && meal.tags.length > 0 && (
           <section className="mb-6 lg:mb-8 flex flex-wrap gap-2">
             {meal.tags.map((tag: string) => (
@@ -147,7 +149,6 @@ export default async function RecipeDetailPage({ params }: Props) {
           </section>
         )}
 
-        {/* Macros */}
         <section className="card mb-6 lg:mb-8">
           <h2 className="font-display text-2xl mb-4">Nutrition</h2>
           <div className="grid grid-cols-4 gap-4">
@@ -163,9 +164,7 @@ export default async function RecipeDetailPage({ params }: Props) {
           </p>
         </section>
 
-        {/* Two-column: ingredients + instructions */}
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-5 lg:gap-6">
-          {/* INGREDIENTS */}
           <section className="card-cream lg:sticky lg:top-24 lg:self-start">
             <h2 className="font-display text-2xl mb-4">Ingredients</h2>
             {categoryOrder
@@ -215,7 +214,6 @@ export default async function RecipeDetailPage({ params }: Props) {
               ))}
           </section>
 
-          {/* INSTRUCTIONS */}
           <section className="card">
             <h2 className="font-display text-2xl mb-4">Instructions</h2>
             <ol className="space-y-4">
@@ -242,7 +240,6 @@ export default async function RecipeDetailPage({ params }: Props) {
           </section>
         </div>
 
-        {/* Footer */}
         <footer className="mt-10 text-center">
           <Link href="/recipes" className="btn btn-secondary">
             ← Back to recipes
