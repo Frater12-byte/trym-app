@@ -101,8 +101,6 @@ export async function POST(request: NextRequest) {
         actual_cost_aed: null,
         where_eaten: null,
         user_notes: null,
-        planned_calories: newMeal.calories,
-        planned_cost_aed: newMeal.estimated_cost_aed,
       })
       .eq("id", plan_meal_id);
 

@@ -38,11 +38,10 @@ export default async function PlanPage() {
       .select(
         `id, week_start_date, swap_credits_remaining, swap_credits_max,
          plan_meals(
-           id, day_index, meal_slot, status,
-           planned_calories, actual_calories,
-           planned_cost_aed, actual_cost_aed,
+           id, day_of_week, meal_slot, status,
+           actual_calories, actual_cost_aed,
            where_eaten, user_notes, logged_at,
-           meal:meals(id, name, description, calories, prep_minutes, cook_minutes, emoji, meal_type, tags)
+           meal:meals(id, name, description, calories, prep_minutes, cook_minutes, emoji, meal_type, tags, estimated_cost_aed)
          )`
       )
       .eq("user_id", user.id)

@@ -26,16 +26,15 @@ interface Meal {
   emoji: string;
   meal_type: string[];
   tags: string[];
+  estimated_cost_aed: number | null;
 }
 
 interface PlanMeal {
   id: string;
-  day_index: number;
+  day_of_week: number;
   meal_slot: string;
   status: "planned" | "cooked" | "ate_out" | "skipped" | "swapped";
-  planned_calories: number | null;
   actual_calories: number | null;
-  planned_cost_aed: number | null;
   actual_cost_aed: number | null;
   where_eaten: string | null;
   user_notes: string | null;
@@ -63,14 +62,14 @@ export function PlanDays({ plan, today }: Props) {
   const router = useRouter();
   const [editingMeal, setEditingMeal] = useState<PlanMeal | null>(null);
 
-  // Group plan meals by day_index
+  // Group plan meals by day_of_week
   const dayMap: Record<number, PlanMeal[]> = {};
   for (const pm of plan.plan_meals) {
-    if (!dayMap[pm.day_index]) dayMap[pm.day_index] = [];
-    dayMap[pm.day_index].push(pm);
+    if (!dayMap[pm.day_of_week]) dayMap[pm.day_of_week] = [];
+    dayMap[pm.day_of_week].push(pm);
   }
 
-  // Calculate day_index of today relative to week_start
+  // Calculate day_of_week index of today relative to week_start
   const weekStart = new Date(plan.week_start_date);
   const todayDate = new Date(today);
   const todayDayIdx = Math.floor(
@@ -150,15 +149,15 @@ function DaySection({
     (a, b) => SLOTS.indexOf(a.meal_slot) - SLOTS.indexOf(b.meal_slot)
   );
 
-  // Day total — sum logged calories where logged, plan calories otherwise
+  // Day total — sum logged calories where logged, meal default otherwise
   const dayCalories = sortedMeals.reduce((sum, m) => {
     if (m.status === "skipped") return sum;
-    return sum + (m.actual_calories ?? m.planned_calories ?? m.meal?.calories ?? 0);
+    return sum + (m.actual_calories ?? m.meal?.calories ?? 0);
   }, 0);
 
   const dayCost = sortedMeals.reduce((sum, m) => {
     if (m.status === "skipped") return sum;
-    return sum + (m.actual_cost_aed ?? m.planned_cost_aed ?? 0);
+    return sum + (m.actual_cost_aed ?? m.meal?.estimated_cost_aed ?? 0);
   }, 0);
 
   return (
@@ -257,14 +256,14 @@ function MealCard({
         />
         <Stat
           icon={<FlameIcon size={14} />}
-          value={planMeal.actual_calories ?? planMeal.planned_calories ?? meal.calories}
+          value={planMeal.actual_calories ?? meal.calories}
           unit="cal"
         />
         <Stat
           icon={<CoinIcon size={14} />}
           value={
             planMeal.actual_cost_aed?.toFixed(1) ??
-            planMeal.planned_cost_aed?.toFixed(1) ??
+            meal.estimated_cost_aed?.toFixed(1) ??
             "—"
           }
           unit="AED"
@@ -373,12 +372,11 @@ function MealLogModal({
   );
   const [actualCost, setActualCost] = useState(
     planMeal.actual_cost_aed?.toString() ??
-      planMeal.planned_cost_aed?.toString() ??
+      planMeal.meal?.estimated_cost_aed?.toString() ??
       ""
   );
   const [actualCalories, setActualCalories] = useState(
     planMeal.actual_calories?.toString() ??
-      planMeal.planned_calories?.toString() ??
       planMeal.meal?.calories.toString() ??
       ""
   );
@@ -573,7 +571,7 @@ function MealLogModal({
                     value={actualCost}
                     onChange={(e) => setActualCost(e.target.value)}
                     placeholder={
-                      planMeal.planned_cost_aed?.toFixed(1) ?? "0.0"
+                      planMeal.meal?.estimated_cost_aed?.toFixed(1) ?? "0.0"
                     }
                     step="0.5"
                     className="input tabular-nums"
