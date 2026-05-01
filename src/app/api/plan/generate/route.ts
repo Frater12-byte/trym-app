@@ -116,7 +116,6 @@ export async function POST() {
     meal_slot: string;
     planned_calories: number | null;
     planned_cost_aed: number | null;
-    status: string;
   };
 
   const rows: PlanMealRow[] = [];
@@ -130,15 +129,18 @@ export async function POST() {
         meal_slot: slot,
         planned_calories: meal.calories ?? null,
         planned_cost_aed: meal.estimated_cost_aed ?? null,
-        status: "planned",
       });
     }
   }
 
   const { error: mealsErr } = await supabase.from("plan_meals").insert(rows);
   if (mealsErr) {
+    console.error("plan_meals insert error:", mealsErr);
     await supabase.from("plans").delete().eq("id", plan.id);
-    return NextResponse.json({ error: "Failed to create meal slots" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create meal slots", detail: mealsErr.message, code: mealsErr.code },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ plan_id: plan.id });
