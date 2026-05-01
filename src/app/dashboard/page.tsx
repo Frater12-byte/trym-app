@@ -2,9 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
+import {
+  CalendarIcon,
+  CartIcon,
+  ActivityIcon,
+  ScaleIcon,
+  ArrowRightIcon,
+  TrendDownIcon,
+  TrendUpIcon,
+} from "@/components/icons";
 
-// Keep dynamic on dashboard — auth-sensitive, back-button defense matters.
-// But we parallelise queries below to make it fast despite this.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -15,8 +22,13 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // PARALLEL: profile + last weight + recipe count run together
-  const [profileResult, weightResult, recipeCountResult] = await Promise.all([
+  // PARALLEL fetch
+  const [
+    profileResult,
+    weightResult,
+    activityResult,
+    weekPlanResult,
+  ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase
       .from("weight_logs")
@@ -25,12 +37,32 @@ export default async function DashboardPage() {
       .order("logged_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
-    supabase.from("meals").select("*", { count: "exact", head: true }),
+    supabase
+      .from("activity_logs")
+      .select("steps_count, exercise_minutes, logged_at")
+      .eq("user_id", user.id)
+      .order("logged_at", { ascending: false })
+      .limit(7),
+    (async () => {
+      const today = new Date();
+      const dow = today.getDay();
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - dow);
+      weekStart.setHours(0, 0, 0, 0);
+      const weekStartStr = weekStart.toISOString().slice(0, 10);
+      return supabase
+        .from("plans")
+        .select("id, swap_credits_remaining, swap_credits_max")
+        .eq("user_id", user.id)
+        .eq("week_start_date", weekStartStr)
+        .maybeSingle();
+    })(),
   ]);
 
   const profile = profileResult.data;
   const lastWeight = weightResult.data;
-  const recipeCount = recipeCountResult.count;
+  const recentActivity = activityResult.data;
+  const weekPlan = weekPlanResult.data;
 
   if (!profile?.onboarding_completed) {
     redirect("/onboarding");
@@ -69,6 +101,21 @@ export default async function DashboardPage() {
       )
     : null;
 
+  // Average steps over last 7 days
+  const avgSteps =
+    recentActivity && recentActivity.length > 0
+      ? Math.round(
+          recentActivity.reduce(
+            (s, a) => s + (a.steps_count || 0),
+            0
+          ) / recentActivity.length
+        )
+      : null;
+
+  const todayActivity = recentActivity?.find(
+    (a) => a.logged_at === new Date().toISOString().slice(0, 10)
+  );
+
   const deadlineLabel = new Date(profile.goal_deadline).toLocaleDateString(
     "en-US",
     { month: "long", day: "numeric" }
@@ -79,98 +126,34 @@ export default async function DashboardPage() {
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
+        {/* GREETING */}
         <header className="mb-7 lg:mb-10">
           <p className="eyebrow">{weekday}</p>
           <h1 className="font-display text-4xl lg:text-6xl">
-            Hey {firstName} <span className="inline-block">👋</span>
+            Hey {firstName}.
           </h1>
         </header>
 
-        <section className="mb-6 lg:mb-8 relative">
-          <div
-            className="absolute z-10"
-            style={{ top: "-14px", right: "20px" }}
-          >
-            <div className="sticker">★ Coming this week</div>
-          </div>
-
-          <Link href="/plan" className="block">
-            <div className="card-tangerine rotate-left hover:-translate-y-1 transition">
-              <p className="text-xs uppercase tracking-widest font-bold opacity-80 mb-2">
-                This week&apos;s plan
-              </p>
-              <h2 className="font-display text-3xl lg:text-4xl mb-3 leading-[1.1]">
-                We&apos;re finishing your meal database.
-              </h2>
-              <p className="text-sm lg:text-base opacity-90 leading-relaxed mb-3 max-w-2xl">
-                Your first weekly plan will land here once we have the meals
-                ready. You&apos;ll get an email the moment it does.
-              </p>
-              <p className="font-bold text-sm">See what&apos;s coming →</p>
-            </div>
-          </Link>
-        </section>
-
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-6 lg:mb-8">
-          <Link
-            href="/settings/profile#body"
-            className="card rotate-left-2 hover:-translate-y-1 transition"
-          >
-            <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-2">
-              Now
-            </p>
-            <div className="font-display text-5xl lg:text-6xl tabular-nums leading-none">
-              {displayWeight(currentWeight)}
-              <span className="unit">{displayUnit}</span>
-            </div>
-            <p className="text-sm text-ink-soft mt-3">
-              Started at {displayWeight(startWeight)} {displayUnit}
-            </p>
-            <p className="text-xs text-tangerine font-bold mt-2">Edit →</p>
-          </Link>
-
-          <Link
-            href="/settings/profile#goal"
-            className="card-cream rotate-right hover:-translate-y-1 transition"
-          >
-            <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-2">
-              Goal
-            </p>
-            <div className="font-display text-5xl lg:text-6xl tabular-nums leading-none">
-              {displayWeight(goalWeight)}
-              <span className="unit">{displayUnit}</span>
-            </div>
-            <p className="text-sm text-ink-soft mt-3">by {deadlineLabel}</p>
-            <p className="text-xs text-tangerine font-bold mt-2">Edit →</p>
-          </Link>
-
-          <Link
-            href="/settings/profile#budget"
-            className="card-saffron rotate-left hover:-translate-y-1 transition"
-          >
-            <p className="text-xs uppercase tracking-widest font-bold mb-2">
-              Budget
-            </p>
-            <div className="font-display text-5xl lg:text-6xl tabular-nums leading-none">
-              {profile.weekly_budget_aed}
-              <span className="unit">AED</span>
-            </div>
-            <p className="text-sm font-semibold mt-3">per week</p>
-            <p className="text-xs font-bold mt-2">Edit →</p>
-          </Link>
-        </section>
-
+        {/* PROGRESS BAR — main goal tracker */}
         {totalToLose && (
           <section className="card mb-6 lg:mb-8">
             <div className="flex justify-between items-baseline mb-3 flex-wrap gap-2">
-              <h3 className="font-display text-2xl">
-                {losingWeight ? "On the way down." : "On the way up."}
-              </h3>
+              <div className="flex items-center gap-2">
+                {losingWeight ? (
+                  <TrendDownIcon size={22} className="text-green" />
+                ) : (
+                  <TrendUpIcon size={22} className="text-tangerine" />
+                )}
+                <h2 className="font-display text-2xl">
+                  {losingWeight ? "On the way down." : "On the way up."}
+                </h2>
+              </div>
               <p className="text-sm text-ink-soft tabular-nums">
                 <span className="font-bold text-ink">
                   {Math.abs(lossSoFar).toFixed(1)} {displayUnit}
                 </span>{" "}
-                of {totalToLose.toFixed(1)} {displayUnit}
+                of {totalToLose.toFixed(1)} {displayUnit} · by{" "}
+                {deadlineLabel}
               </p>
             </div>
             <div
@@ -188,13 +171,136 @@ export default async function DashboardPage() {
           </section>
         )}
 
+        {/* MAIN STATS — current weight + budget at top */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-6 lg:mb-8">
           <Link
-            href="/weight"
-            className="card rotate-right hover:-translate-y-1 transition"
+            href="/settings/profile#body"
+            className="card rotate-left-2 hover:-translate-y-1 transition"
+          >
+            <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-2">
+              Current
+            </p>
+            <div className="font-display text-5xl lg:text-6xl tabular-nums leading-none">
+              {displayWeight(currentWeight)}
+              <span className="unit">{displayUnit}</span>
+            </div>
+            <p className="text-sm text-ink-soft mt-3">
+              Goal {displayWeight(goalWeight)} {displayUnit}
+            </p>
+          </Link>
+
+          <Link
+            href="/settings/profile#budget"
+            className="card-saffron rotate-right hover:-translate-y-1 transition"
+          >
+            <p className="text-xs uppercase tracking-widest font-bold mb-2">
+              Budget
+            </p>
+            <div className="font-display text-5xl lg:text-6xl tabular-nums leading-none">
+              {profile.weekly_budget_aed}
+              <span className="unit">AED</span>
+            </div>
+            <p className="text-sm font-semibold mt-3">per week</p>
+          </Link>
+
+          <Link
+            href="/activity"
+            className="card-cream rotate-left hover:-translate-y-1 transition"
+          >
+            <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-2">
+              Activity
+            </p>
+            <div className="font-display text-5xl lg:text-6xl tabular-nums leading-none">
+              {avgSteps !== null
+                ? `${(avgSteps / 1000).toFixed(1)}k`
+                : "—"}
+            </div>
+            <p className="text-sm text-ink-soft mt-3">
+              {avgSteps !== null ? "avg steps/day" : "no logs yet"}
+            </p>
+          </Link>
+        </section>
+
+        {/* PRIMARY NAV — 4 big cards leading to each tab */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 mb-6 lg:mb-8">
+          <Link
+            href="/plan"
+            className="card-tangerine rotate-left hover:-translate-y-1 transition"
           >
             <div className="flex items-start justify-between mb-3">
-              <div className="text-4xl">⚖️</div>
+              <CalendarIcon size={32} className="text-cream" />
+              {weekPlan && (
+                <div
+                  className="pill"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                    color: "var(--color-cream)",
+                    borderColor: "rgba(255,255,255,0.4)",
+                  }}
+                >
+                  {weekPlan.swap_credits_remaining}/{weekPlan.swap_credits_max} swaps left
+                </div>
+              )}
+            </div>
+            <h3 className="font-display text-2xl lg:text-3xl mb-2">
+              This week&apos;s plan
+            </h3>
+            <p className="text-sm opacity-90 leading-relaxed">
+              See what to cook, swap meals you don&apos;t fancy, log what you
+              actually ate.
+            </p>
+            <p className="font-bold mt-4 text-sm flex items-center gap-1">
+              Open plan <ArrowRightIcon size={16} />
+            </p>
+          </Link>
+
+          <Link
+            href="/groceries"
+            className="card hover:-translate-y-1 transition"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <CartIcon size={32} className="text-ink" />
+              <div className="pill">From your plan</div>
+            </div>
+            <h3 className="font-display text-2xl lg:text-3xl mb-2">
+              Groceries
+            </h3>
+            <p className="text-sm text-ink-soft leading-relaxed">
+              Your shopping list, grouped by aisle. Check off as you go. Snap a
+              receipt when done.
+            </p>
+            <p className="text-tangerine font-bold mt-4 text-sm flex items-center gap-1">
+              Open list <ArrowRightIcon size={16} />
+            </p>
+          </Link>
+
+          <Link
+            href="/activity"
+            className="card-cream rotate-right hover:-translate-y-1 transition"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <ActivityIcon size={32} className="text-ink" />
+              <div className="pill">
+                {todayActivity ? "Logged today" : "Not logged"}
+              </div>
+            </div>
+            <h3 className="font-display text-2xl lg:text-3xl mb-2">
+              Activity
+            </h3>
+            <p className="text-sm text-ink-soft leading-relaxed">
+              Steps, exercise, energy. Quick log keeps the plan honest.
+            </p>
+            <p className="text-tangerine font-bold mt-4 text-sm flex items-center gap-1">
+              Log today <ArrowRightIcon size={16} />
+            </p>
+          </Link>
+
+          <Link
+            href="/weight"
+            className="card rotate-left-2 hover:-translate-y-1 transition"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <ScaleIcon size={32} className="text-ink" />
               <div className="pill">
                 {daysSinceWeightLog === null
                   ? "First log"
@@ -203,60 +309,27 @@ export default async function DashboardPage() {
                   : `${daysSinceWeightLog}d ago`}
               </div>
             </div>
-            <h3 className="font-display text-2xl mb-1">Log weight</h3>
-            <p className="text-sm text-ink-soft">
-              {daysSinceWeightLog !== null && daysSinceWeightLog >= 3
-                ? "Time for a check-in. Five seconds."
-                : "Quick check-in keeps the plan honest."}
+            <h3 className="font-display text-2xl lg:text-3xl mb-2">
+              Weight check-in
+            </h3>
+            <p className="text-sm text-ink-soft leading-relaxed">
+              Quick weigh-in to keep your goal moving. Five seconds.
             </p>
-            <p className="text-tangerine font-bold mt-4 text-sm">Log now →</p>
-          </Link>
-
-          <Link
-            href="/recipes"
-            className="card-cream rotate-left hover:-translate-y-1 transition"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-4xl">📖</div>
-              <div className="pill">
-                {recipeCount && recipeCount > 0
-                  ? `${recipeCount} recipes`
-                  : "Loading..."}
-              </div>
-            </div>
-            <h3 className="font-display text-2xl mb-1">Browse recipes</h3>
-            <p className="text-sm text-ink-soft">
-              See everything in the catalog. Filter by halal, veg, prep time,
-              or tags.
+            <p className="text-tangerine font-bold mt-4 text-sm flex items-center gap-1">
+              Log now <ArrowRightIcon size={16} />
             </p>
-            <p className="text-tangerine font-bold mt-4 text-sm">Open →</p>
-          </Link>
-
-          <Link
-            href="/shopping"
-            className="card rotate-right hover:-translate-y-1 transition"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-4xl">🛒</div>
-              <div className="pill">Coming soon</div>
-            </div>
-            <h3 className="font-display text-2xl mb-1">Shopping list</h3>
-            <p className="text-sm text-ink-soft">
-              Generated when your first plan lands. Grouped by aisle, with
-              prices.
-            </p>
-            <p className="text-tangerine font-bold mt-4 text-sm">Preview →</p>
           </Link>
         </section>
 
+        {/* PROFILE SUMMARY (compact) */}
         <section className="card mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-display text-2xl">Your setup</h3>
             <Link
               href="/settings/profile"
-              className="text-sm text-tangerine font-bold"
+              className="text-sm text-tangerine font-bold flex items-center gap-1"
             >
-              Edit all →
+              Edit all <ArrowRightIcon size={14} />
             </Link>
           </div>
           <ul className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">

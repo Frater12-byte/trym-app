@@ -1,15 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-/**
- * Middleware-only Supabase client.
- * Refreshes the session cookie on every request so that
- * Server Components always see a valid auth state.
- */
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,9 +16,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
@@ -37,7 +28,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   const { pathname } = request.nextUrl;
 
   const isAuthRoute =
@@ -46,18 +36,30 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/auth");
 
-  // ALL protected routes — anything that requires authentication
   const isProtectedRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/plan") ||
-    pathname.startsWith("/shopping") ||
+    pathname.startsWith("/groceries") ||
+    pathname.startsWith("/shopping") || // legacy redirect handled below
+    pathname.startsWith("/recipes") ||
     pathname.startsWith("/weight") ||
+    pathname.startsWith("/activity") ||
     pathname.startsWith("/settings") ||
     pathname.startsWith("/api/receipts") ||
-    pathname.startsWith("/api/weight");
+    pathname.startsWith("/api/weight") ||
+    pathname.startsWith("/api/profile") ||
+    pathname.startsWith("/api/plan") ||
+    pathname.startsWith("/api/groceries") ||
+    pathname.startsWith("/api/activity");
 
-  // Logged-out user trying protected route → /login with return URL
+  // Redirect old /shopping → /groceries
+  if (pathname.startsWith("/shopping")) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.replace("/shopping", "/groceries");
+    return NextResponse.redirect(url);
+  }
+
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -65,16 +67,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Logged-in user visiting auth pages → /dashboard
-  // (the /auth callback routes are excluded so OAuth/email confirm still work)
   if (user && isAuthRoute && !pathname.startsWith("/auth")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
-  // Add no-cache headers on protected routes so browser back-button can't
-  // restore an authenticated view after logout
   if (isProtectedRoute) {
     supabaseResponse.headers.set(
       "Cache-Control",
