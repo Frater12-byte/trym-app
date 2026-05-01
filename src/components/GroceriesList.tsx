@@ -58,6 +58,17 @@ export function GroceriesList({ planItems, manualItems }: Props) {
   const [newItemUnit, setNewItemUnit] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Plan items are checked client-side only (resets on page reload — intentional for shopping trips)
+  const [checkedPlanIds, setCheckedPlanIds] = useState<Set<string>>(new Set());
+
+  function togglePlanCheck(ingredientId: string) {
+    setCheckedPlanIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(ingredientId)) next.delete(ingredientId);
+      else next.add(ingredientId);
+      return next;
+    });
+  }
 
   // Group all items by category
   type DisplayItem = {
@@ -91,6 +102,8 @@ export function GroceriesList({ planItems, manualItems }: Props) {
       unit: p.unit,
       cost,
       meal_count: p.meal_count,
+      checked_off: checkedPlanIds.has(p.ingredient_id),
+      manual_id: p.ingredient_id,
     });
   }
 
@@ -116,16 +129,12 @@ export function GroceriesList({ planItems, manualItems }: Props) {
     });
   }
 
-  // Calculate total cost
-  const totalCost = Object.values(grouped)
-    .flat()
+  const allItems = Object.values(grouped).flat();
+  const totalCost = allItems
     .filter((i) => !i.checked_off)
     .reduce((s, i) => s + (i.cost || 0), 0);
-
-  const totalItems = Object.values(grouped).flat().length;
-  const checkedItems = Object.values(grouped)
-    .flat()
-    .filter((i) => i.checked_off).length;
+  const totalItems = allItems.length;
+  const checkedItems = allItems.filter((i) => i.checked_off).length;
 
   async function addItem() {
     if (!newItemText.trim()) return;
@@ -156,7 +165,11 @@ export function GroceriesList({ planItems, manualItems }: Props) {
   }
 
   async function toggleCheck(item: DisplayItem) {
-    if (item.type !== "manual" || !item.manual_id) return;
+    if (!item.manual_id) return;
+    if (item.type === "plan") {
+      togglePlanCheck(item.manual_id);
+      return;
+    }
     setBusyId(item.manual_id);
     try {
       await fetch(`/api/groceries/toggle-check`, {
@@ -298,22 +311,21 @@ function ItemRow({
         item.checked_off ? "opacity-50" : ""
       }`}
     >
-      {item.type === "manual" && (
-        <button
-          type="button"
-          onClick={onToggleCheck}
-          disabled={busy}
-          className={`flex-none w-7 h-7 rounded-full border-2 border-ink flex items-center justify-center transition ${
-            item.checked_off ? "bg-green text-cream" : "bg-cream"
-          }`}
-          aria-label={item.checked_off ? "Uncheck" : "Check off"}
-        >
-          {item.checked_off && <CheckIcon size={16} />}
-        </button>
-      )}
-      {item.type === "plan" && (
-        <div className="flex-none w-7 h-7 rounded-full border-2 border-dashed border-ink/40 flex items-center justify-center" />
-      )}
+      <button
+        type="button"
+        onClick={onToggleCheck}
+        disabled={busy}
+        className={`flex-none w-7 h-7 rounded-full border-2 flex items-center justify-center transition ${
+          item.checked_off
+            ? "bg-green text-cream border-green"
+            : item.type === "plan"
+            ? "border-dashed border-ink/40 bg-cream"
+            : "border-ink bg-cream"
+        }`}
+        aria-label={item.checked_off ? "Uncheck" : "Check off"}
+      >
+        {item.checked_off && <CheckIcon size={16} />}
+      </button>
 
       <div className="flex-1 min-w-0">
         <p

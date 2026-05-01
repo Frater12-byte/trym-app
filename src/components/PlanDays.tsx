@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   ChefHatIcon,
   RestaurantIcon,
@@ -11,8 +12,6 @@ import {
   SwapIcon,
   CheckIcon,
   CloseIcon,
-  EditIcon,
-  LockIcon,
   ArrowRightIcon,
 } from "./icons";
 
@@ -60,81 +59,64 @@ const SLOTS = ["breakfast", "lunch", "dinner"];
 
 export function PlanDays({ plan, today }: Props) {
   const router = useRouter();
-  const [editingMeal, setEditingMeal] = useState<PlanMeal | null>(null);
 
-  // Group plan meals by day_of_week
   const dayMap: Record<number, PlanMeal[]> = {};
   for (const pm of plan.plan_meals) {
     if (!dayMap[pm.day_of_week]) dayMap[pm.day_of_week] = [];
     dayMap[pm.day_of_week].push(pm);
   }
 
-  // Calculate day_of_week index of today relative to week_start
   const weekStart = new Date(plan.week_start_date);
   const todayDate = new Date(today);
   const todayDayIdx = Math.floor(
     (todayDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  // Show today + next 2 days
   const visibleDays = [todayDayIdx, todayDayIdx + 1, todayDayIdx + 2].filter(
     (i) => i >= 0 && i < 7
   );
 
   return (
-    <>
-      <div className="space-y-6 lg:space-y-8">
-        {visibleDays.map((dayIdx, idx) => {
-          const dayMeals = dayMap[dayIdx] || [];
-          const dayDate = new Date(weekStart);
-          dayDate.setDate(weekStart.getDate() + dayIdx);
-          const isToday = dayIdx === todayDayIdx;
+    <div className="space-y-6 lg:space-y-8">
+      {visibleDays.map((dayIdx, idx) => {
+        const dayMeals = dayMap[dayIdx] || [];
+        const dayDate = new Date(weekStart);
+        dayDate.setDate(weekStart.getDate() + dayIdx);
+        const isToday = dayIdx === todayDayIdx;
 
-          return (
-            <DaySection
-              key={dayIdx}
-              dayDate={dayDate}
-              meals={dayMeals}
-              isToday={isToday}
-              tilt={idx === 0 ? "" : idx === 1 ? "rotate-left" : "rotate-right"}
-              onMealClick={setEditingMeal}
-              swapCreditsLeft={plan.swap_credits_remaining}
-            />
-          );
-        })}
-      </div>
-
-      {editingMeal && (
-        <MealLogModal
-          planMeal={editingMeal}
-          onClose={() => setEditingMeal(null)}
-          onSaved={() => {
-            setEditingMeal(null);
-            router.refresh();
-          }}
-        />
-      )}
-    </>
+        return (
+          <DaySection
+            key={dayIdx}
+            dayDate={dayDate}
+            meals={dayMeals}
+            isToday={isToday}
+            tilt={idx === 0 ? "" : idx === 1 ? "rotate-left" : "rotate-right"}
+            swapCreditsLeft={plan.swap_credits_remaining}
+            onRefresh={() => router.refresh()}
+          />
+        );
+      })}
+    </div>
   );
 }
 
 /* ============================================================
-   DAY SECTION — header + 3 meal cards
+   DAY SECTION
    ============================================================ */
 function DaySection({
   dayDate,
   meals,
   isToday,
   tilt,
-  onMealClick,
   swapCreditsLeft,
+  onRefresh,
 }: {
   dayDate: Date;
   meals: PlanMeal[];
   isToday: boolean;
   tilt: string;
-  onMealClick: (m: PlanMeal) => void;
   swapCreditsLeft: number;
+  onRefresh: () => void;
 }) {
   const dayLabel = isToday
     ? "Today"
@@ -144,12 +126,10 @@ function DaySection({
     day: "numeric",
   });
 
-  // Sort by slot order
   const sortedMeals = [...meals].sort(
     (a, b) => SLOTS.indexOf(a.meal_slot) - SLOTS.indexOf(b.meal_slot)
   );
 
-  // Day total — sum logged calories where logged, meal default otherwise
   const dayCalories = sortedMeals.reduce((sum, m) => {
     if (m.status === "skipped") return sum;
     return sum + (m.actual_calories ?? m.meal?.calories ?? 0);
@@ -178,15 +158,13 @@ function DaySection({
       <div className={`grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 ${tilt}`}>
         {SLOTS.map((slot) => {
           const planMeal = sortedMeals.find((m) => m.meal_slot === slot);
-          if (!planMeal) {
-            return <EmptySlot key={slot} slot={slot} />;
-          }
+          if (!planMeal) return <EmptySlot key={slot} slot={slot} />;
           return (
             <MealCard
               key={planMeal.id}
               planMeal={planMeal}
-              onClick={() => onMealClick(planMeal)}
               swapCreditsLeft={swapCreditsLeft}
+              onRefresh={onRefresh}
             />
           );
         })}
@@ -196,18 +174,23 @@ function DaySection({
 }
 
 /* ============================================================
-   MEAL CARD — visual depends on status
+   MEAL CARD — inline swap/skip, tap to view recipe
    ============================================================ */
 function MealCard({
   planMeal,
-  onClick,
   swapCreditsLeft,
+  onRefresh,
 }: {
   planMeal: PlanMeal;
-  onClick: () => void;
   swapCreditsLeft: number;
+  onRefresh: () => void;
 }) {
   const meal = planMeal.meal;
+  const [loadingAction, setLoadingAction] = useState<"skip" | "swap" | null>(null);
+  const [swapResult, setSwapResult] = useState<Meal | null>(null);
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   if (!meal) {
     return (
       <div className="card card-sm flex items-center justify-center min-h-[140px]">
@@ -216,81 +199,232 @@ function MealCard({
     );
   }
 
-  const totalMin = meal.prep_minutes + meal.cook_minutes;
+  // Show the newly swapped meal briefly before refresh
+  if (swapResult) {
+    return (
+      <div className="card-cream flex flex-col min-h-[200px] relative overflow-hidden">
+        <span className="absolute top-3 right-3 pill pill-success text-[10px]">
+          Swapped!
+        </span>
+        <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute capitalize mb-3">
+          {planMeal.meal_slot}
+        </p>
+        <div className="flex items-start gap-3 mb-3 flex-1">
+          <div className="text-3xl flex-none">{swapResult.emoji}</div>
+          <h3 className="font-display text-lg leading-tight">{swapResult.name}</h3>
+        </div>
+        <div className="grid grid-cols-3 gap-1 pt-3 border-t-2 border-cream">
+          <Stat
+            icon={<ClockIcon size={14} />}
+            value={swapResult.prep_minutes + swapResult.cook_minutes}
+            unit="m"
+          />
+          <Stat icon={<FlameIcon size={14} />} value={swapResult.calories} unit="cal" />
+          <Stat
+            icon={<CoinIcon size={14} />}
+            value={swapResult.estimated_cost_aed?.toFixed(1) ?? "—"}
+            unit="AED"
+          />
+        </div>
+      </div>
+    );
+  }
+
   const status = planMeal.status;
+  const alreadyLogged = status !== "planned";
 
   let cardClass = "card";
   if (status === "cooked") cardClass = "card-cream";
   if (status === "ate_out") cardClass = "card-saffron";
   if (status === "skipped") cardClass = "card opacity-40";
-  if (status === "swapped") cardClass = "card";
+
+  async function handleSkip() {
+    setLoadingAction("skip");
+    setError(null);
+    try {
+      const res = await fetch("/api/plan/log-meal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan_meal_id: planMeal.id,
+          status: "skipped",
+          actual_calories: null,
+          actual_cost_aed: null,
+          where_eaten: null,
+          user_notes: null,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      onRefresh();
+    } catch {
+      setError("Could not skip");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function handleSwap() {
+    setLoadingAction("swap");
+    setError(null);
+    try {
+      const suggestRes = await fetch("/api/plan/suggest-swap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan_meal_id: planMeal.id }),
+      });
+      if (!suggestRes.ok) throw new Error();
+      const { meal: suggestion } = await suggestRes.json();
+
+      const swapRes = await fetch("/api/plan/swap-meal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan_meal_id: planMeal.id,
+          new_meal_id: suggestion.id,
+        }),
+      });
+      if (!swapRes.ok) {
+        const data = await swapRes.json();
+        if (data.code === "OUT_OF_SWAPS") {
+          setError("No swaps left this week");
+          return;
+        }
+        throw new Error();
+      }
+
+      setSwapResult(suggestion);
+      setTimeout(() => onRefresh(), 1800);
+    } catch {
+      setError("Could not swap — try again");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`${cardClass} text-left hover:-translate-y-1 transition cursor-pointer w-full`}
-    >
-      {/* Slot + status badge */}
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute capitalize">
-          {planMeal.meal_slot}
-        </p>
-        <StatusBadge status={status} />
+    <>
+      <div className={`${cardClass} flex flex-col`}>
+        {/* Slot + status */}
+        <div className="flex items-start justify-between mb-3">
+          <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute capitalize">
+            {planMeal.meal_slot}
+          </p>
+          <StatusBadge status={status} />
+        </div>
+
+        {/* Meal — tap goes to recipe */}
+        <Link
+          href={`/recipes/${meal.id}`}
+          className="flex items-start gap-3 mb-3 flex-1 group"
+        >
+          <div className="text-3xl flex-none">{meal.emoji}</div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display text-lg leading-tight group-hover:underline">
+              {meal.name}
+            </h3>
+            {meal.description && (
+              <p className="text-xs text-ink-mute mt-0.5 line-clamp-2 leading-relaxed">
+                {meal.description}
+              </p>
+            )}
+          </div>
+          <ArrowRightIcon
+            size={14}
+            className="flex-none text-ink-mute mt-1 opacity-0 group-hover:opacity-100 transition"
+          />
+        </Link>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-1 py-3 border-t-2 border-y-2 border-cream">
+          <Stat
+            icon={<ClockIcon size={14} />}
+            value={meal.prep_minutes + meal.cook_minutes}
+            unit="m"
+          />
+          <Stat
+            icon={<FlameIcon size={14} />}
+            value={planMeal.actual_calories ?? meal.calories}
+            unit="cal"
+          />
+          <Stat
+            icon={<CoinIcon size={14} />}
+            value={
+              planMeal.actual_cost_aed?.toFixed(1) ??
+              meal.estimated_cost_aed?.toFixed(1) ??
+              "—"
+            }
+            unit="AED"
+          />
+        </div>
+
+        {/* Error */}
+        {error && (
+          <p className="text-xs font-semibold text-orange-700 mt-2">{error}</p>
+        )}
+
+        {/* Inline actions — only for unlogged meals */}
+        {!alreadyLogged && (
+          <div className="flex gap-2 mt-3">
+            <button
+              type="button"
+              onClick={handleSkip}
+              disabled={!!loadingAction}
+              className="flex-1 py-2 rounded-xl border-2 border-ink text-xs font-bold bg-cream hover:-translate-y-0.5 transition disabled:opacity-40"
+              style={{ boxShadow: "2px 2px 0 #1A1A1A" }}
+            >
+              {loadingAction === "skip" ? "···" : "Skip"}
+            </button>
+            <button
+              type="button"
+              onClick={handleSwap}
+              disabled={!!loadingAction || swapCreditsLeft <= 0}
+              className="flex-1 py-2 rounded-xl border-2 border-ink text-xs font-bold bg-cream hover:-translate-y-0.5 transition disabled:opacity-40 flex items-center justify-center gap-1"
+              style={{ boxShadow: "2px 2px 0 #1A1A1A" }}
+              title={swapCreditsLeft <= 0 ? "No swaps left this week" : undefined}
+            >
+              {loadingAction === "swap" ? (
+                "···"
+              ) : (
+                <>
+                  <SwapIcon size={12} />
+                  Swap
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowLogModal(true)}
+              className="flex-1 py-2 rounded-xl border-2 border-ink text-xs font-bold bg-tangerine text-cream hover:-translate-y-0.5 transition flex items-center justify-center gap-1"
+              style={{ boxShadow: "2px 2px 0 #1A1A1A" }}
+            >
+              <CheckIcon size={12} />
+              Log
+            </button>
+          </div>
+        )}
+
+        {alreadyLogged && (
+          <button
+            type="button"
+            onClick={() => setShowLogModal(true)}
+            className="mt-3 text-xs text-ink-mute hover:text-ink underline text-left"
+          >
+            Edit log
+          </button>
+        )}
       </div>
 
-      {/* Recipe info */}
-      <div className="flex items-start gap-3 mb-3">
-        <div className="text-3xl flex-none">{meal.emoji}</div>
-        <h3 className="font-display text-lg leading-tight flex-1">
-          {meal.name}
-        </h3>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-1 pt-3 border-t-2 border-cream">
-        <Stat
-          icon={<ClockIcon size={14} />}
-          value={totalMin}
-          unit="m"
+      {showLogModal && (
+        <MealLogModal
+          planMeal={planMeal}
+          onClose={() => setShowLogModal(false)}
+          onSaved={() => {
+            setShowLogModal(false);
+            onRefresh();
+          }}
         />
-        <Stat
-          icon={<FlameIcon size={14} />}
-          value={planMeal.actual_calories ?? meal.calories}
-          unit="cal"
-        />
-        <Stat
-          icon={<CoinIcon size={14} />}
-          value={
-            planMeal.actual_cost_aed?.toFixed(1) ??
-            meal.estimated_cost_aed?.toFixed(1) ??
-            "—"
-          }
-          unit="AED"
-        />
-      </div>
-
-      {/* User notes preview */}
-      {planMeal.user_notes && (
-        <p className="text-xs text-ink-mute italic mt-2 line-clamp-1">
-          {planMeal.user_notes}
-        </p>
       )}
-
-      {/* Where eaten preview */}
-      {status === "ate_out" && planMeal.where_eaten && (
-        <p className="text-xs text-ink-soft mt-2 line-clamp-1">
-          @ {planMeal.where_eaten}
-        </p>
-      )}
-
-      {/* Hint */}
-      {status === "planned" && (
-        <p className="text-xs text-tangerine font-bold mt-3 flex items-center gap-1">
-          Tap to log
-        </p>
-      )}
-    </button>
+    </>
   );
 }
 
@@ -314,16 +448,8 @@ function StatusBadge({ status }: { status: PlanMeal["status"] }) {
   > = {
     planned: { label: "Planned", className: "pill", Icon: CheckIcon },
     cooked: { label: "Cooked", className: "pill pill-success", Icon: CheckIcon },
-    ate_out: {
-      label: "Ate out",
-      className: "pill pill-saffron",
-      Icon: RestaurantIcon,
-    },
-    skipped: {
-      label: "Skipped",
-      className: "pill pill-warn",
-      Icon: CloseIcon,
-    },
+    ate_out: { label: "Ate out", className: "pill pill-saffron", Icon: RestaurantIcon },
+    skipped: { label: "Skipped", className: "pill pill-warn", Icon: CloseIcon },
     swapped: { label: "Swapped", className: "pill", Icon: SwapIcon },
   };
 
@@ -355,7 +481,7 @@ function Stat({
 }
 
 /* ============================================================
-   MEAL LOG MODAL — log status + cost + calories
+   MEAL LOG MODAL — log cooked / ate_out details
    ============================================================ */
 function MealLogModal({
   planMeal,
@@ -366,9 +492,8 @@ function MealLogModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [step, setStep] = useState<"choose" | "details">("choose");
-  const [chosenStatus, setChosenStatus] = useState<PlanMeal["status"]>(
-    planMeal.status
+  const [chosenStatus, setChosenStatus] = useState<"cooked" | "ate_out">(
+    planMeal.status === "ate_out" ? "ate_out" : "cooked"
   );
   const [actualCost, setActualCost] = useState(
     planMeal.actual_cost_aed?.toString() ??
@@ -385,56 +510,7 @@ function MealLogModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function pickStatus(status: PlanMeal["status"]) {
-    setChosenStatus(status);
-    if (status === "skipped") {
-      // Skipped — no further details needed
-      saveStatus(status, {
-        actual_calories: null,
-        actual_cost_aed: null,
-        where_eaten: null,
-        user_notes: notes || null,
-      });
-    } else {
-      setStep("details");
-    }
-  }
-
-  async function saveStatus(
-    status: PlanMeal["status"],
-    overrides: Partial<{
-      actual_calories: number | null;
-      actual_cost_aed: number | null;
-      where_eaten: string | null;
-      user_notes: string | null;
-    }>
-  ) {
-    setError(null);
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/plan/log-meal`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan_meal_id: planMeal.id,
-          status,
-          ...overrides,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Could not save");
-        setSaving(false);
-        return;
-      }
-      onSaved();
-    } catch {
-      setError("Network error");
-      setSaving(false);
-    }
-  }
-
-  async function saveDetails() {
+  async function save() {
     const calories = parseInt(actualCalories);
     const cost = parseFloat(actualCost);
     if (isNaN(calories) || calories < 0) {
@@ -445,13 +521,33 @@ function MealLogModal({
       setError("Cost must be a positive number");
       return;
     }
-    saveStatus(chosenStatus, {
-      actual_calories: calories,
-      actual_cost_aed: cost,
-      where_eaten:
-        chosenStatus === "ate_out" ? whereEaten || null : null,
-      user_notes: notes || null,
-    });
+
+    setError(null);
+    setSaving(true);
+    try {
+      const res = await fetch("/api/plan/log-meal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan_meal_id: planMeal.id,
+          status: chosenStatus,
+          actual_calories: calories,
+          actual_cost_aed: cost,
+          where_eaten: chosenStatus === "ate_out" ? whereEaten || null : null,
+          user_notes: notes || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not save");
+        return;
+      }
+      onSaved();
+    } catch {
+      setError("Network error");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -460,15 +556,14 @@ function MealLogModal({
       onClick={onClose}
     >
       <div
-        className="bg-cream w-full md:max-w-lg md:rounded-3xl border-t-2 md:border-2 border-ink overflow-hidden max-h-[90vh] overflow-y-auto"
+        className="bg-cream w-full md:max-w-lg md:rounded-3xl border-t-2 md:border-2 border-ink overflow-hidden max-h-[85vh] overflow-y-auto"
         style={{ boxShadow: "6px 6px 0 #1A1A1A" }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="sticky top-0 bg-cream border-b-2 border-ink px-5 py-4 flex items-center justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute">
-              {step === "choose" ? "Log meal" : "Add details"}
+              Log meal
             </p>
             <h3 className="font-display text-xl leading-tight">
               {planMeal.meal?.name}
@@ -483,196 +578,120 @@ function MealLogModal({
           </button>
         </div>
 
-        <div className="p-5">
-          {step === "choose" ? (
-            <>
-              <p className="text-sm text-ink-soft mb-5">
-                What actually happened with this meal?
-              </p>
-              <div className="space-y-3">
-                <ActionButton
-                  Icon={ChefHatIcon}
-                  title="I cooked it"
-                  body="Made the recipe at home"
-                  onClick={() => pickStatus("cooked")}
-                  primary
-                />
-                <ActionButton
-                  Icon={RestaurantIcon}
-                  title="Ate out / takeaway"
-                  body="Restaurant, delivery, or takeout"
-                  onClick={() => pickStatus("ate_out")}
-                />
-                <ActionButton
-                  Icon={SwapIcon}
-                  title="Swap to a different meal"
-                  body="Pick something else from the catalog"
-                  onClick={() => {
-                    onClose();
-                    window.location.href = `/recipes?swap=${planMeal.id}`;
-                  }}
-                />
-                <ActionButton
-                  Icon={CloseIcon}
-                  title="Skip it"
-                  body="Didn't eat this meal"
-                  onClick={() => pickStatus("skipped")}
-                />
-              </div>
-            </>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-ink-soft">
-                {chosenStatus === "cooked"
-                  ? "Tweak the numbers if our estimate was off."
-                  : "Tell us what you ate and what it cost."}
-              </p>
+        <div className="p-5 space-y-4">
+          {/* Type toggle */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setChosenStatus("cooked")}
+              className={`flex-1 py-2.5 rounded-xl border-2 border-ink text-sm font-bold transition flex items-center justify-center gap-2 ${
+                chosenStatus === "cooked" ? "bg-tangerine text-cream" : "bg-cream"
+              }`}
+              style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
+            >
+              <ChefHatIcon size={16} />
+              Cooked
+            </button>
+            <button
+              type="button"
+              onClick={() => setChosenStatus("ate_out")}
+              className={`flex-1 py-2.5 rounded-xl border-2 border-ink text-sm font-bold transition flex items-center justify-center gap-2 ${
+                chosenStatus === "ate_out" ? "bg-tangerine text-cream" : "bg-cream"
+              }`}
+              style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
+            >
+              <RestaurantIcon size={16} />
+              Ate out
+            </button>
+          </div>
 
-              {chosenStatus === "ate_out" && (
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
-                    Where?
-                  </label>
-                  <input
-                    type="text"
-                    value={whereEaten}
-                    onChange={(e) => setWhereEaten(e.target.value)}
-                    placeholder="e.g. Eat &amp; Drink, Pickl, Talabat..."
-                    className="input"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
-                    Calories
-                  </label>
-                  <input
-                    type="number"
-                    value={actualCalories}
-                    onChange={(e) => setActualCalories(e.target.value)}
-                    placeholder={planMeal.meal?.calories.toString()}
-                    className="input tabular-nums"
-                    inputMode="numeric"
-                    min={0}
-                    max={5000}
-                  />
-                  <p className="text-[10px] text-ink-mute mt-1">
-                    Best guess is fine
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
-                    Cost (AED)
-                  </label>
-                  <input
-                    type="number"
-                    value={actualCost}
-                    onChange={(e) => setActualCost(e.target.value)}
-                    placeholder={
-                      planMeal.meal?.estimated_cost_aed?.toFixed(1) ?? "0.0"
-                    }
-                    step="0.5"
-                    className="input tabular-nums"
-                    inputMode="decimal"
-                    min={0}
-                  />
-                  <p className="text-[10px] text-ink-mute mt-1">
-                    {chosenStatus === "cooked"
-                      ? "Override our estimate"
-                      : "What you paid"}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
-                  Notes (optional)
-                </label>
-                <input
-                  type="text"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Anything to remember..."
-                  className="input"
-                  maxLength={140}
-                />
-              </div>
-
-              {error && (
-                <div
-                  className="card-sm border-2 text-sm font-semibold"
-                  style={{
-                    backgroundColor: "var(--color-pill-warn)",
-                    color: "var(--color-pill-warn-ink)",
-                    borderColor: "var(--color-pill-warn-ink)",
-                  }}
-                >
-                  {error}
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setStep("choose")}
-                  className="btn btn-secondary flex-1"
-                  disabled={saving}
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={saveDetails}
-                  className="btn btn-primary flex-1"
-                  disabled={saving}
-                >
-                  {saving ? "Saving..." : "Save"}
-                </button>
-              </div>
+          {chosenStatus === "ate_out" && (
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+                Where?
+              </label>
+              <input
+                type="text"
+                value={whereEaten}
+                onChange={(e) => setWhereEaten(e.target.value)}
+                placeholder="Restaurant, delivery app..."
+                className="input"
+              />
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+                Calories
+              </label>
+              <input
+                type="number"
+                value={actualCalories}
+                onChange={(e) => setActualCalories(e.target.value)}
+                placeholder={planMeal.meal?.calories.toString()}
+                className="input tabular-nums"
+                inputMode="numeric"
+                min={0}
+                max={5000}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+                Cost (AED)
+              </label>
+              <input
+                type="number"
+                value={actualCost}
+                onChange={(e) => setActualCost(e.target.value)}
+                placeholder={
+                  planMeal.meal?.estimated_cost_aed?.toFixed(1) ?? "0.0"
+                }
+                step="0.5"
+                className="input tabular-nums"
+                inputMode="decimal"
+                min={0}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+              Notes (optional)
+            </label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Anything to remember..."
+              className="input"
+              maxLength={140}
+            />
+          </div>
+
+          {error && (
+            <div
+              className="card-sm border-2 text-sm font-semibold"
+              style={{
+                backgroundColor: "var(--color-pill-warn)",
+                color: "var(--color-pill-warn-ink)",
+                borderColor: "var(--color-pill-warn-ink)",
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={save}
+            className="btn btn-primary w-full"
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save log"}
+          </button>
         </div>
       </div>
     </div>
-  );
-}
-
-function ActionButton({
-  Icon,
-  title,
-  body,
-  onClick,
-  primary = false,
-}: {
-  Icon: typeof CheckIcon;
-  title: string;
-  body: string;
-  onClick: () => void;
-  primary?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full text-left card-sm flex items-center gap-3 hover:-translate-y-0.5 transition border-2 border-ink ${
-        primary ? "bg-tangerine text-cream" : "bg-cream"
-      }`}
-      style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
-    >
-      <Icon size={24} className="flex-none" />
-      <div>
-        <p className="font-bold">{title}</p>
-        <p
-          className={`text-xs ${
-            primary ? "opacity-80" : "text-ink-soft"
-          }`}
-        >
-          {body}
-        </p>
-      </div>
-      <ArrowRightIcon size={18} className="ml-auto flex-none" />
-    </button>
   );
 }

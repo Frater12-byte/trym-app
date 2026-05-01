@@ -30,9 +30,10 @@ interface OnboardingData {
   eating_out_per_week: number;
   dietary_prefs: string[];
   allergies: string[];
+  pantry_items: string[];
 }
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 // ============================================================
 // MAIN COMPONENT
@@ -62,6 +63,7 @@ export default function OnboardingPage() {
     eating_out_per_week: 2,
     dietary_prefs: [],
     allergies: [],
+    pantry_items: [],
   });
 
   // Load existing profile on mount (in case user is mid-onboarding)
@@ -130,7 +132,7 @@ export default function OnboardingPage() {
     setData((prev) => ({ ...prev, [key]: value }));
   }
 
-  function toggleArrayValue(key: "dietary_prefs" | "allergies", value: string) {
+  function toggleArrayValue(key: "dietary_prefs" | "allergies" | "pantry_items", value: string) {
     setData((prev) => {
       const arr = prev[key];
       return {
@@ -205,6 +207,15 @@ export default function OnboardingPage() {
       return;
     }
 
+    // Save pantry items separately — non-blocking, column may not exist yet
+    if (data.pantry_items.length > 0) {
+      await supabase
+        .from("profiles")
+        .update({ pantry_items: data.pantry_items })
+        .eq("id", userId)
+        .then(() => {});
+    }
+
     router.push("/dashboard");
     router.refresh();
   }
@@ -226,6 +237,8 @@ export default function OnboardingPage() {
         return data.max_prep_minutes > 0 && data.meals_per_day > 0;
       case 6:
         return true; // dietary prefs optional
+      case 7:
+        return true; // pantry optional
       default:
         return false;
     }
@@ -253,6 +266,9 @@ export default function OnboardingPage() {
       {step === 5 && <Step5TimePrefs data={data} update={update} />}
       {step === 6 && (
         <Step6DietaryPrefs data={data} toggle={toggleArrayValue} />
+      )}
+      {step === 7 && (
+        <Step7Pantry data={data} toggle={toggleArrayValue} />
       )}
 
       {error && <div className="warn-card text-sm mt-4">{error}</div>}
@@ -287,6 +303,10 @@ const STEPS = [
   {
     title: "Anything you avoid?",
     subtitle: "Optional — but the plan gets better the more we know.",
+  },
+  {
+    title: "What's already at home?",
+    subtitle: "Tap the staples you usually keep in your kitchen. We'll skip them on your shopping list.",
   },
 ];
 
@@ -698,6 +718,70 @@ function Step6DietaryPrefs({
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// STEP 7 — Pantry staples
+// ============================================================
+const PANTRY_STAPLES = [
+  { val: "olive_oil", label: "Olive oil", emoji: "🫒" },
+  { val: "vegetable_oil", label: "Vegetable oil", emoji: "🛢️" },
+  { val: "salt", label: "Salt & pepper", emoji: "🧂" },
+  { val: "garlic", label: "Garlic", emoji: "🧄" },
+  { val: "onion", label: "Onion", emoji: "🧅" },
+  { val: "eggs", label: "Eggs", emoji: "🥚" },
+  { val: "butter", label: "Butter", emoji: "🧈" },
+  { val: "rice", label: "Rice", emoji: "🍚" },
+  { val: "pasta", label: "Pasta", emoji: "🍝" },
+  { val: "flour", label: "Flour", emoji: "🌾" },
+  { val: "sugar", label: "Sugar", emoji: "🍬" },
+  { val: "soy_sauce", label: "Soy sauce", emoji: "🫙" },
+  { val: "tomato_paste", label: "Tomato paste", emoji: "🍅" },
+  { val: "cumin", label: "Cumin", emoji: "🌿" },
+  { val: "paprika", label: "Paprika", emoji: "🌶️" },
+  { val: "ginger", label: "Ginger", emoji: "🫚" },
+  { val: "lemon", label: "Lemon / lime", emoji: "🍋" },
+  { val: "vinegar", label: "Vinegar", emoji: "🫗" },
+];
+
+function Step7Pantry({
+  data,
+  toggle,
+}: {
+  data: OnboardingData;
+  toggle: (key: "dietary_prefs" | "allergies" | "pantry_items", value: string) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-ink-mute">
+        These won&apos;t appear on your shopping list — we assume you already have them.
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        {PANTRY_STAPLES.map((item) => {
+          const selected = data.pantry_items.includes(item.val);
+          return (
+            <button
+              key={item.val}
+              type="button"
+              onClick={() => toggle("pantry_items", item.val)}
+              className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 text-sm font-semibold text-left transition ${
+                selected
+                  ? "border-ink shadow-[2px_2px_0_#1A1A1A] text-ink"
+                  : "border-ink/20 text-ink-soft hover:border-ink/50"
+              }`}
+              style={{ background: selected ? "#FFD23F" : "#ffffff" }}
+            >
+              <span className="text-lg flex-none">{item.emoji}</span>
+              <span className="leading-tight">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-xs text-ink-mute text-center pt-2">
+        Skip this if you&apos;re not sure — you can always update it in settings.
+      </p>
     </div>
   );
 }
