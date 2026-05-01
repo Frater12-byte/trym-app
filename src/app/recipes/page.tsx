@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { RecipesBrowser } from "@/components/RecipesBrowser";
 import { LockIcon, ArrowLeftIcon, SparkleIcon } from "@/components/icons";
+// LockIcon + SparkleIcon used in swap-paywall section below
 
 export const revalidate = 300;
 
@@ -161,19 +162,15 @@ export default async function RecipesPage({ searchParams }: Props) {
   }
 
   // ============================================================
-  // BROWSE MODE — Pro users only (free users redirected to plan)
+  // BROWSE MODE — available to all users
   // ============================================================
-  if (!isPro) {
-    redirect("/plan");
-  }
-
   return (
     <main className="min-h-screen bg-cream pb-24 md:pb-20">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
         <header className="mb-6 lg:mb-8">
-          <p className="eyebrow">Recipes (Pro)</p>
+          <p className="eyebrow">Recipes</p>
           <h1 className="font-display text-4xl lg:text-5xl">
             Full catalog.
           </h1>

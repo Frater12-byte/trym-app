@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { PlanDays } from "@/components/PlanDays";
+import { GeneratePlanButton } from "@/components/GeneratePlanButton";
 import {
   CalendarIcon,
   CartIcon,
@@ -85,16 +86,13 @@ export default async function PlanPage() {
           <div className="card-tangerine mb-6 rotate-left">
             <ChefHatIcon size={48} className="text-cream mb-4" />
             <h2 className="font-display text-2xl lg:text-3xl mb-3">
-              We&apos;re finishing the meal database.
+              Ready to build your plan.
             </h2>
-            <p className="text-sm lg:text-base opacity-90 leading-relaxed mb-2">
-              Your first plan is being put together based on your preferences,
-              budget, and prep time. It&apos;ll appear here as soon as
-              it&apos;s ready.
+            <p className="text-sm lg:text-base opacity-90 leading-relaxed mb-5">
+              We&apos;ll pick meals based on your prep time, budget, and dietary
+              preferences. Takes a second.
             </p>
-            <p className="text-sm lg:text-base opacity-90 leading-relaxed">
-              You&apos;ll get an email the moment it lands.
-            </p>
+            <GeneratePlanButton />
           </div>
 
           <section className="mb-6">
