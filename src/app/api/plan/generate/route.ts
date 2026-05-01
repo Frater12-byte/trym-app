@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST() {
+  try {
   const supabase = await createClient();
 
   const {
@@ -148,4 +149,10 @@ export async function POST() {
   }
 
   return NextResponse.json({ plan_id: plan.id });
+
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Unhandled error in /api/plan/generate:", message);
+    return NextResponse.json({ error: "Server error", detail: message }, { status: 500 });
+  }
 }
