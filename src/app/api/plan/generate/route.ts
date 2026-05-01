@@ -85,7 +85,11 @@ export async function POST() {
     .single();
 
   if (planErr || !plan) {
-    return NextResponse.json({ error: "Failed to create plan" }, { status: 500 });
+    console.error("plans insert error:", planErr);
+    return NextResponse.json(
+      { error: "Failed to create plan", detail: planErr?.message, code: planErr?.code },
+      { status: 500 }
+    );
   }
 
   // ── Assign meals ──────────────────────────────────────────────

@@ -18,7 +18,8 @@ export function GeneratePlanButton() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Something went wrong — try again.");
+        const msg = [data.error, data.detail, data.code].filter(Boolean).join(" — ");
+        setError(msg || "Something went wrong — try again.");
         setLoading(false);
         return;
       }
