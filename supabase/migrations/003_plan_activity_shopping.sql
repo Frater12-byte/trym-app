@@ -80,7 +80,7 @@ create table if not exists public.activity_logs (
   unique(user_id, logged_at)
 );
 
-create index idx_activity_user_date on public.activity_logs(user_id, logged_at desc);
+create index if not exists idx_activity_user_date on public.activity_logs(user_id, logged_at desc);
 
 -- Touch updated_at trigger
 drop trigger if exists activity_touch_updated on public.activity_logs;
@@ -114,8 +114,8 @@ create table if not exists public.shopping_list_items (
   created_at timestamptz default now()
 );
 
-create index idx_shopping_user on public.shopping_list_items(user_id, created_at desc);
-create index idx_shopping_unchecked on public.shopping_list_items(user_id, checked_off);
+create index if not exists idx_shopping_user on public.shopping_list_items(user_id, created_at desc);
+create index if not exists idx_shopping_unchecked on public.shopping_list_items(user_id, checked_off);
 
 -- ============================================================
 -- 5. RLS POLICIES
