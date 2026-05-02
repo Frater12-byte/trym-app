@@ -79,7 +79,7 @@ export default async function ShoppingPage() {
           <p className="text-sm text-ink-soft mb-4">
             Want to help us learn real prices in your area?
           </p>
-          <Link href="/settings" className="btn btn-secondary btn-sm">
+          <Link href="/settings/profile" className="btn btn-secondary btn-sm">
             📸 Snap a recent receipt
           </Link>
         </div>

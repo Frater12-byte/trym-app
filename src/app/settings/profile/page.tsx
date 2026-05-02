@@ -110,12 +110,53 @@ export default async function ProfileSettingsPage() {
 
         {plan && (
           <div className="mb-6">
-            <Link
-              href="/plan"
-              className="btn btn-secondary w-full sm:w-auto"
-            >
+            <Link href="/plan" className="btn btn-secondary w-full sm:w-auto">
               View this week&apos;s plan →
             </Link>
+          </div>
+        )}
+
+        {/* Upgrade CTA — prominent for free users */}
+        {!isPro && (
+          <div
+            className="card-tangerine mb-8 relative overflow-hidden"
+            style={{ transform: "rotate(-0.5deg)" }}
+          >
+            <div
+              className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-10"
+              style={{ background: "#FFF8EE" }}
+            />
+            <p className="text-cream/80 text-xs font-bold uppercase tracking-widest mb-2">
+              You&apos;re on the free plan
+            </p>
+            <h2 className="font-display text-3xl text-cream mb-3">
+              Unlock the full Trym.
+            </h2>
+            <ul className="space-y-1.5 mb-5">
+              {[
+                "Unlimited meal swaps — no weekly cap",
+                "Full recipes with step-by-step instructions",
+                "Multi-supermarket price comparison",
+                "Weekly plan delivered to your inbox",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm text-cream/90">
+                  <span className="w-5 h-5 rounded-full bg-cream/20 border border-cream/40 flex items-center justify-center flex-none text-[11px] font-bold">
+                    ✓
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/upgrade"
+              className="inline-flex items-center justify-center gap-2 font-bold text-sm px-6 py-3 border-2 border-ink rounded-full transition hover:-translate-y-0.5"
+              style={{ background: "#FFF8EE", color: "#1A1A1A", boxShadow: "3px 3px 0 #0E4D3F" }}
+            >
+              ✦ Upgrade — 99 AED / month
+            </Link>
+            <p className="text-cream/60 text-xs mt-3">
+              Stripe · Secure payment · Cancel any time
+            </p>
           </div>
         )}
 
