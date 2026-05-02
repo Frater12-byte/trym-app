@@ -11,14 +11,18 @@ interface Favorite {
 }
 
 interface Props {
-  compact?: boolean; // profile view = compact chips only
+  compact?: boolean;   // compact chips with log action
+  viewOnly?: boolean;  // profile view: show cost/cal, edit, no log
 }
 
-export function StarredFoodsWidget({ compact = false }: Props) {
+export function StarredFoodsWidget({ compact = false, viewOnly = false }: Props) {
   const router = useRouter();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [logging, setLogging] = useState<string | null>(null);
   const [logged, setLogged] = useState<Set<string>>(new Set());
+  const [editingFav, setEditingFav] = useState<string | null>(null);
+  const [editCal, setEditCal] = useState("");
+  const [editCost, setEditCost] = useState("");
 
   useEffect(() => {
     try {
@@ -54,6 +58,57 @@ export function StarredFoodsWidget({ compact = false }: Props) {
   }
 
   if (!favorites.length) return null;
+
+  function saveEdit(name: string) {
+    const updated = favorites.map((f) =>
+      f.name === name ? { ...f, cal: parseInt(editCal) || 0, cost: parseFloat(editCost) || 0 } : f
+    );
+    setFavorites(updated);
+    try { localStorage.setItem("trym-food-favorites", JSON.stringify(updated)); } catch {}
+    setEditingFav(null);
+  }
+
+  // ── VIEW ONLY (profile page) — show details + edit, no log ──
+  if (viewOnly) {
+    return (
+      <div className="space-y-2">
+        {favorites.map((fav) => {
+          const isEditing = editingFav === fav.name;
+          return (
+            <div key={fav.name} className="flex items-center gap-3 py-3 border-b-2 border-cream last:border-0">
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm capitalize">{fav.name}</p>
+                {isEditing ? (
+                  <div className="flex gap-2 mt-1.5">
+                    <input type="number" value={editCal} onChange={(e) => setEditCal(e.target.value)}
+                      className="w-20 text-xs border border-ink/30 rounded-lg px-2 py-1.5" placeholder="cal" inputMode="numeric" />
+                    <input type="number" value={editCost} onChange={(e) => setEditCost(e.target.value)}
+                      className="w-20 text-xs border border-ink/30 rounded-lg px-2 py-1.5" placeholder="AED" inputMode="decimal" />
+                    <button type="button" onClick={() => saveEdit(fav.name)} className="text-xs font-bold text-green px-2">Save</button>
+                    <button type="button" onClick={() => setEditingFav(null)} className="text-xs text-ink-mute px-1">✕</button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-ink-mute capitalize">
+                    {fav.mealType}
+                    {fav.cal > 0 && ` · ${fav.cal} cal`}
+                    {fav.cost > 0 && ` · ${fav.cost.toFixed(1)} AED`}
+                  </p>
+                )}
+              </div>
+              {!isEditing && (
+                <div className="flex gap-2">
+                  <button type="button"
+                    onClick={() => { setEditingFav(fav.name); setEditCal(fav.cal.toString()); setEditCost(fav.cost.toString()); }}
+                    className="text-xs text-tangerine font-bold hover:underline">Edit</button>
+                  <button type="button" onClick={() => removeFav(fav.name)} className="text-xs text-ink-mute hover:text-red-500">✕</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   if (compact) {
     return (

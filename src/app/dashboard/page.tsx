@@ -163,42 +163,6 @@ export default async function DashboardPage() {
         {/* NOTIFICATION PROMPT */}
         <NotificationPrompt />
 
-        {/* ─── KPIs — weight / meals / budget ─── */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 lg:mb-8">
-          <Link href="/weight" className="card rotate-left hover:-translate-y-1 transition">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute">Weight</p>
-              {lossSoFar !== 0 && (losingWeight && lossSoFar > 0
-                ? <TrendDownIcon size={16} className="text-green" />
-                : <TrendUpIcon size={16} className="text-tangerine" />)}
-            </div>
-            <p className="font-display text-4xl tabular-nums leading-none mb-1">
-              {displayWeight(currentWeight)}<span className="unit">{unit}</span>
-            </p>
-            <p className="text-xs text-ink-mute mb-3">Goal {displayWeight(goalWeight)} {unit}</p>
-            <ProgressBar pct={weightPct} color="#0E4D3F" />
-            <p className="text-[10px] text-ink-mute mt-1">{weightPct}% to goal</p>
-          </Link>
-          <Link href="/plan" className="card-cream rotate-right hover:-translate-y-1 transition">
-            <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute mb-1">Meals this week</p>
-            <p className="font-display text-4xl tabular-nums leading-none mb-1">
-              {loggedMeals}<span className="text-base font-normal text-ink-soft">/{totalMeals}</span>
-            </p>
-            <p className="text-xs text-ink-mute mb-3">logged</p>
-            <ProgressBar pct={mealsPct} color="#FF6B35" />
-            <p className="text-[10px] text-ink-mute mt-1">{mealsPct}% logged</p>
-          </Link>
-          <Link href="/groceries" className="card-saffron hover:-translate-y-1 transition">
-            <p className="text-[11px] uppercase tracking-widest font-bold mb-1">Budget</p>
-            <p className="font-display text-4xl tabular-nums leading-none mb-1">
-              {Math.round(weekSpent)}<span className="unit">AED</span>
-            </p>
-            <p className="text-xs mb-3 font-semibold opacity-80">of {weekBudget} AED / week</p>
-            <ProgressBar pct={budgetPct} color="#1A1A1A" bg="rgba(255,255,255,0.4)" />
-            <p className="text-[10px] mt-1 font-semibold opacity-70">{budgetPct}% used</p>
-          </Link>
-        </section>
-
         {/* ─── TODAY — plan meals + logged food + water ─── */}
         <section className="mb-5">
           <div className="flex items-baseline justify-between mb-3">
@@ -252,14 +216,12 @@ export default async function DashboardPage() {
             </div>
           )}
 
-          {/* Starred foods — one tap to log */}
-          <StarredFoodsWidget />
-
-          {/* Log unplanned food */}
-          <FoodLogButton />
-
-          {/* Simplified water log — no progress bar */}
-          <WaterTracker simple />
+          {/* Starred foods + log + water — grouped with clear spacing */}
+          <div className="mt-4 space-y-3">
+            <StarredFoodsWidget />
+            <FoodLogButton />
+            <WaterTracker simple />
+          </div>
         </section>
 
         {/* ─── QUICK LOG — photo only ─── */}

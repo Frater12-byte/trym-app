@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { PlanDays } from "@/components/PlanDays";
 import { GeneratePlanButton } from "@/components/GeneratePlanButton";
+import { WaterTracker } from "@/components/WaterTracker";
+import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
+import { FoodLogButton } from "@/components/FoodLogModal";
 import {
   CalendarIcon,
   CartIcon,
@@ -204,6 +207,14 @@ export default async function PlanPage() {
           today={todayStr}
           unitWeight={profile.unit_weight}
         />
+
+        {/* Log today — water, starred, unplanned (under today's recipes) */}
+        <div className="mt-6 space-y-3">
+          <p className="eyebrow">Log for today</p>
+          <StarredFoodsWidget />
+          <FoodLogButton />
+          <WaterTracker simple />
+        </div>
 
         {/* Past 2 days */}
         {yesterdayFood.length > 0 && (

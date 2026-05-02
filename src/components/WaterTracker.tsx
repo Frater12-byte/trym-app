@@ -50,33 +50,35 @@ export function WaterTracker({ simple = false }: Props) {
   // ── SIMPLE — compact row, no progress bar ────────────────────
   if (simple) {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border-2 border-ink/20 bg-cream">
-        <span className="text-lg">💧</span>
-        <span className="font-bold tabular-nums text-sm">
-          {ml} <span className="text-ink-mute font-normal text-xs">/ {GOAL_ML} ml</span>
-        </span>
-        {done && <span className="text-[10px] font-bold text-green">✓ Goal</span>}
-        <div className="flex gap-1.5 ml-auto">
+      <div className="rounded-2xl border-2 border-ink/20 bg-cream overflow-hidden">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <span className="text-lg">💧</span>
+          <span className="font-bold tabular-nums text-sm">
+            {ml} <span className="text-ink-mute font-normal text-xs">/ {GOAL_ML} ml</span>
+          </span>
+          {done && <span className="text-[10px] font-bold text-green ml-1">✓</span>}
+          {ml > 0 && (
+            <button
+              type="button"
+              onClick={reset}
+              className="ml-auto text-xs text-ink-mute hover:text-red-500 transition px-2 py-1"
+            >
+              ↺
+            </button>
+          )}
+        </div>
+        {/* Buttons as a full-width strip for easy tapping */}
+        <div className="grid grid-cols-3 border-t-2 border-ink/10">
           {[250, 330, 500].map((n) => (
             <button
               key={n}
               type="button"
               onClick={() => add(n)}
-              className="px-2.5 py-1.5 rounded-xl border-2 border-ink text-[11px] font-bold bg-cream hover:-translate-y-0.5 transition"
-              style={{ boxShadow: "2px 2px 0 #1A1A1A" }}
+              className="py-3 text-sm font-bold border-r-2 border-ink/10 last:border-0 hover:bg-saffron/30 active:bg-saffron transition"
             >
-              +{n}
+              +{n} ml
             </button>
           ))}
-          {ml > 0 && (
-            <button
-              type="button"
-              onClick={reset}
-              className="px-2.5 py-1.5 rounded-xl border border-ink/20 text-[11px] text-ink-mute hover:text-red-500 transition"
-            >
-              ↺
-            </button>
-          )}
         </div>
       </div>
     );
