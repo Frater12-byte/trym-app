@@ -63,7 +63,9 @@ function LoginForm() {
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`,
+        // Use NEXT_PUBLIC_APP_URL so Supabase always redirects to production,
+        // not localhost — falls back to current origin for local dev.
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`,
       },
     });
     // Browser redirects — no need to setLoading(false)

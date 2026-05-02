@@ -1,8 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CloseIcon, CheckIcon, PlusIcon } from "./icons";
+
+const FAVORITES_KEY = "trym-food-favorites";
+
+interface Favorite {
+  name: string;
+  cal: number;
+  cost: number;
+  mealType: string;
+}
+
+function loadFavorites(): Favorite[] {
+  try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? "[]"); } catch { return []; }
+}
+
+function saveFavorites(favs: Favorite[]) {
+  try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs.slice(0, 20))); } catch {}
+}
 
 const QUICK_PICKS = [
   { name: "Coffee / tea", emoji: "☕", cal: 10, cost: 12 },
@@ -47,11 +64,28 @@ function FoodLogModal({ onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<Favorite[]>([]);
 
-  function pickQuick(opt: (typeof QUICK_PICKS)[0]) {
-    setName(opt.name);
-    setCalories(opt.cal.toString());
-    setCost(opt.cost.toString());
+  useEffect(() => { setFavorites(loadFavorites()); }, []);
+
+  function pickQuick(opt: (typeof QUICK_PICKS)[0] | Favorite) {
+    setName("name" in opt ? opt.name : "");
+    setCalories(("cal" in opt ? opt.cal : 0).toString());
+    setCost(("cost" in opt ? opt.cost : 0).toString());
+    if ("mealType" in opt) setMealType(opt.mealType);
+  }
+
+  function saveToFavorites() {
+    if (!name.trim()) return;
+    const fav: Favorite = {
+      name: name.trim(),
+      cal: parseInt(calories) || 0,
+      cost: parseFloat(cost) || 0,
+      mealType,
+    };
+    const updated = [fav, ...favorites.filter((f) => f.name !== fav.name)];
+    saveFavorites(updated);
+    setFavorites(updated);
   }
 
   async function save() {
@@ -111,6 +145,27 @@ function FoodLogModal({ onClose }: Props) {
             </div>
           ) : (
             <>
+              {/* Favorites */}
+              {favorites.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+                    ⭐ Your usuals
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    {favorites.map((f) => (
+                      <button
+                        key={f.name}
+                        type="button"
+                        onClick={() => pickQuick(f)}
+                        className="px-3 py-2 rounded-xl border-2 border-ink/30 text-xs font-semibold bg-saffron hover:-translate-y-0.5 transition text-ink"
+                      >
+                        {f.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Quick picks */}
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
@@ -210,14 +265,25 @@ function FoodLogModal({ onClose }: Props) {
                 </div>
               )}
 
-              <button
-                type="button"
-                onClick={save}
-                disabled={saving || !name.trim()}
-                className="btn btn-primary w-full"
-              >
-                {saving ? "Saving…" : "Log it"}
-              </button>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={saveToFavorites}
+                  disabled={!name.trim()}
+                  className="btn btn-secondary flex-none"
+                  title="Save to favourites"
+                >
+                  ⭐
+                </button>
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={saving || !name.trim()}
+                  className="btn btn-primary flex-1"
+                >
+                  {saving ? "Saving…" : "Log it"}
+                </button>
+              </div>
             </>
           )}
         </div>

@@ -1,6 +1,17 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+// If Supabase OAuth sends the ?code= to this page (misconfigured Site URL),
+// forward it to the real callback handler so login still works.
+interface HomeProps {
+  searchParams: Promise<{ code?: string; error?: string }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  if (params.code) {
+    redirect(`/auth/callback?code=${params.code}&next=/dashboard`);
+  }
   return (
     <main
       className="bg-cream text-ink overflow-x-hidden relative"

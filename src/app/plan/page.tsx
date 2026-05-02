@@ -45,8 +45,12 @@ export default async function PlanPage() {
       ? "Next 2 days."
       : "Next 3 days.";
 
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
   // PARALLEL queries
-  const [profileResult, planResult] = await Promise.all([
+  const [profileResult, planResult, yesterdayFoodResult] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase
       .from("plans")
@@ -62,9 +66,17 @@ export default async function PlanPage() {
       .eq("user_id", user.id)
       .eq("week_start_date", weekStartStr)
       .maybeSingle(),
+    // Yesterday's unplanned food logs
+    supabase
+      .from("food_logs")
+      .select("id, meal_name, meal_type, calories, cost_aed")
+      .eq("user_id", user.id)
+      .eq("logged_at", yesterdayStr)
+      .order("created_at", { ascending: true }),
   ]);
 
   const profile = profileResult.data;
+  const yesterdayFood = yesterdayFoodResult.data ?? [];
 
   // Supabase returns foreign-key joins as arrays; normalise meal → single object
   const plan = planResult.data
@@ -198,6 +210,33 @@ export default async function PlanPage() {
             <FoodLogButton />
           </div>
         </div>
+
+        {/* Yesterday */}
+        {yesterdayFood.length > 0 && (
+          <section className="mt-8 card-cream">
+            <p className="eyebrow mb-2">Yesterday</p>
+            <h2 className="font-display text-2xl mb-4">What you logged.</h2>
+            <ul className="space-y-2">
+              {yesterdayFood.map((f) => (
+                <li key={f.id} className="flex items-center justify-between py-2 border-b-2 border-cream last:border-0">
+                  <div>
+                    <p className="font-bold text-sm capitalize">{f.meal_name}</p>
+                    <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
+                  </div>
+                  <div className="text-right text-xs text-ink-soft tabular-nums">
+                    {f.calories && <p>{f.calories} cal</p>}
+                    {f.cost_aed && <p>{Number(f.cost_aed).toFixed(1)} AED</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {yesterdayFood.reduce((s, f) => s + (f.calories ?? 0), 0) > 0 && (
+              <p className="text-xs text-ink-mute mt-3 tabular-nums font-bold">
+                Total: {yesterdayFood.reduce((s, f) => s + (f.calories ?? 0), 0)} cal
+              </p>
+            )}
+          </section>
+        )}
       </div>
     </main>
   );

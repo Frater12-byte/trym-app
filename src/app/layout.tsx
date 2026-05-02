@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   title: "Trym — Eat better. Spend less. Hit your goal.",
   description:
     "Personalised weekly meal plans that fit your weight goal, your budget, and the 20 minutes you actually have to cook.",
-  applicationName: "Trym",
+  applicationName: "Trym App",
   authors: [{ name: "Tergo Media" }],
   manifest: "/manifest.json",
   appleWebApp: {
