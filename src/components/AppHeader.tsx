@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/auth/actions";
+import { createClient } from "@/lib/supabase/client";
 import {
   HomeIcon,
   CalendarIcon,
@@ -23,6 +25,18 @@ const NAV_ITEMS = [
 
 export function AppHeader({ firstName }: Props) {
   const pathname = usePathname();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      const url =
+        user?.user_metadata?.avatar_url ??
+        user?.user_metadata?.picture ??
+        null;
+      if (url) setAvatarUrl(url);
+    });
+  }, []);
 
   function isActive(href: string) {
     return (
@@ -36,14 +50,10 @@ export function AppHeader({ firstName }: Props) {
       {/* TOP NAV */}
       <header className="sticky top-0 z-30 bg-cream/95 backdrop-blur border-b-2 border-ink">
         <div className="max-w-5xl mx-auto px-5 lg:px-10 h-16 flex items-center justify-between gap-4">
-          <Link
-            href="/dashboard"
-            className="font-display text-3xl tracking-tight"
-          >
+          <Link href="/dashboard" className="font-display text-3xl tracking-tight">
             trym<span className="text-tangerine">.</span>
           </Link>
 
-          {/* Desktop nav — lg+ only (1024px+), hides on mobile AND portrait tablets */}
           <nav className="hidden lg:flex items-center gap-1">
             {NAV_ITEMS.map((item) => {
               const active = isActive(item.href);
@@ -53,9 +63,7 @@ export function AppHeader({ firstName }: Props) {
                   key={item.href}
                   href={item.href}
                   className={`px-4 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 ${
-                    active
-                      ? "bg-ink text-cream"
-                      : "text-ink-soft hover:text-ink"
+                    active ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
                   }`}
                 >
                   <Icon size={18} active={active} />
@@ -66,31 +74,37 @@ export function AppHeader({ firstName }: Props) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/settings/profile"
-              className="hidden sm:inline-flex text-sm text-ink-soft hover:text-ink px-3 py-2"
-            >
+            <Link href="/settings/profile" className="hidden sm:inline-flex text-sm text-ink-soft hover:text-ink px-3 py-2">
               Profile
             </Link>
-            <Link
-              href="/settings/profile"
-              className="w-10 h-10 bg-tangerine text-cream rounded-full flex items-center justify-center font-bold border-2 border-ink"
-              style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
-            >
-              {firstName.charAt(0).toUpperCase()}
+            <Link href="/settings/profile" className="flex-none">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={firstName}
+                  className="w-10 h-10 rounded-full border-2 border-ink object-cover"
+                  style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 bg-tangerine text-cream rounded-full flex items-center justify-center font-bold border-2 border-ink text-base"
+                  style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
+                >
+                  {firstName.charAt(0).toUpperCase()}
+                </div>
+              )}
             </Link>
           </div>
         </div>
       </header>
 
-      {/* BOTTOM TAB BAR — mobile + portrait tablets only (<1024px), hidden on lg+ */}
+      {/* BOTTOM TAB BAR */}
       <nav
         style={{
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
           position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
+          bottom: 0, left: 0, right: 0,
           zIndex: 50,
           backgroundColor: "#FFF8EE",
           borderTop: "2px solid #1A1A1A",
@@ -102,21 +116,9 @@ export function AppHeader({ firstName }: Props) {
             const active = isActive(item.href);
             const Icon = item.Icon;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex flex-col items-center justify-center py-3 gap-0.5"
-              >
-                <Icon
-                  size={24}
-                  active={active}
-                  className={active ? "text-tangerine" : "text-ink-mute"}
-                />
-                <span
-                  className={`text-[10px] font-bold uppercase tracking-wider leading-tight ${
-                    active ? "text-ink" : "text-ink-mute"
-                  }`}
-                >
+              <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center py-3 gap-0.5">
+                <Icon size={24} active={active} className={active ? "text-tangerine" : "text-ink-mute"} />
+                <span className={`text-[10px] font-bold uppercase tracking-wider leading-tight ${active ? "text-ink" : "text-ink-mute"}`}>
                   {item.label}
                 </span>
               </Link>
@@ -131,10 +133,7 @@ export function AppHeader({ firstName }: Props) {
 export function LogoutButton() {
   return (
     <form action={logout}>
-      <button
-        type="submit"
-        className="text-sm text-ink-mute hover:text-ink-soft transition py-2 underline"
-      >
+      <button type="submit" className="text-sm text-ink-mute hover:text-ink-soft transition py-2 underline">
         Log out
       </button>
     </form>

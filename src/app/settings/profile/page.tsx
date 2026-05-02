@@ -21,25 +21,55 @@ export default async function ProfileSettingsPage() {
   weekStart.setHours(0, 0, 0, 0);
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
-  const [profileResult, planResult] = await Promise.all([
+  // Get all plan IDs for preferred meals query
+  const { data: userPlans } = await supabase
+    .from("plans")
+    .select("id")
+    .eq("user_id", user.id);
+  const planIds = (userPlans ?? []).map((p) => p.id);
+
+  const [profileResult, planResult, preferredMealsResult] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase
       .from("plans")
-      .select(
-        "id, swap_credits_remaining, swap_credits_max, plan_meals(id, status)"
-      )
+      .select("id, swap_credits_remaining, swap_credits_max, plan_meals(id, status)")
       .eq("user_id", user.id)
       .eq("week_start_date", weekStartStr)
       .maybeSingle(),
+    planIds.length > 0
+      ? supabase
+          .from("plan_meals")
+          .select("meal_id, meal:meals(id, name, emoji, calories, prep_minutes, estimated_cost_aed)")
+          .in("plan_id", planIds)
+          .eq("status", "cooked")
+          .order("logged_at", { ascending: false })
+          .limit(40)
+      : Promise.resolve({ data: [] }),
   ]);
 
   const profile = profileResult.data;
   const plan = planResult.data;
+  const avatarUrl =
+    (user.user_metadata?.avatar_url as string | undefined) ??
+    (user.user_metadata?.picture as string | undefined) ??
+    null;
 
   if (!profile?.onboarding_completed) redirect("/onboarding");
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
   const isPro = profile.subscription_status === "paid";
+
+  // Deduplicate preferred meals (top cooked, unique)
+  const seen = new Set<string>();
+  const preferredMeals: { id: string; name: string; emoji: string; calories: number; prep_minutes: number; estimated_cost_aed: number | null }[] = [];
+  for (const pm of preferredMealsResult.data ?? []) {
+    const meal = Array.isArray(pm.meal) ? pm.meal[0] : pm.meal;
+    if (meal && !seen.has(meal.id)) {
+      seen.add(meal.id);
+      preferredMeals.push(meal as typeof preferredMeals[0]);
+      if (preferredMeals.length >= 6) break;
+    }
+  }
 
   const planMeals = plan?.plan_meals ?? [];
   const totalMeals = planMeals.length;
@@ -52,11 +82,32 @@ export default async function ProfileSettingsPage() {
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
-        <header className="mb-6">
-          <p className="eyebrow">Your profile</p>
-          <h1 className="font-display text-4xl lg:text-5xl">
-            Hey, {firstName}.
-          </h1>
+        <header className="mb-6 flex items-center gap-5">
+          {/* Avatar */}
+          <div className="flex-none">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={firstName}
+                className="w-20 h-20 rounded-full border-4 border-ink object-cover"
+                style={{ boxShadow: "4px 4px 0 #1A1A1A" }}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div
+                className="w-20 h-20 rounded-full border-4 border-ink bg-tangerine text-cream flex items-center justify-center font-display text-4xl font-black"
+                style={{ boxShadow: "4px 4px 0 #1A1A1A" }}
+              >
+                {firstName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="eyebrow">Your profile</p>
+            <h1 className="font-display text-4xl lg:text-5xl">
+              {firstName}.
+            </h1>
+          </div>
         </header>
 
         {/* This week summary */}
@@ -158,6 +209,31 @@ export default async function ProfileSettingsPage() {
               Stripe · Secure payment · Cancel any time
             </p>
           </div>
+        )}
+
+        {/* Preferred meals */}
+        {preferredMeals.length > 0 && (
+          <section className="mb-8">
+            <h2 className="font-display text-2xl mb-4">Your go-to meals</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {preferredMeals.map((meal) => (
+                <Link
+                  key={meal.id}
+                  href={`/recipes/${meal.id}`}
+                  className="card-cream flex items-start gap-3 hover:-translate-y-0.5 transition"
+                >
+                  <span className="text-3xl flex-none">{meal.emoji}</span>
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm leading-tight">{meal.name}</p>
+                    <p className="text-xs text-ink-mute mt-0.5">
+                      {meal.calories} cal · {meal.prep_minutes} min
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <p className="text-xs text-ink-mute mt-3">Meals you&apos;ve cooked most.</p>
+          </section>
         )}
 
         <h2 className="font-display text-2xl mb-4">Your details</h2>

@@ -48,6 +48,9 @@ export default async function PlanPage() {
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
   const yesterdayStr = yesterday.toISOString().slice(0, 10);
+  const twoDaysAgo = new Date(today);
+  twoDaysAgo.setDate(today.getDate() - 2);
+  const twoDaysAgoStr = twoDaysAgo.toISOString().slice(0, 10);
 
   // PARALLEL queries
   const [profileResult, planResult, yesterdayFoodResult] = await Promise.all([
@@ -66,13 +69,14 @@ export default async function PlanPage() {
       .eq("user_id", user.id)
       .eq("week_start_date", weekStartStr)
       .maybeSingle(),
-    // Yesterday's unplanned food logs
+    // Past 2 days food logs
     supabase
       .from("food_logs")
-      .select("id, meal_name, meal_type, calories, cost_aed")
+      .select("id, meal_name, meal_type, calories, cost_aed, logged_at")
       .eq("user_id", user.id)
-      .eq("logged_at", yesterdayStr)
-      .order("created_at", { ascending: true }),
+      .gte("logged_at", twoDaysAgoStr)
+      .lte("logged_at", yesterdayStr)
+      .order("logged_at", { ascending: false }),
   ]);
 
   const profile = profileResult.data;
@@ -211,30 +215,39 @@ export default async function PlanPage() {
           </div>
         </div>
 
-        {/* Yesterday */}
+        {/* Past 2 days */}
         {yesterdayFood.length > 0 && (
           <section className="mt-8 card-cream">
-            <p className="eyebrow mb-2">Yesterday</p>
+            <p className="eyebrow mb-2">Recent history</p>
             <h2 className="font-display text-2xl mb-4">What you logged.</h2>
-            <ul className="space-y-2">
-              {yesterdayFood.map((f) => (
-                <li key={f.id} className="flex items-center justify-between py-2 border-b-2 border-cream last:border-0">
-                  <div>
-                    <p className="font-bold text-sm capitalize">{f.meal_name}</p>
-                    <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
-                  </div>
-                  <div className="text-right text-xs text-ink-soft tabular-nums">
-                    {f.calories && <p>{f.calories} cal</p>}
-                    {f.cost_aed && <p>{Number(f.cost_aed).toFixed(1)} AED</p>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-            {yesterdayFood.reduce((s, f) => s + (f.calories ?? 0), 0) > 0 && (
-              <p className="text-xs text-ink-mute mt-3 tabular-nums font-bold">
-                Total: {yesterdayFood.reduce((s, f) => s + (f.calories ?? 0), 0)} cal
-              </p>
-            )}
+            {[yesterdayStr, twoDaysAgoStr].map((dateStr) => {
+              const dayItems = yesterdayFood.filter((f) => f.logged_at === dateStr);
+              if (!dayItems.length) return null;
+              const label = dateStr === yesterdayStr ? "Yesterday" : "2 days ago";
+              const totalCal = dayItems.reduce((s, f) => s + (f.calories ?? 0), 0);
+              return (
+                <div key={dateStr} className="mb-5 last:mb-0">
+                  <p className="text-sm font-bold text-ink-soft mb-2">{label}</p>
+                  <ul className="space-y-1.5">
+                    {dayItems.map((f) => (
+                      <li key={f.id} className="flex items-center justify-between py-2 border-b border-cream last:border-0">
+                        <div>
+                          <p className="font-bold text-sm capitalize">{f.meal_name}</p>
+                          <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
+                        </div>
+                        <div className="text-right text-xs text-ink-soft tabular-nums">
+                          {f.calories && <p>{f.calories} cal</p>}
+                          {f.cost_aed && <p>{Number(f.cost_aed).toFixed(1)} AED</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  {totalCal > 0 && (
+                    <p className="text-xs font-bold text-ink-mute mt-2">{totalCal} cal total</p>
+                  )}
+                </div>
+              );
+            })}
           </section>
         )}
       </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckIcon, PlusIcon, CloseIcon } from "./icons";
+import { PlusIcon, CloseIcon, CheckIcon } from "./icons";
 
 interface PlanItem {
   ingredient_id: string;
@@ -38,16 +38,192 @@ const PRICE_X = 2;
 const CATEGORY_ORDER = ["produce", "meat", "fish", "dairy", "bakery", "pantry", "frozen", "spices", "other"];
 
 const CATEGORY_META: Record<string, { emoji: string; color: string }> = {
-  produce:  { emoji: "🥦", color: "#D8EBE3" },
-  meat:     { emoji: "🥩", color: "#FFD9D2" },
-  fish:     { emoji: "🐟", color: "#D0E8F0" },
-  dairy:    { emoji: "🧀", color: "#FFEFC0" },
-  bakery:   { emoji: "🍞", color: "#FFE8DA" },
-  pantry:   { emoji: "🫙", color: "#F0E8D8" },
-  frozen:   { emoji: "🧊", color: "#D8EAF5" },
-  spices:   { emoji: "🌶️", color: "#FFD9D2" },
-  other:    { emoji: "🛒", color: "#F0F0F0" },
+  produce: { emoji: "🥦", color: "#D8EBE3" },
+  meat:    { emoji: "🥩", color: "#FFD9D2" },
+  fish:    { emoji: "🐟", color: "#D0E8F0" },
+  dairy:   { emoji: "🧀", color: "#FFEFC0" },
+  bakery:  { emoji: "🍞", color: "#FFE8DA" },
+  pantry:  { emoji: "🫙", color: "#F0E8D8" },
+  frozen:  { emoji: "🧊", color: "#D8EAF5" },
+  spices:  { emoji: "🌶️", color: "#FFD9D2" },
+  other:   { emoji: "🛒", color: "#F5F5F5" },
 };
+
+function getIngredientEmoji(name: string): string {
+  const n = name.toLowerCase();
+  const MAP: [RegExp, string][] = [
+    [/chicken|poultry/i, "🍗"],
+    [/beef|steak|mince|ground/i, "🥩"],
+    [/lamb/i, "🐑"],
+    [/salmon|fish|tuna|cod|sea/i, "🐟"],
+    [/shrimp|prawn/i, "🦐"],
+    [/egg/i, "🥚"],
+    [/milk/i, "🥛"],
+    [/butter/i, "🧈"],
+    [/cheese|halloumi|feta/i, "🧀"],
+    [/yogurt|yoghurt|labneh/i, "🥛"],
+    [/tomato/i, "🍅"],
+    [/onion/i, "🧅"],
+    [/garlic/i, "🧄"],
+    [/carrot/i, "🥕"],
+    [/broccoli/i, "🥦"],
+    [/spinach|greens|kale|lettuce/i, "🥬"],
+    [/pepper|capsicum/i, "🫑"],
+    [/cucumber/i, "🥒"],
+    [/avocado/i, "🥑"],
+    [/potato/i, "🥔"],
+    [/corn|sweetcorn/i, "🌽"],
+    [/mushroom/i, "🍄"],
+    [/lemon|lime|citrus/i, "🍋"],
+    [/apple/i, "🍎"],
+    [/banana/i, "🍌"],
+    [/olive oil/i, "🫒"],
+    [/oil/i, "🫙"],
+    [/rice/i, "🍚"],
+    [/pasta|noodle|spaghetti|penne/i, "🍝"],
+    [/bread|toast|loaf|pita|khubz/i, "🍞"],
+    [/flour/i, "🌾"],
+    [/sugar/i, "🍬"],
+    [/salt/i, "🧂"],
+    [/basil|mint|cilantro|parsley|herb/i, "🌿"],
+    [/chili|chilli|harissa/i, "🌶️"],
+    [/ginger/i, "🫚"],
+    [/cream|heavy cream/i, "🥛"],
+    [/coconut/i, "🥥"],
+    [/chickpea|lentil|bean/i, "🫘"],
+    [/quinoa/i, "🌾"],
+    [/tofu/i, "🫙"],
+    [/soy sauce|soya/i, "🫙"],
+    [/honey/i, "🍯"],
+    [/nut|almond|cashew/i, "🥜"],
+    [/date/i, "🌴"],
+  ];
+  for (const [re, emoji] of MAP) {
+    if (re.test(n)) return emoji;
+  }
+  return "🛒";
+}
+
+interface DisplayItem {
+  key: string;
+  type: "plan" | "manual";
+  name: string;
+  category: string;
+  quantity: number | null;
+  unit: string | null;
+  cost: number | null;
+  meal_count?: number;
+  checked_off?: boolean;
+  manual_id?: string;
+  emoji: string;
+}
+
+interface ItemSheetProps {
+  item: DisplayItem;
+  onClose: () => void;
+  onCheck: () => void;
+  onRemove?: () => void;
+  busy: boolean;
+}
+
+function ItemSheet({ item, onClose, onCheck, onRemove, busy }: ItemSheetProps) {
+  const [qty, setQty] = useState(item.quantity?.toString() ?? "");
+  const [price, setPrice] = useState(item.cost?.toString() ?? "");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-ink/40 flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="bg-cream w-full max-w-lg rounded-t-3xl border-t-2 border-x-2 border-ink p-5 pb-8"
+        style={{ boxShadow: "0 -6px 0 #1A1A1A" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-4 mb-5">
+          <div
+            className="w-16 h-16 rounded-2xl border-2 border-ink flex items-center justify-center text-4xl flex-none"
+            style={{ background: CATEGORY_META[item.category]?.color ?? "#F5F5F5" }}
+          >
+            {item.emoji}
+          </div>
+          <div className="flex-1">
+            <p className="font-display text-2xl capitalize leading-tight">{item.name}</p>
+            {item.meal_count ? (
+              <p className="text-xs text-ink-mute">For {item.meal_count} meal{item.meal_count > 1 ? "s" : ""}</p>
+            ) : null}
+          </div>
+          <button type="button" onClick={onClose} className="w-9 h-9 rounded-full border-2 border-ink flex items-center justify-center">
+            <CloseIcon size={16} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+              Quantity
+            </label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setQty((v) => String(Math.max(0, (parseFloat(v) || 0) - 1)))}
+                className="w-9 h-9 rounded-full border-2 border-ink bg-cream font-bold text-lg"
+              >−</button>
+              <input
+                type="number"
+                value={qty}
+                onChange={(e) => setQty(e.target.value)}
+                className="input flex-1 text-center tabular-nums"
+                inputMode="decimal"
+                placeholder={item.quantity?.toString() ?? "0"}
+              />
+              <button
+                type="button"
+                onClick={() => setQty((v) => String((parseFloat(v) || 0) + 1))}
+                className="w-9 h-9 rounded-full border-2 border-ink bg-cream font-bold text-lg"
+              >+</button>
+            </div>
+            {item.unit && <p className="text-xs text-ink-mute mt-1 text-center">{item.unit}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+              Price (AED)
+            </label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="input tabular-nums w-full"
+              inputMode="decimal"
+              step="0.5"
+              placeholder={item.cost?.toFixed(1) ?? "0.0"}
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => { onCheck(); onClose(); }}
+          disabled={busy}
+          className={`btn w-full mb-2 ${item.checked_off ? "btn-secondary" : "btn-primary"}`}
+        >
+          <CheckIcon size={18} />
+          {item.checked_off ? "Uncheck" : "✓ Got it"}
+        </button>
+
+        {onRemove && (
+          <button
+            type="button"
+            onClick={() => { onRemove(); onClose(); }}
+            className="w-full text-sm text-ink-mute hover:text-red-600 transition py-2"
+          >
+            Remove from list
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function GroceriesList({ planItems, manualItems }: Props) {
   const router = useRouter();
@@ -58,30 +234,7 @@ export function GroceriesList({ planItems, manualItems }: Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checkedPlanIds, setCheckedPlanIds] = useState<Set<string>>(new Set());
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editQty, setEditQty] = useState("");
-  const [editPrice, setEditPrice] = useState("");
-
-  function togglePlanCheck(id: string) {
-    setCheckedPlanIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }
-
-  type DisplayItem = {
-    key: string;
-    type: "plan" | "manual";
-    name: string;
-    category: string;
-    quantity: number | null;
-    unit: string | null;
-    cost: number | null;
-    meal_count?: number;
-    checked_off?: boolean;
-    manual_id?: string;
-  };
+  const [activeItem, setActiveItem] = useState<DisplayItem | null>(null);
 
   const grouped: Record<string, DisplayItem[]> = {};
 
@@ -102,6 +255,7 @@ export function GroceriesList({ planItems, manualItems }: Props) {
       meal_count: p.meal_count,
       checked_off: checkedPlanIds.has(p.ingredient_id),
       manual_id: p.ingredient_id,
+      emoji: getIngredientEmoji(p.name),
     });
   }
 
@@ -123,6 +277,7 @@ export function GroceriesList({ planItems, manualItems }: Props) {
       cost,
       checked_off: m.checked_off,
       manual_id: m.id,
+      emoji: getIngredientEmoji(name),
     });
   }
 
@@ -131,28 +286,16 @@ export function GroceriesList({ planItems, manualItems }: Props) {
   const totalItems = allItems.length;
   const checkedItems = allItems.filter((i) => i.checked_off).length;
 
-  async function addItem() {
-    if (!newItemText.trim()) return;
-    setError(null);
-    try {
-      const res = await fetch("/api/groceries/add-manual", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          raw_text: newItemText.trim(),
-          quantity: parseFloat(newItemQty) || null,
-          unit: newItemUnit || null,
-        }),
-      });
-      if (!res.ok) { const d = await res.json(); setError(d.error || "Could not add"); return; }
-      setNewItemText(""); setNewItemQty(""); setNewItemUnit(""); setAdding(false);
-      router.refresh();
-    } catch { setError("Network error"); }
-  }
-
   async function toggleCheck(item: DisplayItem) {
     if (!item.manual_id) return;
-    if (item.type === "plan") { togglePlanCheck(item.manual_id); return; }
+    if (item.type === "plan") {
+      setCheckedPlanIds((prev) => {
+        const next = new Set(prev);
+        next.has(item.manual_id!) ? next.delete(item.manual_id!) : next.add(item.manual_id!);
+        return next;
+      });
+      return;
+    }
     setBusyId(item.manual_id);
     try {
       await fetch("/api/groceries/toggle-check", {
@@ -177,16 +320,37 @@ export function GroceriesList({ planItems, manualItems }: Props) {
     } finally { setBusyId(null); }
   }
 
+  async function addItem() {
+    if (!newItemText.trim()) return;
+    setError(null);
+    try {
+      const res = await fetch("/api/groceries/add-manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ raw_text: newItemText.trim(), quantity: parseFloat(newItemQty) || null, unit: newItemUnit || null }),
+      });
+      if (!res.ok) { const d = await res.json(); setError(d.error || "Could not add"); return; }
+      setNewItemText(""); setNewItemQty(""); setNewItemUnit(""); setAdding(false);
+      router.refresh();
+    } catch { setError("Network error"); }
+  }
+
   if (totalItems === 0) {
-    return <AddItemSection adding={adding} setAdding={setAdding} newItemText={newItemText} setNewItemText={setNewItemText} newItemQty={newItemQty} setNewItemQty={setNewItemQty} newItemUnit={newItemUnit} setNewItemUnit={setNewItemUnit} onAdd={addItem} error={error} />;
+    return (
+      <AddItemSection adding={adding} setAdding={setAdding}
+        newItemText={newItemText} setNewItemText={setNewItemText}
+        newItemQty={newItemQty} setNewItemQty={setNewItemQty}
+        newItemUnit={newItemUnit} setNewItemUnit={setNewItemUnit}
+        onAdd={addItem} error={error} />
+    );
   }
 
   return (
     <div>
-      {/* Summary bar */}
+      {/* Summary */}
       <div className="card mb-5 flex items-center justify-between">
         <div>
-          <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute mb-1">Estimated total</p>
+          <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute mb-1">Est. total</p>
           <p className="font-display text-3xl tabular-nums">
             {totalCost.toFixed(1)}<span className="unit">AED</span>
           </p>
@@ -199,128 +363,63 @@ export function GroceriesList({ planItems, manualItems }: Props) {
         </div>
       </div>
 
-      {/* Category sections */}
-      <div className="space-y-4">
+      {/* Category tile grids */}
+      <div className="space-y-6">
         {CATEGORY_ORDER.filter((c) => grouped[c]?.length).map((cat) => {
-          const meta = CATEGORY_META[cat] ?? { emoji: "🛒", color: "#F0F0F0" };
+          const meta = CATEGORY_META[cat] ?? { emoji: "🛒", color: "#F5F5F5" };
           const items = grouped[cat];
           const doneCount = items.filter((i) => i.checked_off).length;
 
           return (
             <section key={cat}>
-              {/* Category header */}
-              <div className="flex items-center gap-2 mb-2 px-1">
+              <div className="flex items-center gap-2 mb-3">
                 <span
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-base border-2 border-ink flex-none"
+                  className="w-7 h-7 rounded-full border-2 border-ink flex items-center justify-center text-sm flex-none"
                   style={{ background: meta.color, boxShadow: "2px 2px 0 #1A1A1A" }}
                 >
                   {meta.emoji}
                 </span>
                 <h3 className="font-display text-lg capitalize font-bold">{cat}</h3>
-                <span className="text-xs text-ink-mute ml-auto tabular-nums">
+                <span className="text-xs text-ink-mute ml-auto">
                   {doneCount}/{items.length}
                 </span>
               </div>
 
-              {/* Items */}
-              <div
-                className="rounded-3xl overflow-hidden border-2 border-ink"
-                style={{ boxShadow: "4px 4px 0 #1A1A1A", background: "#FFFFFF" }}
-              >
-                {items.map((item, idx) => (
-                  <div
+              {/* Emoji grid */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                {items.map((item) => (
+                  <button
                     key={item.key}
-                    className={`flex items-center gap-3 px-4 py-3.5 transition ${
+                    type="button"
+                    onClick={() => setActiveItem(item)}
+                    className={`relative flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 border-ink transition hover:-translate-y-0.5 text-center ${
                       item.checked_off ? "opacity-40" : ""
-                    } ${idx < items.length - 1 ? "border-b-2 border-cream" : ""}`}
+                    }`}
+                    style={{
+                      background: item.checked_off ? "#D4E8D8" : "white",
+                      boxShadow: "3px 3px 0 #1A1A1A",
+                    }}
                   >
-                    {/* Big tap target checkbox */}
-                    <button
-                      type="button"
-                      onClick={() => toggleCheck(item)}
-                      disabled={busyId === item.manual_id}
-                      className={`flex-none w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                        item.checked_off
-                          ? "bg-green border-green text-cream"
-                          : item.type === "plan"
-                          ? "border-dashed border-ink/40 bg-cream"
-                          : "border-ink bg-cream"
-                      }`}
-                      aria-label={item.checked_off ? "Uncheck" : "Check off"}
-                    >
-                      {item.checked_off && <CheckIcon size={16} />}
-                    </button>
-
-                    {/* Name + meta */}
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-bold text-sm capitalize ${item.checked_off ? "line-through" : ""}`}>
-                        {item.name}
-                      </p>
-                      {/* Inline editing for quantity */}
-                      {editingId === item.key ? (
-                        <div className="flex gap-2 mt-1">
-                          <input
-                            type="number"
-                            value={editQty}
-                            onChange={(e) => setEditQty(e.target.value)}
-                            className="w-16 text-xs border border-ink/30 rounded-lg px-2 py-1 tabular-nums"
-                            autoFocus
-                            placeholder={item.quantity?.toString()}
-                          />
-                          <input
-                            type="number"
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(e.target.value)}
-                            className="w-20 text-xs border border-ink/30 rounded-lg px-2 py-1 tabular-nums"
-                            placeholder="Price AED"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setEditingId(null)}
-                            className="text-xs font-bold text-tangerine"
-                          >
-                            Done
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingId(item.key);
-                            setEditQty(item.quantity?.toString() ?? "");
-                            setEditPrice(item.cost?.toString() ?? "");
-                          }}
-                          className="text-xs text-ink-mute tabular-nums hover:text-tangerine transition text-left"
-                        >
-                          {item.quantity && item.unit ? `${item.quantity} ${item.unit}` : ""}
-                          {item.meal_count && item.meal_count > 0
-                            ? ` · ${item.meal_count} meal${item.meal_count > 1 ? "s" : ""}`
-                            : ""}
-                          {(!item.quantity && !item.meal_count) ? "tap to set qty" : ""}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Cost */}
-                    {item.cost !== null && (
-                      <p className="text-sm font-bold tabular-nums text-ink-soft flex-none">
-                        {item.cost.toFixed(1)}<span className="text-[10px] text-ink-mute ml-0.5">AED</span>
-                      </p>
+                    {item.checked_off && (
+                      <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-green flex items-center justify-center">
+                        <CheckIcon size={10} className="text-cream" />
+                      </span>
                     )}
-
-                    {/* Remove (manual only) */}
-                    {item.type === "manual" && (
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item)}
-                        disabled={busyId === item.manual_id}
-                        className="flex-none w-7 h-7 rounded-full text-ink-mute hover:text-red-500 flex items-center justify-center transition"
-                        aria-label="Remove"
-                      >
-                        <CloseIcon size={14} />
-                      </button>
+                    <span className="text-3xl leading-none">{item.emoji}</span>
+                    <span className="text-[11px] font-bold leading-tight capitalize line-clamp-2">
+                      {item.name}
+                    </span>
+                    {item.quantity && item.unit && (
+                      <span className="text-[10px] text-ink-mute tabular-nums">
+                        {item.quantity} {item.unit}
+                      </span>
                     )}
-                  </div>
+                    {item.cost && (
+                      <span className="text-[10px] font-semibold text-ink-soft tabular-nums">
+                        {item.cost.toFixed(1)} AED
+                      </span>
+                    )}
+                  </button>
                 ))}
               </div>
             </section>
@@ -329,7 +428,7 @@ export function GroceriesList({ planItems, manualItems }: Props) {
       </div>
 
       {/* Add item */}
-      <div className="mt-5">
+      <div className="mt-6">
         <AddItemSection
           adding={adding} setAdding={setAdding}
           newItemText={newItemText} setNewItemText={setNewItemText}
@@ -338,6 +437,17 @@ export function GroceriesList({ planItems, manualItems }: Props) {
           onAdd={addItem} error={error}
         />
       </div>
+
+      {/* Tap-to-edit sheet */}
+      {activeItem && (
+        <ItemSheet
+          item={activeItem}
+          onClose={() => setActiveItem(null)}
+          onCheck={() => toggleCheck(activeItem)}
+          onRemove={activeItem.type === "manual" ? () => removeItem(activeItem) : undefined}
+          busy={busyId === activeItem.manual_id}
+        />
+      )}
     </div>
   );
 }
@@ -369,29 +479,14 @@ function AddItemSection({
     <div className="card">
       <h3 className="font-display text-lg mb-3">Add item</h3>
       <div className="space-y-3">
-        <input
-          type="text"
-          value={newItemText}
-          onChange={(e) => setNewItemText(e.target.value)}
-          placeholder="e.g. Eggs, Fresh basil, Sourdough…"
-          className="input"
-          autoFocus
-        />
+        <input type="text" value={newItemText} onChange={(e) => setNewItemText(e.target.value)}
+          placeholder="e.g. Eggs, Fresh basil…" className="input" autoFocus />
         <div className="grid grid-cols-2 gap-3">
-          <input
-            type="number"
-            value={newItemQty}
-            onChange={(e) => setNewItemQty(e.target.value)}
-            placeholder="Quantity"
-            className="input tabular-nums"
-            inputMode="decimal"
-            step="any"
-          />
+          <input type="number" value={newItemQty} onChange={(e) => setNewItemQty(e.target.value)}
+            placeholder="Quantity" className="input tabular-nums" inputMode="decimal" step="any" />
           <select value={newItemUnit} onChange={(e) => setNewItemUnit(e.target.value)} className="input">
             <option value="">Unit</option>
-            {["g", "kg", "ml", "l", "piece", "pack"].map((u) => (
-              <option key={u} value={u}>{u}</option>
-            ))}
+            {["g", "kg", "ml", "l", "piece", "pack"].map((u) => <option key={u} value={u}>{u}</option>)}
           </select>
         </div>
         {error && (
