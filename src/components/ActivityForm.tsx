@@ -88,10 +88,17 @@ export function ActivityForm({ today, existingLog }: Props) {
         return;
       }
 
+      // Clear fields so the form is fresh for any edits
+      setSteps("");
+      setExerciseMin("");
+      setExerciseType("");
+      setIntensity("");
+      setEnergy(0);
+      setNotes("");
       setSuccess(true);
       setSaving(false);
       router.refresh();
-      setTimeout(() => setSuccess(false), 2500);
+      setTimeout(() => setSuccess(false), 3000);
     } catch {
       setError("Network error");
       setSaving(false);
@@ -101,7 +108,7 @@ export function ActivityForm({ today, existingLog }: Props) {
   return (
     <div className="card-tangerine">
       <h2 className="font-display text-2xl lg:text-3xl mb-2">
-        {existingLog ? "Update today" : "Log today"}
+        Log today
       </h2>
       <p className="text-sm opacity-90 mb-5">
         Just rough numbers. Skip anything that doesn&apos;t apply.
@@ -245,7 +252,7 @@ export function ActivityForm({ today, existingLog }: Props) {
               borderColor: "var(--color-green)",
             }}
           >
-            Saved.
+            ✓ Saved — check the history below.
           </div>
         )}
 
@@ -255,7 +262,7 @@ export function ActivityForm({ today, existingLog }: Props) {
           disabled={saving}
           className="btn btn-saffron w-full"
         >
-          {saving ? "Saving..." : existingLog ? "Update" : "Save"}
+          {saving ? "Saving..." : "Save"}
         </button>
       </div>
     </div>
