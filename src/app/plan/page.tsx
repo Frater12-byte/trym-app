@@ -4,9 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { PlanDays } from "@/components/PlanDays";
 import { GeneratePlanButton } from "@/components/GeneratePlanButton";
-import { WaterTracker } from "@/components/WaterTracker";
-import { FoodLogButton } from "@/components/FoodLogModal";
-import { FoodPhotoButton } from "@/components/FoodPhotoButton";
 import {
   CalendarIcon,
   CartIcon,
@@ -207,15 +204,6 @@ export default async function PlanPage() {
           today={todayStr}
           unitWeight={profile.unit_weight}
         />
-
-        {/* Water + unplanned food + share */}
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <WaterTracker />
-          <div className="flex flex-col justify-center">
-            <FoodLogButton />
-          </div>
-          <FoodPhotoButton />
-        </div>
 
         {/* Past 2 days */}
         {yesterdayFood.length > 0 && (

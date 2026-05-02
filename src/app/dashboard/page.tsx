@@ -2,8 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
-import { DashboardActions } from "@/components/DashboardActions";
 import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
+import { FoodLogButton } from "@/components/FoodLogModal";
+import { FoodPhotoButton } from "@/components/FoodPhotoButton";
+import { WaterTracker } from "@/components/WaterTracker";
 import { NotificationPrompt } from "@/components/PwaSetup";
 import {
   CalendarIcon,
@@ -51,7 +53,8 @@ export default async function DashboardPage() {
         .from("plans")
         .select(
           `id, swap_credits_remaining, swap_credits_max,
-           plan_meals(id, status, actual_cost_aed, meal:meals(estimated_cost_aed))`
+           plan_meals(id, day_of_week, meal_slot, status, actual_cost_aed,
+             meal:meals(id, name, emoji, estimated_cost_aed, calories))`
         )
         .eq("user_id", user.id)
         .eq("week_start_date", weekStartStr)
@@ -92,6 +95,11 @@ export default async function DashboardPage() {
     ...pm,
     meal: Array.isArray(pm.meal) ? pm.meal[0] : pm.meal,
   }));
+
+  // Today's meals snapshot (by day_of_week index)
+  const todayMeals = planMeals
+    .filter((pm) => pm.day_of_week === dow)
+    .sort((a, b) => ["breakfast", "lunch", "dinner"].indexOf(a.meal_slot) - ["breakfast", "lunch", "dinner"].indexOf(b.meal_slot));
   const totalMeals = planMeals.length;
   const loggedMeals = planMeals.filter((m) => m.status !== "planned").length;
   const mealsPct = totalMeals > 0 ? Math.round((loggedMeals / totalMeals) * 100) : 0;
@@ -198,13 +206,50 @@ export default async function DashboardPage() {
           </Link>
         </section>
 
-        {/* QUICK ACTIONS + STARRED */}
-        <section className="mb-6 lg:mb-8">
-          <p className="eyebrow mb-3">Quick log</p>
-          <div className="space-y-3">
-            <StarredFoodsWidget />
-            <DashboardActions />
-          </div>
+        {/* TODAY'S MEALS SNAPSHOT */}
+        {todayMeals.length > 0 && (
+          <section className="mb-4">
+            <div className="flex items-baseline justify-between mb-3">
+              <p className="eyebrow">Today&apos;s food</p>
+              <Link href="/plan" className="text-xs text-tangerine font-bold">Full plan →</Link>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {["breakfast", "lunch", "dinner"].map((slot) => {
+                const pm = todayMeals.find((m) => m.meal_slot === slot);
+                return (
+                  <Link
+                    key={slot}
+                    href="/plan"
+                    className={`rounded-2xl border-2 border-ink p-3 text-center transition hover:-translate-y-0.5 ${
+                      pm?.status === "cooked" ? "bg-green-tint" :
+                      pm?.status === "skipped" ? "opacity-40 bg-cream" :
+                      "bg-white"
+                    }`}
+                    style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
+                  >
+                    <p className="text-2xl mb-1">{pm?.meal?.emoji ?? "—"}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-ink-mute capitalize">{slot}</p>
+                    <p className="text-xs font-bold mt-0.5 leading-tight line-clamp-2">
+                      {pm?.meal?.name ?? "Not planned"}
+                    </p>
+                    {pm?.status && pm.status !== "planned" && (
+                      <p className="text-[9px] text-green font-bold uppercase tracking-wider mt-1">
+                        {pm.status}
+                      </p>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* QUICK LOG — right under today's food */}
+        <section className="mb-6 lg:mb-8 space-y-3">
+          <StarredFoodsWidget />
+          <WaterTracker />
+          <FoodLogButton />
+          <FoodPhotoButton />
         </section>
 
         {/* PLAN + GROCERIES NAV */}

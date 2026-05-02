@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CloseIcon, CheckIcon, PlusIcon } from "./icons";
 
@@ -65,8 +65,19 @@ function FoodLogModal({ onClose }: Props) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
+  // Photo attachment
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   useEffect(() => { setFavorites(loadFavorites()); }, []);
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setPhotoFile(f);
+    setPhotoPreview(URL.createObjectURL(f));
+  }
 
   function pickQuick(opt: (typeof QUICK_PICKS)[0] | Favorite) {
     setName("name" in opt ? opt.name : "");
@@ -105,6 +116,17 @@ function FoodLogModal({ onClose }: Props) {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Could not save"); setSaving(false); return; }
+
+      // If a photo was attached, share to community in parallel
+      if (photoFile) {
+        const fd = new FormData();
+        fd.append("image", photoFile);
+        fd.append("meal_name", name.trim());
+        if (calories) fd.append("calories", calories);
+        // best-effort — don't block the success flow on this
+        fetch("/api/community/post", { method: "POST", body: fd }).catch(() => {});
+      }
+
       setSuccess(true);
       setTimeout(() => { onClose(); router.refresh(); }, 1000);
     } catch {
@@ -223,6 +245,41 @@ function FoodLogModal({ onClose }: Props) {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Photo attachment */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+                  📸 Add a photo (optional)
+                </p>
+                {photoPreview ? (
+                  <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photoPreview} alt="Food" className="w-full rounded-2xl border-2 border-ink object-cover max-h-44" />
+                    <button
+                      type="button"
+                      onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-ink text-cream flex items-center justify-center text-xs"
+                    >✕</button>
+                    <p className="text-[10px] text-ink-mute mt-1">Will be shared to the community feed</p>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-ink/30 text-sm text-ink-mute hover:border-ink transition"
+                  >
+                    📷 Take or pick a photo
+                  </button>
+                )}
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="sr-only"
+                  onChange={handlePhotoChange}
+                />
               </div>
 
               {/* Calories + cost */}
