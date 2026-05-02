@@ -33,7 +33,7 @@ interface OnboardingData {
   pantry_items: string[];
 }
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 // ============================================================
 // MAIN COMPONENT
@@ -239,6 +239,8 @@ export default function OnboardingPage() {
         return true; // dietary prefs optional
       case 7:
         return true; // pantry optional
+      case 8:
+        return true; // notifications optional
       default:
         return false;
     }
@@ -270,6 +272,7 @@ export default function OnboardingPage() {
       {step === 7 && (
         <Step7Pantry data={data} toggle={toggleArrayValue} />
       )}
+      {step === 8 && <Step8Notifications />}
 
       {error && <div className="warn-card text-sm mt-4">{error}</div>}
     </OnboardingShell>
@@ -307,6 +310,10 @@ const STEPS = [
   {
     title: "What's already at home?",
     subtitle: "Tap the staples you usually keep in your kitchen. We'll skip them on your shopping list.",
+  },
+  {
+    title: "Stay on track.",
+    subtitle: "One nudge at the right time is worth more than checking the app every hour.",
   },
 ];
 
@@ -781,6 +788,69 @@ function Step7Pantry({
       </div>
       <p className="text-xs text-ink-mute text-center pt-2">
         Skip this if you&apos;re not sure — you can always update it in settings.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================
+// STEP 8 — Push notifications
+// ============================================================
+function Step8Notifications() {
+  const [status, setStatus] = useState<"idle" | "granted" | "denied">("idle");
+
+  async function enable() {
+    if (typeof Notification === "undefined") return;
+    const perm = await Notification.requestPermission();
+    setStatus(perm === "granted" ? "granted" : "denied");
+    if (perm === "granted" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }
+
+  return (
+    <div className="space-y-6 text-center">
+      <div className="text-6xl">🔔</div>
+
+      <div className="space-y-3 text-left">
+        {[
+          { e: "📅", t: "Sunday plan reminder", d: "Your new plan is ready — time to shop." },
+          { e: "⚖️", t: "Weigh-in nudge", d: "3 days since your last check-in." },
+          { e: "🏁", t: "Goal milestone", d: "You just hit 50% of your target." },
+        ].map((item) => (
+          <div key={item.t} className="flex items-start gap-3 card-cream card-sm">
+            <span className="text-xl flex-none">{item.e}</span>
+            <div>
+              <p className="font-bold text-sm">{item.t}</p>
+              <p className="text-xs text-ink-mute">{item.d}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {status === "granted" ? (
+        <div className="card-cream py-4">
+          <p className="font-bold text-green">✓ Notifications enabled</p>
+          <p className="text-xs text-ink-mute mt-1">
+            Tap &quot;Finish&quot; to get into your plan.
+          </p>
+        </div>
+      ) : status === "denied" ? (
+        <p className="text-sm text-ink-mute">
+          Notifications blocked. You can enable them in browser settings later.
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={enable}
+          className="btn btn-primary w-full"
+        >
+          🔔 Enable reminders
+        </button>
+      )}
+
+      <p className="text-xs text-ink-mute">
+        Skip if you prefer — you can enable from your profile later.
       </p>
     </div>
   );
