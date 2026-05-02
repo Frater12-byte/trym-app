@@ -30,6 +30,19 @@ export default async function PlanPage() {
   weekStart.setHours(0, 0, 0, 0);
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
+  // Calculate how many days are visible (today + up to next 2, within current week)
+  const todayDayIdx = dow; // 0=Sun … 6=Sat
+  const visibleDayCount = [0, 1, 2]
+    .map((offset) => todayDayIdx + offset)
+    .filter((i) => i < 7).length;
+
+  const planTitle =
+    visibleDayCount === 1
+      ? today.toLocaleDateString("en-US", { weekday: "long" }) + "."
+      : visibleDayCount === 2
+      ? "Next 2 days."
+      : "Next 3 days.";
+
   // PARALLEL queries
   const [profileResult, planResult] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
@@ -153,7 +166,7 @@ export default async function PlanPage() {
             <div>
               <p className="eyebrow">Plan</p>
               <h1 className="font-display text-4xl lg:text-5xl">
-                Next 3 days.
+                {planTitle}
               </h1>
             </div>
             <div className="card-cream card-sm rotate-right">

@@ -189,7 +189,10 @@ function MealCard({
 }) {
   const meal = planMeal.meal;
   const [loadingAction, setLoadingAction] = useState<"skip" | "swap" | null>(null);
+  // After swap: optimistically show new meal while page refreshes in background
   const [swapResult, setSwapResult] = useState<Meal | null>(null);
+  // Local credits so Swap button disables immediately after using a credit
+  const [localCredits, setLocalCredits] = useState(swapCreditsLeft);
   const [showLogModal, setShowLogModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -201,44 +204,17 @@ function MealCard({
     );
   }
 
-  // Show the newly swapped meal briefly before refresh
-  if (swapResult) {
-    return (
-      <div className="card-cream flex flex-col min-h-[200px] relative overflow-hidden">
-        <span className="absolute top-3 right-3 pill pill-success text-[10px]">
-          Swapped!
-        </span>
-        <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute capitalize mb-3">
-          {planMeal.meal_slot}
-        </p>
-        <div className="flex items-start gap-3 mb-3 flex-1">
-          <div className="text-3xl flex-none">{swapResult.emoji}</div>
-          <h3 className="font-display text-lg leading-tight">{swapResult.name}</h3>
-        </div>
-        <div className="grid grid-cols-3 gap-1 pt-3 border-t-2 border-cream">
-          <Stat
-            icon={<ClockIcon size={14} />}
-            value={swapResult.prep_minutes + swapResult.cook_minutes}
-            unit="m"
-          />
-          <Stat icon={<FlameIcon size={14} />} value={swapResult.calories} unit="cal" />
-          <Stat
-            icon={<CoinIcon size={14} />}
-            value={swapResult.estimated_cost_aed != null ? (swapResult.estimated_cost_aed * PRICE_X).toFixed(1) : "—"}
-            unit="AED"
-          />
-        </div>
-      </div>
-    );
-  }
+  // Use swapResult for display while background refresh is in flight
+  const displayMeal = swapResult ?? meal;
+  const justSwapped = !!swapResult;
 
   const status = planMeal.status;
   const alreadyLogged = status !== "planned";
 
-  let cardClass = "card";
-  if (status === "cooked") cardClass = "card-cream";
-  if (status === "ate_out") cardClass = "card-saffron";
-  if (status === "skipped") cardClass = "card opacity-40";
+  let cardClass = justSwapped ? "card-cream" : "card";
+  if (!justSwapped && status === "cooked") cardClass = "card-cream";
+  if (!justSwapped && status === "ate_out") cardClass = "card-saffron";
+  if (!justSwapped && status === "skipped") cardClass = "card opacity-40";
 
   async function handleSkip() {
     setLoadingAction("skip");
@@ -294,8 +270,12 @@ function MealCard({
         throw new Error();
       }
 
+      // Show new meal immediately + keep buttons active
       setSwapResult(suggestion);
-      setTimeout(() => onRefresh(), 1800);
+      setLocalCredits((c) => Math.max(0, c - 1));
+      onRefresh(); // refresh in background
+      // Clear swapResult once server data arrives (brief visual bridge)
+      setTimeout(() => setSwapResult(null), 2500);
     } catch {
       setError("Could not swap — try again");
     } finally {
@@ -311,22 +291,26 @@ function MealCard({
           <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute capitalize">
             {planMeal.meal_slot}
           </p>
-          <StatusBadge status={status} />
+          {justSwapped ? (
+            <span className="pill pill-success text-[10px]">Swapped!</span>
+          ) : (
+            <StatusBadge status={status} />
+          )}
         </div>
 
         {/* Meal — tap goes to recipe */}
         <Link
-          href={`/recipes/${meal.id}`}
+          href={`/recipes/${displayMeal.id}`}
           className="flex items-start gap-3 mb-3 flex-1 group"
         >
-          <div className="text-3xl flex-none">{meal.emoji}</div>
+          <div className="text-3xl flex-none">{displayMeal.emoji}</div>
           <div className="flex-1 min-w-0">
             <h3 className="font-display text-lg leading-tight group-hover:underline">
-              {meal.name}
+              {displayMeal.name}
             </h3>
-            {meal.description && (
+            {displayMeal.description && (
               <p className="text-xs text-ink-mute mt-0.5 line-clamp-2 leading-relaxed">
-                {meal.description}
+                {displayMeal.description}
               </p>
             )}
           </div>
@@ -340,21 +324,21 @@ function MealCard({
         <div className="grid grid-cols-3 gap-1 py-3 border-t-2 border-y-2 border-cream">
           <Stat
             icon={<ClockIcon size={14} />}
-            value={meal.prep_minutes + meal.cook_minutes}
+            value={displayMeal.prep_minutes + displayMeal.cook_minutes}
             unit="m"
           />
           <Stat
             icon={<FlameIcon size={14} />}
-            value={planMeal.actual_calories ?? meal.calories}
+            value={justSwapped ? displayMeal.calories : (planMeal.actual_calories ?? displayMeal.calories)}
             unit="cal"
           />
           <Stat
             icon={<CoinIcon size={14} />}
             value={
-              planMeal.actual_cost_aed != null
+              !justSwapped && planMeal.actual_cost_aed != null
                 ? (planMeal.actual_cost_aed * PRICE_X).toFixed(1)
-                : meal.estimated_cost_aed != null
-                ? (meal.estimated_cost_aed * PRICE_X).toFixed(1)
+                : displayMeal.estimated_cost_aed != null
+                ? (displayMeal.estimated_cost_aed * PRICE_X).toFixed(1)
                 : "—"
             }
             unit="AED"
@@ -366,8 +350,8 @@ function MealCard({
           <p className="text-xs font-semibold text-orange-700 mt-2">{error}</p>
         )}
 
-        {/* Inline actions — only for unlogged meals */}
-        {!alreadyLogged && (
+        {/* Action buttons — always visible for unlogged / just-swapped meals */}
+        {(!alreadyLogged || justSwapped) && (
           <div className="flex gap-2 mt-3">
             <button
               type="button"
@@ -381,10 +365,10 @@ function MealCard({
             <button
               type="button"
               onClick={handleSwap}
-              disabled={!!loadingAction || swapCreditsLeft <= 0}
+              disabled={!!loadingAction || localCredits <= 0}
               className="flex-1 py-2 rounded-xl border-2 border-ink text-xs font-bold bg-cream hover:-translate-y-0.5 transition disabled:opacity-40 flex items-center justify-center gap-1"
               style={{ boxShadow: "2px 2px 0 #1A1A1A" }}
-              title={swapCreditsLeft <= 0 ? "No swaps left this week" : undefined}
+              title={localCredits <= 0 ? "No swaps left this week" : undefined}
             >
               {loadingAction === "swap" ? (
                 "···"
@@ -407,7 +391,7 @@ function MealCard({
           </div>
         )}
 
-        {alreadyLogged && (
+        {alreadyLogged && !justSwapped && (
           <button
             type="button"
             onClick={() => setShowLogModal(true)}
