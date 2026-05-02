@@ -50,6 +50,8 @@ const CATEGORY_ORDER = [
   "other",
 ];
 
+const PRICE_X = 2; // market price adjustment
+
 export function GroceriesList({ planItems, manualItems }: Props) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
@@ -91,7 +93,7 @@ export function GroceriesList({ planItems, manualItems }: Props) {
     if (!grouped[cat]) grouped[cat] = [];
     const cost =
       p.default_price_aed && p.quantity
-        ? Math.round(p.default_price_aed * p.quantity * 100) / 100
+        ? Math.round(p.default_price_aed * p.quantity * PRICE_X * 100) / 100
         : null;
     grouped[cat].push({
       key: `plan-${p.ingredient_id}`,
@@ -114,7 +116,7 @@ export function GroceriesList({ planItems, manualItems }: Props) {
     const name = ing?.name || m.raw_text || "Item";
     const cost =
       ing?.default_price_aed && m.quantity
-        ? Math.round(ing.default_price_aed * m.quantity * 100) / 100
+        ? Math.round(ing.default_price_aed * m.quantity * PRICE_X * 100) / 100
         : null;
     grouped[cat].push({
       key: `manual-${m.id}`,

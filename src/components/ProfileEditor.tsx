@@ -183,7 +183,6 @@ export function ProfileEditor({ profile: initial }: Props) {
             options={[
               { val: "male", label: "Male" },
               { val: "female", label: "Female" },
-              { val: "other", label: "Other" },
             ]}
             onSelect={(v) => {
               update("sex", v as Profile["sex"]);

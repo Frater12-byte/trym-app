@@ -124,7 +124,7 @@ export default async function RecipeDetailPage({ params }: Props) {
             label="Cost"
             value={
               meal.estimated_cost_aed !== null
-                ? meal.estimated_cost_aed.toFixed(1)
+                ? (meal.estimated_cost_aed * 2).toFixed(1)
                 : "—"
             }
             unit="AED"

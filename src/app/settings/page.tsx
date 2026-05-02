@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
-import { ReceiptUploader } from "@/components/ReceiptUploader";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,31 +13,16 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // PARALLEL queries
-  const [profileResult, receiptCountResult, recentReceiptsResult] =
-    await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).single(),
-      supabase
-        .from("receipts")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id),
-      supabase
-        .from("receipts")
-        .select(
-          "id, supermarket, total_aed, receipt_date, status, matched_items_count"
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(5),
-    ]);
-
-  const profile = profileResult.data;
-  const receiptCount = receiptCountResult.count;
-  const recentReceipts = recentReceiptsResult.data;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, onboarding_completed, subscription_status")
+    .eq("id", user.id)
+    .single();
 
   if (!profile?.onboarding_completed) redirect("/onboarding");
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
+  const isPro = profile.subscription_status === "paid";
 
   return (
     <main className="min-h-screen bg-cream pb-24 md:pb-20">
@@ -63,9 +47,14 @@ export default async function SettingsPage() {
             <p className="text-tangerine font-bold mt-4 text-sm">Edit →</p>
           </Link>
 
-          <div className="card-cream rotate-right">
+          <Link
+            href="/upgrade"
+            className="card-cream rotate-right hover:-translate-y-1 transition block"
+          >
             <div className="text-4xl mb-3">💎</div>
-            <h2 className="font-display text-2xl mb-1">Plan</h2>
+            <h2 className="font-display text-2xl mb-1">
+              {isPro ? "Pro plan" : "Upgrade to Pro"}
+            </h2>
             <p className="text-sm text-ink-soft mb-3">
               You&apos;re on the{" "}
               <span className="font-bold capitalize">
@@ -73,69 +62,10 @@ export default async function SettingsPage() {
               </span>{" "}
               plan.
             </p>
-            {profile.subscription_status !== "paid" && (
-              <p className="text-xs text-ink-mute">
-                Pro features (full recipes, email delivery, multi-supermarket
-                comparison) launching soon.
-              </p>
+            {!isPro && (
+              <p className="text-tangerine font-bold text-sm">See Pro features →</p>
             )}
-          </div>
-        </section>
-
-        <section className="mb-6">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="font-display text-2xl">Receipts</h2>
-            <span className="text-xs text-ink-mute tabular-nums">
-              {receiptCount ?? 0} uploaded
-            </span>
-          </div>
-          <p className="text-sm text-ink-soft mb-4 leading-relaxed">
-            Snapping a grocery receipt teaches Trym what real prices look like
-            in your area. Helps build better plans for everyone.
-          </p>
-          <ReceiptUploader />
-
-          {recentReceipts && recentReceipts.length > 0 && (
-            <div className="mt-4 card-cream">
-              <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-3">
-                Recent
-              </p>
-              <ul className="space-y-2">
-                {recentReceipts.map((r) => (
-                  <li key={r.id}>
-                    <Link
-                      href={`/dashboard/receipts/${r.id}`}
-                      className="flex justify-between items-center py-2 hover:bg-peach/30 -mx-2 px-2 rounded-lg transition"
-                    >
-                      <div>
-                        <p className="text-sm font-semibold capitalize">
-                          {r.supermarket || "Unknown store"}
-                          {r.receipt_date && (
-                            <span className="text-ink-mute font-normal">
-                              {" "}
-                              ·{" "}
-                              {new Date(r.receipt_date).toLocaleDateString(
-                                "en-US",
-                                { month: "short", day: "numeric" }
-                              )}
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-ink-mute">
-                          {r.status === "parsed"
-                            ? `${r.matched_items_count ?? 0} items matched`
-                            : r.status}
-                        </p>
-                      </div>
-                      <p className="text-sm font-semibold tabular-nums">
-                        {r.total_aed?.toFixed(2)} AED
-                      </p>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          </Link>
         </section>
 
         <section className="card-cream text-center">

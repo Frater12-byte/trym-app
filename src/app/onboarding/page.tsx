@@ -347,7 +347,7 @@ function Step1AboutYou({
           Used for calorie calculation only.
         </p>
         <div className="space-y-2">
-          {(["male", "female", "other"] as Sex[]).map((s) => (
+          {(["male", "female"] as Sex[]).map((s) => (
             <ChoiceButton
               key={s}
               selected={data.sex === s}

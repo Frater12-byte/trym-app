@@ -56,6 +56,7 @@ interface Props {
 }
 
 const SLOTS = ["breakfast", "lunch", "dinner"];
+const PRICE_X = 2;
 
 export function PlanDays({ plan, today }: Props) {
   const router = useRouter();
@@ -137,7 +138,8 @@ function DaySection({
 
   const dayCost = sortedMeals.reduce((sum, m) => {
     if (m.status === "skipped") return sum;
-    return sum + (m.actual_cost_aed ?? m.meal?.estimated_cost_aed ?? 0);
+    const raw = m.actual_cost_aed ?? m.meal?.estimated_cost_aed ?? 0;
+    return sum + raw * PRICE_X;
   }, 0);
 
   return (
@@ -222,7 +224,7 @@ function MealCard({
           <Stat icon={<FlameIcon size={14} />} value={swapResult.calories} unit="cal" />
           <Stat
             icon={<CoinIcon size={14} />}
-            value={swapResult.estimated_cost_aed?.toFixed(1) ?? "—"}
+            value={swapResult.estimated_cost_aed != null ? (swapResult.estimated_cost_aed * PRICE_X).toFixed(1) : "—"}
             unit="AED"
           />
         </div>
@@ -349,9 +351,11 @@ function MealCard({
           <Stat
             icon={<CoinIcon size={14} />}
             value={
-              planMeal.actual_cost_aed?.toFixed(1) ??
-              meal.estimated_cost_aed?.toFixed(1) ??
-              "—"
+              planMeal.actual_cost_aed != null
+                ? (planMeal.actual_cost_aed * PRICE_X).toFixed(1)
+                : meal.estimated_cost_aed != null
+                ? (meal.estimated_cost_aed * PRICE_X).toFixed(1)
+                : "—"
             }
             unit="AED"
           />

@@ -117,10 +117,8 @@ export async function POST() {
   type PlanMealRow = {
     plan_id: string;
     meal_id: string;
-    day_index: number;
+    day_of_week: number;
     meal_slot: string;
-    planned_calories: number | null;
-    planned_cost_aed: number | null;
   };
 
   const rows: PlanMealRow[] = [];
@@ -130,10 +128,8 @@ export async function POST() {
       rows.push({
         plan_id: plan.id,
         meal_id: meal.id,
-        day_index: day,
+        day_of_week: day,
         meal_slot: slot,
-        planned_calories: meal.calories ?? null,
-        planned_cost_aed: meal.estimated_cost_aed ?? null,
       });
     }
   }

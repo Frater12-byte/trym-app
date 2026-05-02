@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { GroceriesList } from "@/components/GroceriesList";
-import { ReceiptUploader } from "@/components/ReceiptUploader";
-import { CartIcon, ReceiptIcon } from "@/components/icons";
+import { CartIcon } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -15,7 +14,6 @@ export default async function GroceriesPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Find current week's plan to derive grocery list
   const today = new Date();
   const dow = today.getDay();
   const weekStart = new Date(today);
@@ -23,56 +21,44 @@ export default async function GroceriesPage() {
   weekStart.setHours(0, 0, 0, 0);
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
-  // PARALLEL queries
-  const [profileResult, planResult, manualItemsResult, recentReceiptsResult] =
-    await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).single(),
-      supabase
-        .from("plans")
-        .select(
-          `id,
-           plan_meals(
-             status,
-             meal:meals(
-               servings,
-               meal_ingredients(
-                 quantity, unit,
-                 ingredient:ingredients(id, name, category, default_unit, default_price_aed)
-               )
+  const [profileResult, planResult, manualItemsResult] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase
+      .from("plans")
+      .select(
+        `id,
+         plan_meals(
+           status,
+           meal:meals(
+             servings,
+             meal_ingredients(
+               quantity, unit,
+               ingredient:ingredients(id, name, category, default_unit, default_price_aed)
              )
-           )`
-        )
-        .eq("user_id", user.id)
-        .eq("week_start_date", weekStartStr)
-        .maybeSingle(),
-      supabase
-        .from("shopping_list_items")
-        .select(
-          `id, raw_text, quantity, unit, source, checked_off, ingredient_id,
-           ingredient:ingredients(name, category, default_price_aed, default_unit)`
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("receipts")
-        .select(
-          "id, supermarket, total_aed, receipt_date, status, matched_items_count"
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(3),
-    ]);
+           )
+         )`
+      )
+      .eq("user_id", user.id)
+      .eq("week_start_date", weekStartStr)
+      .maybeSingle(),
+    supabase
+      .from("shopping_list_items")
+      .select(
+        `id, raw_text, quantity, unit, source, checked_off, ingredient_id,
+         ingredient:ingredients(name, category, default_price_aed, default_unit)`
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
   const profile = profileResult.data;
   const plan = planResult.data;
   const manualItems = manualItemsResult.data;
-  const recentReceipts = recentReceiptsResult.data;
 
   if (!profile?.onboarding_completed) redirect("/onboarding");
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
-  // Aggregate plan ingredients (skip skipped/cooked/ate_out meals — those are done)
   type AggregatedItem = {
     ingredient_id: string;
     name: string;
@@ -128,47 +114,23 @@ export default async function GroceriesPage() {
           </h1>
         </header>
 
-        {/* Empty state if no plan AND no manual items */}
         {planItems.length === 0 && (manualItems?.length || 0) === 0 ? (
           <div className="card-saffron rotate-right mb-6">
             <CartIcon size={40} className="text-ink mb-4" />
             <h2 className="font-display text-2xl lg:text-3xl mb-3">
               Empty list — for now.
             </h2>
-            <p className="text-sm lg:text-base leading-relaxed mb-2">
-              Once your weekly plan is ready, the shopping list will fill up
-              automatically — every ingredient, summed across the week, grouped
-              by aisle.
-            </p>
             <p className="text-sm lg:text-base leading-relaxed">
-              You can also add items manually below.
+              Once your weekly plan is ready, the shopping list fills up
+              automatically — every ingredient, summed and grouped by aisle.
             </p>
           </div>
         ) : null}
 
-        {/* MAIN LIST */}
         <GroceriesList
           planItems={planItems}
           manualItems={manualItems || []}
         />
-
-        {/* Receipt upload */}
-        <section className="mt-8 lg:mt-10">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="font-display text-2xl flex items-center gap-2">
-              <ReceiptIcon size={24} />
-              Snap your receipt
-            </h2>
-            <span className="text-xs text-ink-mute tabular-nums">
-              {recentReceipts?.length ?? 0} recent
-            </span>
-          </div>
-          <p className="text-sm text-ink-soft mb-4 leading-relaxed">
-            Done shopping? Snap your receipt so we can track real prices and
-            update next week&apos;s budget.
-          </p>
-          <ReceiptUploader />
-        </section>
       </div>
     </main>
   );

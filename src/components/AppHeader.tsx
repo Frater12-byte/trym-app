@@ -73,7 +73,7 @@ export function AppHeader({ firstName }: Props) {
               Settings
             </Link>
             <Link
-              href="/settings"
+              href="/settings/profile"
               className="w-10 h-10 bg-tangerine text-cream rounded-full flex items-center justify-center font-bold border-2 border-ink"
               style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
             >
