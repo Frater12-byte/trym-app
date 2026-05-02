@@ -83,8 +83,7 @@ export default function Home() {
               </h1>
 
               <p className="text-[20px] text-ink-soft mb-9 max-w-[540px] leading-[1.55]">
-                Personalised weekly meal plans that fit your weight goal, your budget,
-                and the 20 minutes you actually have to cook. We do the math, you do the eating.
+                One-tap meal swaps. Full recipes. Real Dubai supermarket prices. 1 minute to set up.
               </p>
 
               <div className="flex flex-wrap gap-4 mb-6">
@@ -136,7 +135,7 @@ export default function Home() {
 
           <div className="grid lg:grid-cols-3 gap-6">
             <StepCard n={1} numBg="#FF6B35" numColor="#fff" title="Tell us your goal"  rot="-1deg"   body="Weight, budget, prep time, what you don't eat. 90 seconds and you're done." />
-            <StepCard n={2} numBg="#0E4D3F" numColor="#FFF8EE" title="Get your week"  rot="0.5deg"  body="Meals, shopping list, total cost. Ready Sunday morning, sent to your inbox." />
+            <StepCard n={2} numBg="#0E4D3F" numColor="#FFF8EE" title="Get your week"  rot="0.5deg"  body="Meals planned for the next 3 days, shopping list generated, recipe details one tap away. Swap any meal in one tap — get a new one matched to your taste." />
             <StepCard n={3} numBg="#FFD23F" numColor="#1A1A1A" title="Track and adjust" rot="-0.5deg" body="Log weight every 3 days. We nudge you gently if you drift off pace." />
           </div>
         </div>
@@ -272,13 +271,16 @@ export default function Home() {
               { icon: "🛒", title: "Real Dubai prices", body: "Ingredient prices from Carrefour, Lulu, Spinneys, and Kibsons refreshed weekly. We pick the cheapest list for you.", color: "bg-green text-cream" },
               { icon: "⏱", title: "Under your time limit", body: "Every meal is filtered to your max prep time. If you said 20 minutes, you will never see a 25-minute recipe.", color: "bg-saffron text-ink" },
               { icon: "🌙", title: "Halal & dietary filters", body: "Tell us once — Halal, vegetarian, vegan, gluten-free, or allergy filters. Applied to every meal, every week.", color: "bg-peach text-ink" },
-              { icon: "🔄", title: "One-tap meal swaps", body: "Don't feel like chicken tonight? Swap it in two taps. The calorie and budget targets auto-adjust.", color: "bg-tangerine text-cream" },
+              { icon: "🔄", title: "Tinder-style meal swaps", body: "Tap swap, get one perfect match instantly. No browsing a catalog. One tap, done. Swap credits reset every week.", color: "bg-tangerine text-cream" },
               { icon: "📊", title: "Weekly progress nudges", body: "Log your weight every few days and we tell you if you're on track — or quietly adjust your plan if not.", color: "bg-green text-cream" },
+              { icon: "📖", title: "Full recipe library", body: "Every meal comes with step-by-step instructions, ingredient lists, macros, and prep time. Tap any meal in your plan to see the full recipe.", color: "bg-peach text-ink" },
+              { icon: "🏠", title: "Pantry setup", body: "Tell us what you already have at home during setup. We skip those from your shopping list automatically.", color: "bg-saffron text-ink" },
+              { icon: "📱", title: "Built for mobile", body: "Native bottom navigation, instant one-tap actions. Works perfectly on any phone or tablet.", color: "bg-green text-cream" },
             ].map((f, i) => (
               <div
                 key={f.title}
                 className="bg-white border-2 border-ink rounded-[24px] p-7 shadow-[6px_6px_0_#1A1A1A]"
-                style={{ transform: `rotate(${["-0.5deg","1deg","-1deg","0.5deg","-0.5deg","1deg"][i]})` }}
+                style={{ transform: `rotate(${["-0.5deg","1deg","-1deg","0.5deg","-0.5deg","1deg","-0.5deg","1deg","-1deg"][i]})` }}
               >
                 <div
                   className={`w-14 h-14 rounded-full border-2 border-ink flex items-center justify-center text-2xl mb-5 shadow-[3px_3px_0_#1A1A1A] ${f.color}`}
@@ -357,6 +359,7 @@ export default function Home() {
               { q: "What about eating out?", a: "We factor it in. Tell us how often you eat out per week and we plan the home meals around it — and budget for it too." },
               { q: "Can I cancel anytime?", a: "Yes. One click in settings. No contracts, no calls, no email back-and-forth." },
               { q: "Is my data private?", a: "Yes. Weight, eating habits, payment info — all encrypted, never sold. Made in Dubai by a small team that hates spam as much as you do." },
+              { q: "Can I sign up with Google or Facebook?", a: "Yes — one tap on the login or signup screen and you're in. No password needed." },
             ].map((item, i) => (
               <details
                 key={item.q}
@@ -393,7 +396,7 @@ export default function Home() {
               ctaLabel="Start free" ctaHref="/signup"
             />
             <PricingCard
-              variant="pro" tier="Pro" price="29" period="per month"
+              variant="pro" tier="Pro" price="99" period="per month"
               badge="★ Most popular"
               features={["Everything in Free","Full recipes with step-by-step","Sunday email delivery","Multi-supermarket comparison","Unlimited meal swaps","Priority support"]}
               ctaLabel="Try Pro free for 14 days" ctaHref="/signup?plan=pro"
@@ -433,18 +436,18 @@ export default function Home() {
    ════════════════════════════════════════════════════════════ */
 
 const mealCards = [
-  { name: "Lemon chicken bowl",   emoji: "🥗", bg: "#FFE8DA", tags: [{ label: "Halal",        variant: "halal" }, { label: "High protein", variant: "plain" }], mins: 15, aed: 12, cal: 410 },
-  { name: "Harissa pasta",        emoji: "🍝", bg: "#D8EBE3", tags: [{ label: "Veg",           variant: "veg"   }, { label: "Spicy",        variant: "spicy" }], mins: 20, aed: 9,  cal: 520 },
-  { name: "Shakshuka with feta",  emoji: "🍳", bg: "#FFEFC0", tags: [{ label: "Breakfast",     variant: "plain" }, { label: "Veg",          variant: "veg"   }], mins: 18, aed: 8,  cal: 380 },
-  { name: "Beef shawarma wrap",   emoji: "🌯", bg: "#F5DDD0", tags: [{ label: "Halal",        variant: "halal" }, { label: "Lunch",        variant: "plain" }], mins: 22, aed: 14, cal: 490 },
-  { name: "Salmon poke bowl",     emoji: "🍣", bg: "#FFD9D2", tags: [{ label: "Light",         variant: "plain" }, { label: "Omega-3",      variant: "plain" }], mins: 15, aed: 18, cal: 440 },
-  { name: "Falafel mezze plate",  emoji: "🥙", bg: "#E0E8D8", tags: [{ label: "Veg",           variant: "veg"   }, { label: "High fiber",   variant: "plain" }], mins: 20, aed: 10, cal: 460 },
-  { name: "Thai chicken noodles", emoji: "🍜", bg: "#FFE8DA", tags: [{ label: "Halal",        variant: "halal" }, { label: "Spicy",        variant: "spicy" }], mins: 18, aed: 13, cal: 510 },
-  { name: "Avocado toast deluxe", emoji: "🥑", bg: "#D8EBE3", tags: [{ label: "Breakfast",     variant: "plain" }, { label: "Veg",          variant: "veg"   }], mins: 8,  aed: 11, cal: 360 },
-  { name: "Chicken tikka masala", emoji: "🍛", bg: "#FFEFC0", tags: [{ label: "Halal",        variant: "halal" }, { label: "Spicy",        variant: "spicy" }], mins: 25, aed: 15, cal: 540 },
-  { name: "Moroccan lamb tagine", emoji: "🥘", bg: "#F5DDD0", tags: [{ label: "Halal",        variant: "halal" }, { label: "One-pan",      variant: "plain" }], mins: 25, aed: 17, cal: 550 },
-  { name: "Halloumi & quinoa",    emoji: "🥗", bg: "#FFD9D2", tags: [{ label: "Veg",           variant: "veg"   }, { label: "Light",        variant: "plain" }], mins: 15, aed: 12, cal: 420 },
-  { name: "Spiced beef tacos",    emoji: "🌮", bg: "#E0E8D8", tags: [{ label: "Halal",        variant: "halal" }, { label: "High protein", variant: "plain" }], mins: 20, aed: 13, cal: 480 },
+  { name: "Lemon chicken bowl",   emoji: "🥗", bg: "#FFE8DA", tags: [{ label: "Halal",        variant: "halal" }, { label: "High protein", variant: "plain" }], mins: 15, aed: 24, cal: 410 },
+  { name: "Harissa pasta",        emoji: "🍝", bg: "#D8EBE3", tags: [{ label: "Veg",           variant: "veg"   }, { label: "Spicy",        variant: "spicy" }], mins: 20, aed: 18, cal: 520 },
+  { name: "Shakshuka with feta",  emoji: "🍳", bg: "#FFEFC0", tags: [{ label: "Breakfast",     variant: "plain" }, { label: "Veg",          variant: "veg"   }], mins: 18, aed: 16, cal: 380 },
+  { name: "Beef shawarma wrap",   emoji: "🌯", bg: "#F5DDD0", tags: [{ label: "Halal",        variant: "halal" }, { label: "Lunch",        variant: "plain" }], mins: 22, aed: 28, cal: 490 },
+  { name: "Salmon poke bowl",     emoji: "🍣", bg: "#FFD9D2", tags: [{ label: "Light",         variant: "plain" }, { label: "Omega-3",      variant: "plain" }], mins: 15, aed: 36, cal: 440 },
+  { name: "Falafel mezze plate",  emoji: "🥙", bg: "#E0E8D8", tags: [{ label: "Veg",           variant: "veg"   }, { label: "High fiber",   variant: "plain" }], mins: 20, aed: 20, cal: 460 },
+  { name: "Thai chicken noodles", emoji: "🍜", bg: "#FFE8DA", tags: [{ label: "Halal",        variant: "halal" }, { label: "Spicy",        variant: "spicy" }], mins: 18, aed: 26, cal: 510 },
+  { name: "Avocado toast deluxe", emoji: "🥑", bg: "#D8EBE3", tags: [{ label: "Breakfast",     variant: "plain" }, { label: "Veg",          variant: "veg"   }], mins: 8,  aed: 22, cal: 360 },
+  { name: "Chicken tikka masala", emoji: "🍛", bg: "#FFEFC0", tags: [{ label: "Halal",        variant: "halal" }, { label: "Spicy",        variant: "spicy" }], mins: 25, aed: 30, cal: 540 },
+  { name: "Moroccan lamb tagine", emoji: "🥘", bg: "#F5DDD0", tags: [{ label: "Halal",        variant: "halal" }, { label: "One-pan",      variant: "plain" }], mins: 25, aed: 34, cal: 550 },
+  { name: "Halloumi & quinoa",    emoji: "🥗", bg: "#FFD9D2", tags: [{ label: "Veg",           variant: "veg"   }, { label: "Light",        variant: "plain" }], mins: 15, aed: 24, cal: 420 },
+  { name: "Spiced beef tacos",    emoji: "🌮", bg: "#E0E8D8", tags: [{ label: "Halal",        variant: "halal" }, { label: "High protein", variant: "plain" }], mins: 20, aed: 26, cal: 480 },
 ];
 
 /* ════════════════════════════════════════════════════════════
@@ -868,7 +871,7 @@ function CompareTable() {
       q: "Monthly cost",
       us: (
         <Cell stack>
-          <span className="font-display font-extrabold text-[20px] text-tangerine tracking-[-0.02em]">29 AED</span>
+          <span className="font-display font-extrabold text-[20px] text-tangerine tracking-[-0.02em]">99 AED</span>
           <Mini>All-in</Mini>
         </Cell>
       ),

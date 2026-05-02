@@ -43,8 +43,8 @@ export function AppHeader({ firstName }: Props) {
             trym<span className="text-tangerine">.</span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Desktop nav — lg+ only (1024px+), hides on mobile AND portrait tablets */}
+          <nav className="hidden lg:flex items-center gap-1">
             {NAV_ITEMS.map((item) => {
               const active = isActive(item.href);
               const Icon = item.Icon;
@@ -83,7 +83,7 @@ export function AppHeader({ firstName }: Props) {
         </div>
       </header>
 
-      {/* BOTTOM TAB BAR — mobile only, sticky at bottom */}
+      {/* BOTTOM TAB BAR — mobile + portrait tablets only (<1024px), hidden on lg+ */}
       <nav
         style={{
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
@@ -96,7 +96,7 @@ export function AppHeader({ firstName }: Props) {
           backgroundColor: "#FFF8EE",
           borderTop: "2px solid #1A1A1A",
         }}
-        className="md:hidden"
+        className="lg:hidden"
       >
         <div className="grid grid-cols-4 w-full">
           {NAV_ITEMS.map((item) => {
