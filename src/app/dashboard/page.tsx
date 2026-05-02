@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
+import { PrefetchRoutes } from "@/components/PrefetchRoutes";
 import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
 import { FoodLogButton } from "@/components/FoodLogModal";
 import { FoodPhotoButton } from "@/components/FoodPhotoButton";
@@ -31,7 +32,7 @@ export default async function DashboardPage() {
 
   const [profileResult, weightResult, activityResult, planResult, todayFoodLogsResult] =
     await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).single(),
+      supabase.from("profiles").select("id, full_name, age, sex, unit_weight, unit_height, current_weight_kg, goal_weight_kg, height_cm, goal_deadline, weekly_budget_aed, max_prep_minutes, meals_per_day, eating_out_per_week, dietary_prefs, allergies, onboarding_completed, subscription_status").eq("id", user.id).single(),
       supabase
         .from("weight_logs")
         .select("weight_kg, logged_at")
@@ -143,6 +144,9 @@ export default async function DashboardPage() {
     <main className="min-h-screen bg-cream pb-12">
       <AppHeader firstName={firstName} />
 
+      {/* Prefetch the most common next navigations */}
+      <PrefetchRoutes routes={["/plan", "/groceries", "/activity"]} />
+
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">
 
         {/* GREETING */}
@@ -197,33 +201,35 @@ export default async function DashboardPage() {
             </div>
           )}
 
-          {/* Log tools — right under meal cards, BEFORE history */}
-          <div className="mt-3 space-y-3">
-            <StarredFoodsWidget />
-            <FoodLogButton />
-            <WaterTracker />
-          </div>
-
-          {/* Today's logged food — shown below the log tools */}
+          {/* Off-plan meals logged today — appear AS PART of today's plan */}
           {todayFoodLogs.length > 0 && (
-            <div className="mt-3 space-y-1.5">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-ink-mute px-1">Logged today</p>
+            <div className="mt-2 space-y-1.5">
               {todayFoodLogs.map((f) => (
-                <div key={f.id} className="flex items-center justify-between px-4 py-2.5 rounded-2xl border-2 border-ink/20 bg-cream">
-                  <div>
-                    <p className="font-bold text-sm capitalize">{f.meal_name}</p>
-                    <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
+                <div key={f.id}
+                  className="flex items-center gap-3 px-4 py-3 rounded-2xl border-2 border-ink/20 bg-cream"
+                >
+                  <span className="text-xl flex-none">🍽️</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm capitalize leading-tight">{f.meal_name}</p>
+                    <p className="text-xs text-ink-mute capitalize">{f.meal_type} · off-plan</p>
                   </div>
-                  <p className="text-sm font-bold tabular-nums text-ink-soft">
+                  <p className="text-sm font-bold tabular-nums text-ink-soft flex-none">
                     {f.calories ? `${f.calories} cal` : "—"}
                   </p>
                 </div>
               ))}
             </div>
           )}
+
+          {/* Log tools */}
+          <div className="mt-3 space-y-3">
+            <StarredFoodsWidget />
+            <FoodLogButton />
+            <WaterTracker />
+          </div>
         </section>
 
-        {/* ─── QUICK LOG — photo only ─── */}
+        {/* ─── SHARE PHOTO ─── */}
         <section className="mb-6 lg:mb-8">
           <FoodPhotoButton />
         </section>

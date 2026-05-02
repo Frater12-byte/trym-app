@@ -53,7 +53,7 @@ export default async function PlanPage() {
 
   // PARALLEL queries
   const [profileResult, planResult, yesterdayFoodResult] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase.from("profiles").select("id, full_name, age, sex, unit_weight, unit_height, current_weight_kg, goal_weight_kg, height_cm, goal_deadline, weekly_budget_aed, max_prep_minutes, meals_per_day, eating_out_per_week, dietary_prefs, allergies, onboarding_completed, subscription_status").eq("id", user.id).single(),
     supabase
       .from("plans")
       .select(

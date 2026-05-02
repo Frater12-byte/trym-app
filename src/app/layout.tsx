@@ -1,13 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PwaSetup } from "@/components/PwaSetup";
 import "./globals.css";
 
+// Only load the display weight — cuts font payload ~50%
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
-  weight: ["700", "800", "900"],
+  weight: ["800"],
   display: "swap",
 });
 
@@ -28,7 +30,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Tergo Media" }],
   manifest: "/manifest.json",
 
-  // Favicon
   icons: {
     icon: [
       { url: "/icon.png", type: "image/png" },
@@ -46,7 +47,6 @@ export const metadata: Metadata = {
     startupImage: "/icon.png",
   },
 
-  // Open Graph
   openGraph: {
     title: "Trym App — Eat better. Spend less. Hit your goal.",
     description:
@@ -55,22 +55,13 @@ export const metadata: Metadata = {
     siteName: "Trym App",
     locale: "en_US",
     type: "website",
-    images: [
-      {
-        url: `${APP_URL}/og-image.png`,
-        width: 1080,
-        height: 1080,
-        alt: "Trym App — Meal planner for Dubai",
-      },
-    ],
+    images: [{ url: `${APP_URL}/og-image.png`, width: 1080, height: 1080, alt: "Trym App" }],
   },
 
-  // Twitter / X card
   twitter: {
     card: "summary_large_image",
     title: "Trym App — Eat better. Spend less. Hit your goal.",
-    description:
-      "Personalised weekly meal plans for Dubai professionals.",
+    description: "Personalised weekly meal plans for Dubai professionals.",
     images: [`${APP_URL}/og-image.png`],
   },
 };
@@ -82,16 +73,13 @@ export const viewport: Viewport = {
   themeColor: "#FFF8EE",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="bg-cream text-ink antialiased min-h-screen">
         <PwaSetup />
         {children}
+        <SpeedInsights />
       </body>
       {process.env.NODE_ENV === "production" && (
         <GoogleAnalytics gaId="G-R21YJWH25J" />

@@ -30,18 +30,29 @@ export function AppHeader({ firstName }: Props) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // getSession reads from localStorage — no network call
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       const url =
-        user?.user_metadata?.avatar_url ??
-        user?.user_metadata?.picture ??
+        session?.user?.user_metadata?.avatar_url ??
+        session?.user?.user_metadata?.picture ??
         null;
       if (url) setAvatarUrl(url);
     });
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 44);
+    // rAF-throttled scroll — max one setState per animation frame (~60fps)
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 44);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);

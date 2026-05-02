@@ -23,6 +23,12 @@ export function StarredFoodsWidget({ compact = false, viewOnly = false }: Props)
   const [editingFav, setEditingFav] = useState<string | null>(null);
   const [editCal, setEditCal] = useState("");
   const [editCost, setEditCost] = useState("");
+  // Quick-add form (profile viewOnly mode)
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addName, setAddName] = useState("");
+  const [addCal, setAddCal] = useState("");
+  const [addCost, setAddCost] = useState("");
+  const [addType, setAddType] = useState("snack");
 
   useEffect(() => {
     try {
@@ -68,44 +74,98 @@ export function StarredFoodsWidget({ compact = false, viewOnly = false }: Props)
     setEditingFav(null);
   }
 
-  // ── VIEW ONLY (profile page) — show details + edit, no log ──
+  function addFav() {
+    if (!addName.trim()) return;
+    const fav: Favorite = { name: addName.trim(), cal: parseInt(addCal) || 0, cost: parseFloat(addCost) || 0, mealType: addType };
+    const updated = [fav, ...favorites.filter((f) => f.name !== fav.name)];
+    setFavorites(updated);
+    try { localStorage.setItem("trym-food-favorites", JSON.stringify(updated)); } catch {}
+    setAddName(""); setAddCal(""); setAddCost(""); setAddType("snack"); setShowAddForm(false);
+  }
+
+  // ── VIEW ONLY (profile page) — show details + edit, add new ──
   if (viewOnly) {
     return (
-      <div className="space-y-2">
-        {favorites.map((fav) => {
-          const isEditing = editingFav === fav.name;
-          return (
-            <div key={fav.name} className="flex items-center gap-3 py-3 border-b-2 border-cream last:border-0">
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm capitalize">{fav.name}</p>
-                {isEditing ? (
-                  <div className="flex gap-2 mt-1.5">
-                    <input type="number" value={editCal} onChange={(e) => setEditCal(e.target.value)}
-                      className="w-20 text-xs border border-ink/30 rounded-lg px-2 py-1.5" placeholder="cal" inputMode="numeric" />
-                    <input type="number" value={editCost} onChange={(e) => setEditCost(e.target.value)}
-                      className="w-20 text-xs border border-ink/30 rounded-lg px-2 py-1.5" placeholder="AED" inputMode="decimal" />
-                    <button type="button" onClick={() => saveEdit(fav.name)} className="text-xs font-bold text-green px-2">Save</button>
-                    <button type="button" onClick={() => setEditingFav(null)} className="text-xs text-ink-mute px-1">✕</button>
+      <div>
+        {/* Existing starred foods */}
+        {favorites.length > 0 && (
+          <div className="space-y-0 mb-3">
+            {favorites.map((fav) => {
+              const isEditing = editingFav === fav.name;
+              return (
+                <div key={fav.name} className="flex items-start gap-3 py-3 border-b-2 border-cream last:border-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm capitalize">{fav.name}</p>
+                    {isEditing ? (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <div className="flex items-center gap-1">
+                          <input type="number" value={editCal} onChange={(e) => setEditCal(e.target.value)}
+                            className="w-16 text-xs border-2 border-ink/30 rounded-lg px-2 py-1.5 tabular-nums" inputMode="numeric" />
+                          <span className="text-[10px] text-ink-mute font-bold">cal</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <input type="number" value={editCost} onChange={(e) => setEditCost(e.target.value)}
+                            className="w-16 text-xs border-2 border-ink/30 rounded-lg px-2 py-1.5 tabular-nums" inputMode="decimal" />
+                          <span className="text-[10px] text-ink-mute font-bold">AED</span>
+                        </div>
+                        <button type="button" onClick={() => saveEdit(fav.name)}
+                          className="text-xs font-bold text-green border border-green/30 rounded-lg px-2 py-1">Save</button>
+                        <button type="button" onClick={() => setEditingFav(null)}
+                          className="text-xs text-ink-mute px-1">✕</button>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-ink-mute capitalize mt-0.5">
+                        {fav.mealType}
+                        {fav.cal > 0 && <> · <strong>{fav.cal}</strong> cal</>}
+                        {fav.cost > 0 && <> · <strong>{fav.cost.toFixed(1)}</strong> AED</>}
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-xs text-ink-mute capitalize">
-                    {fav.mealType}
-                    {fav.cal > 0 && ` · ${fav.cal} cal`}
-                    {fav.cost > 0 && ` · ${fav.cost.toFixed(1)} AED`}
-                  </p>
-                )}
-              </div>
-              {!isEditing && (
-                <div className="flex gap-2">
-                  <button type="button"
-                    onClick={() => { setEditingFav(fav.name); setEditCal(fav.cal.toString()); setEditCost(fav.cost.toString()); }}
-                    className="text-xs text-tangerine font-bold hover:underline">Edit</button>
-                  <button type="button" onClick={() => removeFav(fav.name)} className="text-xs text-ink-mute hover:text-red-500">✕</button>
+                  {!isEditing && (
+                    <div className="flex gap-2 flex-none">
+                      <button type="button"
+                        onClick={() => { setEditingFav(fav.name); setEditCal(fav.cal.toString()); setEditCost(fav.cost.toString()); }}
+                        className="text-xs text-tangerine font-bold hover:underline">Edit</button>
+                      <button type="button" onClick={() => removeFav(fav.name)} className="text-xs text-ink-mute hover:text-red-500">✕</button>
+                    </div>
+                  )}
                 </div>
-              )}
+              );
+            })}
+          </div>
+        )}
+
+        {/* Quick-add form */}
+        {showAddForm ? (
+          <div className="bg-cream rounded-2xl border-2 border-ink/20 p-3 space-y-2">
+            <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)}
+              placeholder="Food name (e.g. Coffee, Dates…)" className="input text-sm" autoFocus />
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex items-center gap-1">
+                <input type="number" value={addCal} onChange={(e) => setAddCal(e.target.value)}
+                  placeholder="0" className="input text-sm tabular-nums" inputMode="numeric" />
+                <span className="text-[10px] font-bold text-ink-mute whitespace-nowrap">cal</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <input type="number" value={addCost} onChange={(e) => setAddCost(e.target.value)}
+                  placeholder="0" className="input text-sm tabular-nums" inputMode="decimal" />
+                <span className="text-[10px] font-bold text-ink-mute whitespace-nowrap">AED</span>
+              </div>
+              <select value={addType} onChange={(e) => setAddType(e.target.value)} className="input text-sm">
+                {["snack","breakfast","lunch","dinner"].map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
-          );
-        })}
+            <div className="flex gap-2">
+              <button type="button" onClick={() => setShowAddForm(false)} className="btn btn-secondary flex-1 py-2 text-sm">Cancel</button>
+              <button type="button" onClick={addFav} disabled={!addName.trim()} className="btn btn-primary flex-1 py-2 text-sm">⭐ Save</button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" onClick={() => setShowAddForm(true)}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-ink/30 text-sm font-bold text-ink-mute hover:-translate-y-0.5 transition">
+            ⭐ Add a starred food
+          </button>
+        )}
       </div>
     );
   }
