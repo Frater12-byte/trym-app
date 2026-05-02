@@ -16,6 +16,7 @@ type UnitHeight = "cm" | "in";
 
 interface OnboardingData {
   full_name: string;
+  date_of_birth: string;
   age: number | null;
   sex: Sex | null;
   unit_weight: UnitWeight;
@@ -49,6 +50,7 @@ export default function OnboardingPage() {
 
   const [data, setData] = useState<OnboardingData>({
     full_name: "",
+    date_of_birth: "",
     age: null,
     sex: null,
     unit_weight: "kg",
@@ -226,7 +228,7 @@ export default function OnboardingPage() {
   const isStepValid = (() => {
     switch (step) {
       case 1:
-        return !!data.full_name && !!data.age && !!data.sex;
+        return !!data.full_name && !!data.date_of_birth && !!data.sex;
       case 2:
         return !!data.current_weight && !!data.height;
       case 3:
@@ -337,17 +339,26 @@ function Step1AboutYou({
         placeholder="Francesco"
         autoComplete="name"
       />
-      <Input
-        label="Age"
-        type="number"
-        value={data.age || ""}
-        onChange={(e) =>
-          update("age", e.target.value ? parseInt(e.target.value) : null)
-        }
-        placeholder="35"
-        min={13}
-        max={100}
-      />
+      <div>
+        <label className="block text-sm font-medium text-ink mb-2">Date of birth</label>
+        <input
+          type="date"
+          value={data.date_of_birth}
+          max={new Date(Date.now() - 13 * 365.25 * 86400000).toISOString().slice(0, 10)}
+          onChange={(e) => {
+            const dob = e.target.value;
+            const age = dob
+              ? Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 86400000))
+              : null;
+            update("date_of_birth", dob);
+            update("age", age);
+          }}
+          className="input"
+        />
+        {data.age && (
+          <p className="text-xs text-ink-mute mt-1">Age: {data.age} years</p>
+        )}
+      </div>
       <div>
         <label className="block text-sm font-medium text-ink mb-2">Sex</label>
         <p className="text-xs text-ink-mute mb-2">

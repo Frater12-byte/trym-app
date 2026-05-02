@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PlusIcon, CloseIcon, CheckIcon } from "./icons";
 
@@ -236,6 +236,14 @@ export function GroceriesList({ planItems, manualItems }: Props) {
   const [checkedPlanIds, setCheckedPlanIds] = useState<Set<string>>(new Set());
   const [activeItem, setActiveItem] = useState<DisplayItem | null>(null);
 
+  // Persist plan-item check state across navigation
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("trym-grocery-checked");
+      if (saved) setCheckedPlanIds(new Set(JSON.parse(saved)));
+    } catch {}
+  }, []);
+
   const grouped: Record<string, DisplayItem[]> = {};
 
   for (const p of planItems) {
@@ -292,6 +300,7 @@ export function GroceriesList({ planItems, manualItems }: Props) {
       setCheckedPlanIds((prev) => {
         const next = new Set(prev);
         next.has(item.manual_id!) ? next.delete(item.manual_id!) : next.add(item.manual_id!);
+        try { localStorage.setItem("trym-grocery-checked", JSON.stringify([...next])); } catch {}
         return next;
       });
       return;

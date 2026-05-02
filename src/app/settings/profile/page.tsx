@@ -168,85 +168,73 @@ export default async function ProfileSettingsPage() {
           </div>
         )}
 
-        {/* Upgrade CTA — prominent for free users */}
-        {!isPro && (
-          <div
-            className="card-tangerine mb-8 relative overflow-hidden"
-            style={{ transform: "rotate(-0.5deg)" }}
-          >
-            <div
-              className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-10"
-              style={{ background: "#FFF8EE" }}
-            />
-            <p className="text-cream/80 text-xs font-bold uppercase tracking-widest mb-2">
-              You&apos;re on the free plan
-            </p>
-            <h2 className="font-display text-3xl text-cream mb-3">
-              Unlock the full Trym.
-            </h2>
-            <ul className="space-y-1.5 mb-5">
-              {[
-                "Unlimited meal swaps — no weekly cap",
-                "Full recipes with step-by-step instructions",
-                "Multi-supermarket price comparison",
-                "Weekly plan delivered to your inbox",
-              ].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-cream/90">
-                  <span className="w-5 h-5 rounded-full bg-cream/20 border border-cream/40 flex items-center justify-center flex-none text-[11px] font-bold">
-                    ✓
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/upgrade"
-              className="inline-flex items-center justify-center gap-2 font-bold text-sm px-6 py-3 border-2 border-ink rounded-full transition hover:-translate-y-0.5"
-              style={{ background: "#FFF8EE", color: "#1A1A1A", boxShadow: "3px 3px 0 #0E4D3F" }}
-            >
-              ✦ Upgrade — 99 AED / month
-            </Link>
-            <p className="text-cream/60 text-xs mt-3">
-              Stripe · Secure payment · Cancel any time
-            </p>
-          </div>
-        )}
-
-        {/* Starred foods — one-tap log */}
-        <section className="mb-8">
-          <h2 className="font-display text-2xl mb-3">⭐ Starred foods</h2>
+        {/* Starred foods */}
+        <section className="mb-6">
+          <h2 className="font-display text-xl mb-3">⭐ Starred foods</h2>
           <StarredFoodsWidget compact />
-          <p className="text-xs text-ink-mute mt-2">
-            Star foods in the Log modal to save them here.
-          </p>
         </section>
 
         {/* Preferred meals */}
         {preferredMeals.length > 0 && (
-          <section className="mb-8">
-            <h2 className="font-display text-2xl mb-4">Your go-to meals</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <section className="mb-6">
+            <h2 className="font-display text-xl mb-3">Your go-to meals</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {preferredMeals.map((meal) => (
-                <Link
-                  key={meal.id}
-                  href={`/recipes/${meal.id}`}
-                  className="card-cream flex items-start gap-3 hover:-translate-y-0.5 transition"
-                >
-                  <span className="text-3xl flex-none">{meal.emoji}</span>
+                <Link key={meal.id} href={`/recipes/${meal.id}`}
+                  className="card-cream flex items-start gap-2 hover:-translate-y-0.5 transition">
+                  <span className="text-2xl flex-none">{meal.emoji}</span>
                   <div className="min-w-0">
-                    <p className="font-bold text-sm leading-tight">{meal.name}</p>
-                    <p className="text-xs text-ink-mute mt-0.5">
-                      {meal.calories} cal · {meal.prep_minutes} min
-                    </p>
+                    <p className="font-bold text-xs leading-tight">{meal.name}</p>
+                    <p className="text-[10px] text-ink-mute">{meal.calories} cal</p>
                   </div>
                 </Link>
               ))}
             </div>
-            <p className="text-xs text-ink-mute mt-3">Meals you&apos;ve cooked most.</p>
           </section>
         )}
 
-        <h2 className="font-display text-2xl mb-4">Your details</h2>
+        {/* Upgrade CTA — right above Your details */}
+        {!isPro && (
+          <div className="card-tangerine mb-6 relative overflow-hidden" style={{ transform: "rotate(-0.3deg)" }}>
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-10" style={{ background: "#FFF8EE" }} />
+            <p className="text-cream/80 text-xs font-bold uppercase tracking-widest mb-1">You&apos;re on the free plan</p>
+            <h2 className="font-display text-2xl text-cream mb-3">Unlock the full Trym.</h2>
+            <ul className="space-y-1 mb-4">
+              {["Unlimited meal swaps — no weekly cap","Full recipes with step-by-step instructions","Multi-supermarket price comparison","Weekly plan delivered to your inbox"].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-xs text-cream/90">
+                  <span className="flex-none text-[10px] font-bold">✓</span>{f}
+                </li>
+              ))}
+            </ul>
+            <Link href="/upgrade"
+              className="inline-flex items-center gap-2 font-bold text-sm px-5 py-2.5 border-2 border-ink rounded-full hover:-translate-y-0.5 transition"
+              style={{ background: "#FFF8EE", color: "#1A1A1A", boxShadow: "3px 3px 0 #0E4D3F" }}>
+              ✦ Upgrade — 99 AED / month
+            </Link>
+            <p className="text-cream/60 text-[10px] mt-2">Stripe · Secure payment · Cancel any time</p>
+          </div>
+        )}
+
+        {/* Your details — compact summary */}
+        <div className="flex items-baseline justify-between mb-4">
+          <h2 className="font-display text-2xl">Your details</h2>
+          <Link href="/settings/profile?full=1" className="text-sm text-tangerine font-bold">Edit all →</Link>
+        </div>
+        <div className="card space-y-3 mb-4">
+          {[
+            { label: "Name", value: profile.full_name ?? "—" },
+            { label: "Age", value: profile.age ? `${profile.age} years` : "—" },
+            { label: "Weight", value: profile.current_weight_kg ? `${profile.current_weight_kg} kg → goal ${profile.goal_weight_kg ?? "—"} kg` : "—" },
+            { label: "Budget", value: profile.weekly_budget_aed ? `${profile.weekly_budget_aed} AED / week` : "—" },
+            { label: "Cooking", value: `${profile.max_prep_minutes} min max · ${profile.meals_per_day} meals/day` },
+            { label: "Diet", value: profile.dietary_prefs?.length ? profile.dietary_prefs.map((p: string) => p.replace(/_/g, " ")).join(", ") : "No restrictions" },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex items-start justify-between gap-4 py-2 border-b-2 border-cream last:border-0">
+              <p className="text-xs font-bold uppercase tracking-wider text-ink-mute w-20 flex-none">{label}</p>
+              <p className="text-sm font-semibold text-right flex-1">{value}</p>
+            </div>
+          ))}
+        </div>
         <ProfileEditor profile={profile} />
       </div>
     </main>

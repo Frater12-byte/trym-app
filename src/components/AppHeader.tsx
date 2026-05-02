@@ -74,9 +74,6 @@ export function AppHeader({ firstName }: Props) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link href="/settings/profile" className="hidden sm:inline-flex text-sm text-ink-soft hover:text-ink px-3 py-2">
-              Profile
-            </Link>
             <Link href="/settings/profile" className="flex-none">
               {avatarUrl ? (
                 <img
