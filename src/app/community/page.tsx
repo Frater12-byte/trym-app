@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { FoodPhotoButton } from "@/components/FoodPhotoButton";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 interface Post {
   id: string;

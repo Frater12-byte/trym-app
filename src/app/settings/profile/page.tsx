@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function ProfileSettingsPage() {
   const supabase = await createClient();

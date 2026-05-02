@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { ProfileEditor } from "@/components/ProfileEditor";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function ProfileEditPage() {
   const supabase = await createClient();

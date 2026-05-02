@@ -4,8 +4,6 @@ import { AppHeader } from "@/components/AppHeader";
 import { GroceriesList } from "@/components/GroceriesList";
 import { CartIcon } from "@/components/icons";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function GroceriesPage() {
   const supabase = await createClient();

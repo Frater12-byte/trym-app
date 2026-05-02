@@ -5,8 +5,6 @@ import { AppHeader } from "@/components/AppHeader";
 import { WeightLogForm } from "@/components/WeightLogForm";
 
 // Weight log page needs fresh data after each log entry
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function WeightPage() {
   const supabase = await createClient();

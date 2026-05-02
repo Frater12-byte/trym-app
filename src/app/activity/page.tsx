@@ -8,8 +8,6 @@ import {
   HeartIcon,
 } from "@/components/icons";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function ActivityPage() {
   const supabase = await createClient();

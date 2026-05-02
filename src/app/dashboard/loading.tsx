@@ -3,9 +3,10 @@ import { LoadingState } from "@/components/LoadingState";
 export default function Loading() {
   return (
     <LoadingState
-      eyebrow="Loading"
-      title="Hey... 👋"
+      eyebrow="Today"
+      title="Hey 👋"
       variant="dashboard"
+      currentPath="/dashboard"
     />
   );
 }

@@ -11,19 +11,18 @@ import {
   CartIcon,
   ActivityIcon,
 } from "./icons";
+import { MOBILE_NAV_H, NAV_HREFS } from "@/lib/nav";
 
 interface Props {
   firstName: string;
 }
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Today", Icon: HomeIcon },
-  { href: "/plan", label: "Plan", Icon: CalendarIcon },
-  { href: "/groceries", label: "Groceries", Icon: CartIcon },
-  { href: "/activity", label: "Activity", Icon: ActivityIcon },
+  { ...NAV_HREFS[0], Icon: HomeIcon },
+  { ...NAV_HREFS[1], Icon: CalendarIcon },
+  { ...NAV_HREFS[2], Icon: CartIcon },
+  { ...NAV_HREFS[3], Icon: ActivityIcon },
 ];
-
-const NAV_H = 44; // px — height of the mobile nav bar
 
 export function AppHeader({ firstName }: Props) {
   const pathname = usePathname();
@@ -41,20 +40,13 @@ export function AppHeader({ firstName }: Props) {
   }, []);
 
   function isActive(href: string) {
-    return (
-      pathname === href ||
-      (href !== "/dashboard" && pathname.startsWith(href))
-    );
+    return pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
   }
 
   const Avatar = () =>
     avatarUrl ? (
-      <img
-        src={avatarUrl}
-        alt={firstName}
-        referrerPolicy="no-referrer"
-        className="w-8 h-8 rounded-full border-2 border-ink object-cover flex-none"
-      />
+      <img src={avatarUrl} alt={firstName} referrerPolicy="no-referrer"
+        className="w-8 h-8 rounded-full border-2 border-ink object-cover flex-none" />
     ) : (
       <div className="w-8 h-8 rounded-full bg-tangerine text-cream border-2 border-ink flex items-center justify-center font-bold text-sm flex-none">
         {firstName.charAt(0).toUpperCase()}
@@ -63,7 +55,9 @@ export function AppHeader({ firstName }: Props) {
 
   return (
     <>
-      {/* ══ DESKTOP: single sticky bar ══════════════════════════ */}
+      {/* ═══════════════════════════════════════════════════════
+          DESKTOP — single sticky header
+          ═══════════════════════════════════════════════════════ */}
       <header className="hidden lg:block sticky top-0 z-40 bg-cream/95 backdrop-blur border-b-2 border-ink">
         <div className="max-w-5xl mx-auto px-10 h-16 flex items-center justify-between gap-4">
           <Link href="/dashboard" className="font-display text-3xl tracking-tight">
@@ -73,61 +67,62 @@ export function AppHeader({ firstName }: Props) {
             {NAV_ITEMS.map(({ href, label, Icon }) => {
               const active = isActive(href);
               return (
-                <Link
-                  key={href}
-                  href={href}
+                <Link key={href} href={href}
                   className={`px-4 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 ${
                     active ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
-                  }`}
-                >
+                  }`}>
                   <Icon size={18} active={active} />
                   {label}
                 </Link>
               );
             })}
           </nav>
-          <Link href="/settings/profile" className="flex-none">
-            <Avatar />
-          </Link>
+          <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
         </div>
       </header>
 
-      {/* ══ MOBILE: nav always fixed at top, logo scrolls naturally ══ */}
+      {/* ═══════════════════════════════════════════════════════
+          MOBILE — nav always fixed at top, logo scrolls away
+          ═══════════════════════════════════════════════════════ */}
       <div className="lg:hidden">
-        {/* Nav — ALWAYS fixed at top-0, never moves */}
+        {/* Nav bar — ALWAYS fixed, 4-column grid with icons + labels */}
         <nav
           className="fixed top-0 left-0 right-0 z-50 bg-cream border-b-2 border-ink"
-          style={{ height: NAV_H }}
+          style={{ height: MOBILE_NAV_H }}
         >
-          <div className="flex items-center gap-1 px-4 h-full overflow-x-auto no-scrollbar">
-            {NAV_ITEMS.map(({ href, label }) => {
+          <div className="grid grid-cols-4 h-full">
+            {NAV_ITEMS.map(({ href, label, Icon }) => {
               const active = isActive(href);
               return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition flex-none ${
-                    active ? "bg-ink text-cream" : "text-ink-soft"
-                  }`}
+                <Link key={href} href={href}
+                  className="flex flex-col items-center justify-center gap-0.5 transition relative"
                 >
-                  {label}
+                  <Icon size={22} active={active}
+                    className={active ? "text-tangerine" : "text-ink-mute"} />
+                  <span className={`text-[10px] font-bold uppercase tracking-wide leading-none ${
+                    active ? "text-ink" : "text-ink-mute"
+                  }`}>
+                    {label}
+                  </span>
+                  {/* Active dot indicator */}
+                  {active && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-tangerine" />
+                  )}
                 </Link>
               );
             })}
           </div>
         </nav>
 
-        {/* Spacer under the fixed nav so content isn't hidden */}
-        <div style={{ height: NAV_H }} />
+        {/* Spacer — pushes page content below the fixed nav */}
+        <div style={{ height: MOBILE_NAV_H }} />
 
-        {/* Logo bar — normal document flow, scrolls away naturally */}
-        <div className="bg-cream border-b border-ink/15 px-5 flex items-center justify-between" style={{ height: 52 }}>
+        {/* Logo bar — normal flow, scrolls away naturally */}
+        <div className="bg-cream border-b border-ink/10 px-5 flex items-center justify-between" style={{ height: 52 }}>
           <Link href="/dashboard" className="font-display text-2xl tracking-tight">
             trym<span className="text-tangerine">.</span>
           </Link>
-          <Link href="/settings/profile" className="flex-none">
-            <Avatar />
-          </Link>
+          <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
         </div>
       </div>
     </>
@@ -137,10 +132,7 @@ export function AppHeader({ firstName }: Props) {
 export function LogoutButton() {
   return (
     <form action={logout}>
-      <button
-        type="submit"
-        className="text-sm text-ink-mute hover:text-ink-soft transition py-2 underline"
-      >
+      <button type="submit" className="text-sm text-ink-mute hover:text-ink-soft transition py-2 underline">
         Log out
       </button>
     </form>
