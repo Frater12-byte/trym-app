@@ -33,7 +33,7 @@ export default async function DashboardPage() {
   weekStart.setHours(0, 0, 0, 0);
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
-  const [profileResult, weightResult, activityResult, planResult] =
+  const [profileResult, weightResult, activityResult, planResult, todayFoodLogsResult] =
     await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).single(),
       supabase
@@ -59,12 +59,20 @@ export default async function DashboardPage() {
         .eq("user_id", user.id)
         .eq("week_start_date", weekStartStr)
         .maybeSingle(),
+    // Today's unplanned food logs
+    supabase
+        .from("food_logs")
+        .select("id, meal_name, meal_type, calories, cost_aed, created_at")
+        .eq("user_id", user.id)
+        .eq("logged_at", todayStr)
+        .order("created_at", { ascending: true }),
     ]);
 
   const profile = profileResult.data;
   const lastWeight = weightResult.data;
   const recentActivity = activityResult.data;
   const plan = planResult.data;
+  const todayFoodLogs: { id: string; meal_name: string; meal_type: string; calories: number | null; cost_aed: number | null }[] = todayFoodLogsResult.data ?? [];
 
   if (!profile?.onboarding_completed) redirect("/onboarding");
 
@@ -149,71 +157,16 @@ export default async function DashboardPage() {
         {/* NOTIFICATION PROMPT */}
         <NotificationPrompt />
 
-        {/* PROGRESS CARDS */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 lg:mb-8">
+        {/* ─── TODAY — plan meals + logged food + water ─── */}
+        <section className="mb-5">
+          <div className="flex items-baseline justify-between mb-3">
+            <p className="eyebrow">Today</p>
+            <Link href="/plan" className="text-xs text-tangerine font-bold">Full plan →</Link>
+          </div>
 
-          {/* Weight */}
-          <Link href="/weight" className="card rotate-left hover:-translate-y-1 transition">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute">
-                Weight
-              </p>
-              {lossSoFar !== 0 && (
-                losingWeight && lossSoFar > 0
-                  ? <TrendDownIcon size={16} className="text-green" />
-                  : <TrendUpIcon size={16} className="text-tangerine" />
-              )}
-            </div>
-            <p className="font-display text-4xl tabular-nums leading-none mb-1">
-              {displayWeight(currentWeight)}
-              <span className="unit">{unit}</span>
-            </p>
-            <p className="text-xs text-ink-mute mb-3">
-              Goal {displayWeight(goalWeight)} {unit}
-            </p>
-            <ProgressBar pct={weightPct} color="#0E4D3F" />
-            <p className="text-[10px] text-ink-mute mt-1">{weightPct}% to goal</p>
-          </Link>
-
-          {/* Meals this week */}
-          <Link href="/plan" className="card-cream rotate-right hover:-translate-y-1 transition">
-            <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute mb-1">
-              Meals this week
-            </p>
-            <p className="font-display text-4xl tabular-nums leading-none mb-1">
-              {loggedMeals}
-              <span className="text-base font-normal text-ink-soft">/{totalMeals}</span>
-            </p>
-            <p className="text-xs text-ink-mute mb-3">logged</p>
-            <ProgressBar pct={mealsPct} color="#FF6B35" />
-            <p className="text-[10px] text-ink-mute mt-1">{mealsPct}% logged</p>
-          </Link>
-
-          {/* Budget */}
-          <Link href="/groceries" className="card-saffron hover:-translate-y-1 transition">
-            <p className="text-[11px] uppercase tracking-widest font-bold mb-1">
-              Budget
-            </p>
-            <p className="font-display text-4xl tabular-nums leading-none mb-1">
-              {Math.round(weekSpent)}
-              <span className="unit">AED</span>
-            </p>
-            <p className="text-xs mb-3 font-semibold opacity-80">
-              of {weekBudget} AED / week
-            </p>
-            <ProgressBar pct={budgetPct} color="#1A1A1A" bg="rgba(255,255,255,0.4)" />
-            <p className="text-[10px] mt-1 font-semibold opacity-70">{budgetPct}% used</p>
-          </Link>
-        </section>
-
-        {/* TODAY'S MEALS SNAPSHOT */}
-        {todayMeals.length > 0 && (
-          <section className="mb-4">
-            <div className="flex items-baseline justify-between mb-3">
-              <p className="eyebrow">Today&apos;s food</p>
-              <Link href="/plan" className="text-xs text-tangerine font-bold">Full plan →</Link>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
+          {/* Planned meal slots */}
+          {todayMeals.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-3">
               {["breakfast", "lunch", "dinner"].map((slot) => {
                 const pm = todayMeals.find((m) => m.meal_slot === slot);
                 return (
@@ -222,8 +175,7 @@ export default async function DashboardPage() {
                     href="/plan"
                     className={`rounded-2xl border-2 border-ink p-3 text-center transition hover:-translate-y-0.5 ${
                       pm?.status === "cooked" ? "bg-green-tint" :
-                      pm?.status === "skipped" ? "opacity-40 bg-cream" :
-                      "bg-white"
+                      pm?.status === "skipped" ? "opacity-40 bg-cream" : "bg-white"
                     }`}
                     style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
                   >
@@ -233,23 +185,80 @@ export default async function DashboardPage() {
                       {pm?.meal?.name ?? "Not planned"}
                     </p>
                     {pm?.status && pm.status !== "planned" && (
-                      <p className="text-[9px] text-green font-bold uppercase tracking-wider mt-1">
-                        {pm.status}
-                      </p>
+                      <p className="text-[9px] text-green font-bold uppercase tracking-wider mt-1 capitalize">{pm.status}</p>
                     )}
                   </Link>
                 );
               })}
             </div>
-          </section>
-        )}
+          )}
 
-        {/* QUICK LOG — right under today's food */}
+          {/* Unplanned food logged today — appears as soon as logged */}
+          {todayFoodLogs.length > 0 && (
+            <div className="space-y-1.5 mb-3">
+              {todayFoodLogs.map((f) => (
+                <div key={f.id}
+                  className="flex items-center justify-between px-4 py-2.5 rounded-2xl border-2 border-ink/20 bg-cream"
+                >
+                  <div>
+                    <p className="font-bold text-sm capitalize">{f.meal_name}</p>
+                    <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
+                  </div>
+                  <p className="text-sm font-bold tabular-nums text-ink-soft">
+                    {f.calories ? `${f.calories} cal` : "—"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Water tracker — part of today */}
+          <WaterTracker />
+        </section>
+
+        {/* ─── QUICK LOG ─── */}
         <section className="mb-6 lg:mb-8 space-y-3">
           <StarredFoodsWidget />
-          <WaterTracker />
           <FoodLogButton />
           <FoodPhotoButton />
+        </section>
+
+        {/* ─── PROGRESS KPIs — below the food section ─── */}
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 lg:mb-8">
+          <Link href="/weight" className="card rotate-left hover:-translate-y-1 transition">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute">Weight</p>
+              {lossSoFar !== 0 && (losingWeight && lossSoFar > 0
+                ? <TrendDownIcon size={16} className="text-green" />
+                : <TrendUpIcon size={16} className="text-tangerine" />)}
+            </div>
+            <p className="font-display text-4xl tabular-nums leading-none mb-1">
+              {displayWeight(currentWeight)}<span className="unit">{unit}</span>
+            </p>
+            <p className="text-xs text-ink-mute mb-3">Goal {displayWeight(goalWeight)} {unit}</p>
+            <ProgressBar pct={weightPct} color="#0E4D3F" />
+            <p className="text-[10px] text-ink-mute mt-1">{weightPct}% to goal</p>
+          </Link>
+
+          <Link href="/plan" className="card-cream rotate-right hover:-translate-y-1 transition">
+            <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute mb-1">Meals this week</p>
+            <p className="font-display text-4xl tabular-nums leading-none mb-1">
+              {loggedMeals}<span className="text-base font-normal text-ink-soft">/{totalMeals}</span>
+            </p>
+            <p className="text-xs text-ink-mute mb-3">logged</p>
+            <ProgressBar pct={mealsPct} color="#FF6B35" />
+            <p className="text-[10px] text-ink-mute mt-1">{mealsPct}% logged</p>
+          </Link>
+
+          <Link href="/groceries" className="card-saffron hover:-translate-y-1 transition">
+            <p className="text-[11px] uppercase tracking-widest font-bold mb-1">Budget</p>
+            <p className="font-display text-4xl tabular-nums leading-none mb-1">
+              {Math.round(weekSpent)}<span className="unit">AED</span>
+            </p>
+            <p className="text-xs mb-3 font-semibold opacity-80">of {weekBudget} AED / week</p>
+            <ProgressBar pct={budgetPct} color="#1A1A1A" bg="rgba(255,255,255,0.4)" />
+            <p className="text-[10px] mt-1 font-semibold opacity-70">{budgetPct}% used</p>
+          </Link>
         </section>
 
         {/* PLAN + GROCERIES NAV */}

@@ -113,39 +113,20 @@ export function PlanDays({ plan, today }: Props) {
         <div className="space-y-5">
           {historyDays.map((dayIdx) => {
             const dayMeals = dayMap[dayIdx] || [];
-            const dayDate = new Date(weekStart);
-            dayDate.setDate(weekStart.getDate() + dayIdx);
             const label = dayIdx === todayDayIdx - 1 ? "Yesterday" : "2 days ago";
-
             if (!dayMeals.length) return null;
-
             const sortedMeals = [...dayMeals].sort(
               (a, b) => SLOTS.indexOf(a.meal_slot) - SLOTS.indexOf(b.meal_slot)
             );
-
             return (
               <div key={dayIdx}>
                 <p className="text-sm font-bold text-ink-soft mb-2">{label}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="space-y-2">
                   {SLOTS.map((slot) => {
                     const pm = sortedMeals.find((m) => m.meal_slot === slot);
-                    if (!pm || !pm.meal) return (
-                      <div key={slot} className="card-sm border-dashed opacity-30 text-center">
-                        <p className="text-xs capitalize text-ink-mute">{slot}</p>
-                        <p className="text-xs text-ink-mute">—</p>
-                      </div>
-                    );
+                    if (!pm || !pm.meal) return null;
                     return (
-                      <div key={pm.id} className={`card-sm flex items-center gap-3 ${pm.status === "skipped" ? "opacity-40" : ""}`}>
-                        <span className="text-2xl">{pm.meal.emoji}</span>
-                        <div className="min-w-0">
-                          <p className="text-[10px] uppercase tracking-widest font-bold text-ink-mute">{slot}</p>
-                          <p className="font-bold text-sm leading-tight truncate">{pm.meal.name}</p>
-                          {pm.status !== "planned" && (
-                            <span className="text-[10px] font-bold text-ink-mute capitalize">{pm.status}</span>
-                          )}
-                        </div>
-                      </div>
+                      <HistoryMealCard key={pm.id} planMeal={pm} onRefresh={() => router.refresh()} />
                     );
                   })}
                 </div>
@@ -156,6 +137,84 @@ export function PlanDays({ plan, today }: Props) {
       </div>
     )}
     </>
+  );
+}
+
+/* ============================================================
+   HISTORY MEAL CARD — interactive, for past days
+   ============================================================ */
+function HistoryMealCard({
+  planMeal,
+  onRefresh,
+}: {
+  planMeal: PlanMeal;
+  onRefresh: () => void;
+}) {
+  const meal = planMeal.meal;
+  const [status, setStatus] = useState(planMeal.status);
+  const [busy, setBusy] = useState(false);
+
+  async function quickLog(newStatus: "cooked" | "skipped") {
+    setBusy(true);
+    try {
+      await fetch("/api/plan/log-meal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan_meal_id: planMeal.id,
+          status: newStatus,
+          actual_calories: null,
+          actual_cost_aed: null,
+          where_eaten: null,
+          user_notes: null,
+        }),
+      });
+      setStatus(newStatus);
+      onRefresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!meal) return null;
+
+  const isLogged = status !== "planned";
+
+  return (
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2 border-ink/20 bg-cream transition ${status === "skipped" ? "opacity-40" : ""}`}>
+      <span className="text-2xl flex-none">{meal.emoji}</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-[10px] uppercase tracking-widest font-bold text-ink-mute capitalize">{planMeal.meal_slot}</p>
+        <p className="font-bold text-sm leading-tight truncate">{meal.name}</p>
+      </div>
+      {isLogged ? (
+        <span className={`pill text-[10px] capitalize ${
+          status === "cooked" ? "pill-success" :
+          status === "skipped" ? "pill-warn" :
+          ""
+        }`}>{status}</span>
+      ) : (
+        <div className="flex gap-1.5 flex-none">
+          <button
+            type="button"
+            onClick={() => quickLog("cooked")}
+            disabled={busy}
+            className="px-2.5 py-1.5 rounded-xl border-2 border-ink text-[11px] font-bold bg-cream hover:-translate-y-0.5 transition disabled:opacity-40"
+            style={{ boxShadow: "2px 2px 0 #1A1A1A" }}
+          >
+            ✓ Cooked
+          </button>
+          <button
+            type="button"
+            onClick={() => quickLog("skipped")}
+            disabled={busy}
+            className="px-2.5 py-1.5 rounded-xl border-2 border-ink/30 text-[11px] font-bold text-ink-mute hover:-translate-y-0.5 transition disabled:opacity-40"
+          >
+            Skip
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
