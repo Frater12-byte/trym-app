@@ -335,12 +335,7 @@ export default function Home() {
             Most tools pick one and ignore the rest.
           </p>
 
-          {/* Horizontal scroll on mobile */}
-          <div className="overflow-x-auto -mx-6 px-6 lg:mx-0 lg:px-0 pb-2">
-            <div style={{ minWidth: 620 }}>
-              <CompareTable />
-            </div>
-          </div>
+          <CompareTable />
         </div>
       </section>
 
@@ -838,116 +833,123 @@ function CompareTable() {
     kits: React.ReactNode;
     apps: React.ReactNode;
   }[] = [
-    {
-      q: "Hits your weight goal",
-      us:   <CheckBig us />, kits: <XBig />, apps: <CheckBig />,
-    },
-    {
-      q: "Real Dubai supermarket prices",
-      us:   <Cell stack><CheckBig us /><Mini>Refreshed weekly</Mini></Cell>,
-      kits: <Cell stack><XBig /><Mini>Fixed kit price</Mini></Cell>,
-      apps: <XBig />,
-    },
-    {
-      q: "Under 25 min to cook",
-      us:   <Cell stack><CheckBig us /><Mini>19 min average</Mini></Cell>,
-      kits: <Cell stack><MehBig /><Mini>35–45 min typical</Mini></Cell>,
-      apps: <XBig />,
-    },
-    {
-      q: "Halal-only filter respected",
-      us: <CheckBig us />, kits: <MehBig />, apps: <MehBig />,
-    },
-    {
-      q: "Suggests cheaper supermarket swaps",
-      us: <CheckBig us />, kits: <XBig />, apps: <XBig />,
-    },
-    {
-      q: "You buy your own groceries",
-      us:   <Cell stack><CheckBig us /><Mini>No subscription box</Mini></Cell>,
-      kits: <XBig />, apps: <CheckBig />,
-    },
+    { q: "Hits your weight goal",              us: <CheckBig us />,                                                                      kits: <XBig />,                                                        apps: <CheckBig /> },
+    { q: "Real Dubai supermarket prices",      us: <Cell stack><CheckBig us /><Mini>Refreshed weekly</Mini></Cell>,                       kits: <Cell stack><XBig /><Mini>Fixed kit price</Mini></Cell>,         apps: <XBig /> },
+    { q: "Under 25 min to cook",               us: <Cell stack><CheckBig us /><Mini>19 min avg</Mini></Cell>,                            kits: <Cell stack><MehBig /><Mini>35–45 min</Mini></Cell>,             apps: <XBig /> },
+    { q: "Halal-only filter",                  us: <CheckBig us />,                                                                      kits: <MehBig />,                                                      apps: <MehBig /> },
+    { q: "Cheaper supermarket suggestions",    us: <CheckBig us />,                                                                      kits: <XBig />,                                                        apps: <XBig /> },
+    { q: "You buy your own groceries",         us: <Cell stack><CheckBig us /><Mini>No box</Mini></Cell>,                                kits: <XBig />,                                                        apps: <CheckBig /> },
     {
       q: "Monthly cost",
-      us: (
-        <Cell stack>
-          <span className="font-display font-extrabold text-[20px] text-tangerine tracking-[-0.02em]">99 AED</span>
-          <Mini>All-in</Mini>
-        </Cell>
-      ),
-      kits: (
-        <Cell stack>
-          <span className="font-display font-bold text-[18px] text-ink-soft">300+ AED</span>
-          <Mini>Per week</Mini>
-        </Cell>
-      ),
-      apps: (
-        <Cell stack>
-          <span className="font-display font-bold text-[18px] text-ink-soft">~50 AED</span>
-          <Mini>Premium tier</Mini>
-        </Cell>
-      ),
+      us:   <Cell stack><span style={{ fontFamily: "var(--font-fraunces,serif)", fontWeight: 800, fontSize: 18, color: "#FF6B35" }}>99 AED</span><Mini>All-in</Mini></Cell>,
+      kits: <Cell stack><span style={{ fontFamily: "var(--font-fraunces,serif)", fontWeight: 700, fontSize: 16, color: "#4A4A4A" }}>300+ AED</span><Mini>Per week</Mini></Cell>,
+      apps: <Cell stack><span style={{ fontFamily: "var(--font-fraunces,serif)", fontWeight: 700, fontSize: 16, color: "#4A4A4A" }}>~50 AED</span><Mini>Premium</Mini></Cell>,
     },
   ];
 
-  return (
-    <div className="relative pt-7 max-w-[920px]">
-      {/* Floating sticker */}
-      <div
-        className="absolute z-10 bg-saffron text-ink border-2 border-ink rounded-full px-[18px] py-2 text-[12px] font-extrabold uppercase tracking-[0.1em] shadow-[3px_3px_0_#1A1A1A] whitespace-nowrap"
-        style={{ top: 0, left: "50%", transform: "translateX(calc(-50% + 30%)) rotate(-4deg)" }}
-      >
-        ★ that&apos;s us
-      </div>
+  const COLS = [
+    { label: "Trym", us: true },
+    { label: "Meal kits", us: false },
+    { label: "Apps", us: false },
+  ];
 
-      <div className="bg-white border-2 border-ink rounded-[24px] shadow-[6px_6px_0_#1A1A1A] overflow-hidden">
-        {/* Header */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", background: "#1A1A1A", color: "#FFF8EE" }}>
-          <div className="px-7 py-[22px] text-[13px] uppercase tracking-[0.1em] font-bold" style={{ color: "rgba(255,248,238,0.6)" }}>
-            The thing you actually need
-          </div>
-          {[
-            { label: "Trym", us: true },
-            { label: "Meal kits", us: false },
-            { label: "Calorie apps", us: false },
-          ].map(col => (
+  return (
+    <div className="w-full max-w-[920px]">
+
+      {/* ── MOBILE CARDS (< md) ─────────────────────────────── */}
+      <div className="md:hidden space-y-3">
+        {/* Column labels */}
+        <div className="grid grid-cols-3 gap-2 mb-1 px-1">
+          {COLS.map((col) => (
             <div
               key={col.label}
-              className="px-[18px] py-[22px] text-center border-r border-r-white/10 font-display font-extrabold text-[22px] tracking-[-0.02em]"
-              style={col.us ? { background: "#FF6B35", color: "#FFF8EE" } : {}}
+              className="text-center text-[11px] font-bold uppercase tracking-wider py-2 rounded-full border-2 border-ink"
+              style={{ background: col.us ? "#FF6B35" : "#FFF8EE", color: col.us ? "#FFF8EE" : "#8A8A8A" }}
             >
               {col.label}
             </div>
           ))}
         </div>
 
-        {/* Rows */}
-        {rows.map((row, i) => (
+        {rows.map((row) => (
           <div
             key={row.q}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1.6fr 1fr 1fr 1fr",
-              borderBottom: i < rows.length - 1 ? "1.5px solid #EAE2D4" : "none",
-            }}
+            className="bg-white border-2 border-ink rounded-[20px] overflow-hidden shadow-[4px_4px_0_#1A1A1A]"
           >
-            <div className="px-7 py-5 font-display font-bold text-[17px] tracking-[-0.01em] flex items-center">
+            <div className="px-4 py-3 font-display font-bold text-[15px] tracking-tight border-b border-ink/10 bg-cream">
               {row.q}
             </div>
-            <div
-              className="px-[18px] py-5 flex items-center justify-center"
-              style={{ background: "#FFF3E8", borderLeft: "1.5px solid #FF6B35", borderRight: "1.5px solid #FF6B35" }}
-            >
-              {row.us}
-            </div>
-            <div className="px-[18px] py-5 flex items-center justify-center border-r border-r-[#EAE2D4]">
-              {row.kits}
-            </div>
-            <div className="px-[18px] py-5 flex items-center justify-center">
-              {row.apps}
+            <div className="grid grid-cols-3 divide-x divide-[#EAE2D4]">
+              <div className="flex items-center justify-center py-4" style={{ background: "#FFF3E8" }}>
+                {row.us}
+              </div>
+              <div className="flex items-center justify-center py-4">
+                {row.kits}
+              </div>
+              <div className="flex items-center justify-center py-4">
+                {row.apps}
+              </div>
             </div>
           </div>
         ))}
+
+        <p className="text-center text-xs text-ink-mute pt-2 font-medium">
+          ★ Trym is the first column
+        </p>
+      </div>
+
+      {/* ── DESKTOP TABLE (md+) ─────────────────────────────── */}
+      <div className="hidden md:block relative pt-7">
+        {/* Floating sticker */}
+        <div
+          className="absolute z-10 bg-saffron text-ink border-2 border-ink rounded-full px-[18px] py-2 text-[12px] font-extrabold uppercase tracking-[0.1em] shadow-[3px_3px_0_#1A1A1A] whitespace-nowrap"
+          style={{ top: 0, left: "50%", transform: "translateX(calc(-50% + 30%)) rotate(-4deg)" }}
+        >
+          ★ that&apos;s us
+        </div>
+
+        <div className="bg-white border-2 border-ink rounded-[24px] shadow-[6px_6px_0_#1A1A1A] overflow-hidden">
+          {/* Header */}
+          <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", background: "#1A1A1A", color: "#FFF8EE" }}>
+            <div className="px-7 py-[22px] text-[13px] uppercase tracking-[0.1em] font-bold" style={{ color: "rgba(255,248,238,0.6)" }}>
+              The thing you need
+            </div>
+            {COLS.map((col) => (
+              <div
+                key={col.label}
+                className="px-[18px] py-[22px] text-center font-display font-extrabold text-[22px] tracking-[-0.02em]"
+                style={col.us ? { background: "#FF6B35", color: "#FFF8EE" } : { borderLeft: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                {col.label}
+              </div>
+            ))}
+          </div>
+
+          {/* Rows */}
+          {rows.map((row, i) => (
+            <div
+              key={row.q}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.6fr 1fr 1fr 1fr",
+                borderBottom: i < rows.length - 1 ? "1.5px solid #EAE2D4" : "none",
+              }}
+            >
+              <div className="px-7 py-5 font-display font-bold text-[17px] tracking-[-0.01em] flex items-center">
+                {row.q}
+              </div>
+              <div className="px-[18px] py-5 flex items-center justify-center" style={{ background: "#FFF3E8", borderLeft: "1.5px solid #FF6B35", borderRight: "1.5px solid #FF6B35" }}>
+                {row.us}
+              </div>
+              <div className="px-[18px] py-5 flex items-center justify-center border-r border-r-[#EAE2D4]">
+                {row.kits}
+              </div>
+              <div className="px-[18px] py-5 flex items-center justify-center">
+                {row.apps}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
