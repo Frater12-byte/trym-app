@@ -197,9 +197,7 @@ export default async function DashboardPage() {
           {todayFoodLogs.length > 0 && (
             <div className="space-y-1.5 mb-3">
               {todayFoodLogs.map((f) => (
-                <div key={f.id}
-                  className="flex items-center justify-between px-4 py-2.5 rounded-2xl border-2 border-ink/20 bg-cream"
-                >
+                <div key={f.id} className="flex items-center justify-between px-4 py-2.5 rounded-2xl border-2 border-ink/20 bg-cream">
                   <div>
                     <p className="font-bold text-sm capitalize">{f.meal_name}</p>
                     <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
@@ -212,14 +210,18 @@ export default async function DashboardPage() {
             </div>
           )}
 
-          {/* Water tracker — part of today */}
-          <WaterTracker />
+          {/* Starred foods — one tap to log */}
+          <StarredFoodsWidget />
+
+          {/* Log unplanned food */}
+          <FoodLogButton />
+
+          {/* Simplified water log — no progress bar */}
+          <WaterTracker simple />
         </section>
 
-        {/* ─── QUICK LOG ─── */}
-        <section className="mb-6 lg:mb-8 space-y-3">
-          <StarredFoodsWidget />
-          <FoodLogButton />
+        {/* ─── QUICK LOG — photo only ─── */}
+        <section className="mb-6 lg:mb-8">
           <FoodPhotoButton />
         </section>
 

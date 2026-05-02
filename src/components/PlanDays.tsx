@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { WaterForDay } from "./WaterTracker";
 import {
   ChefHatIcon,
   RestaurantIcon,
@@ -118,6 +119,11 @@ export function PlanDays({ plan, today }: Props) {
             const sortedMeals = [...dayMeals].sort(
               (a, b) => SLOTS.indexOf(a.meal_slot) - SLOTS.indexOf(b.meal_slot)
             );
+            // Compute actual date string for this day (to read water from localStorage)
+            const dayDate = new Date(weekStart);
+            dayDate.setDate(weekStart.getDate() + dayIdx);
+            const waterDateStr = dayDate.toISOString().slice(0, 10);
+
             return (
               <div key={dayIdx}>
                 <p className="text-sm font-bold text-ink-soft mb-2">{label}</p>
@@ -129,6 +135,8 @@ export function PlanDays({ plan, today }: Props) {
                       <HistoryMealCard key={pm.id} planMeal={pm} onRefresh={() => router.refresh()} />
                     );
                   })}
+                  {/* Water intake for this day */}
+                  <WaterForDay dateStr={waterDateStr} />
                 </div>
               </div>
             );
