@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { WaterForDay } from "./WaterTracker";
@@ -54,12 +54,13 @@ interface Props {
   plan: Plan;
   today: string;
   unitWeight: "kg" | "lbs";
+  todayExtra?: React.ReactNode;
 }
 
 const SLOTS = ["breakfast", "lunch", "dinner"];
 const PRICE_X = 2;
 
-export function PlanDays({ plan, today }: Props) {
+export function PlanDays({ plan, today, todayExtra }: Props) {
   const router = useRouter();
 
   const dayMap: Record<number, PlanMeal[]> = {};
@@ -91,15 +92,20 @@ export function PlanDays({ plan, today }: Props) {
         const isToday = dayIdx === todayDayIdx;
 
         return (
-          <DaySection
-            key={dayIdx}
-            dayDate={dayDate}
-            meals={dayMeals}
-            isToday={isToday}
-            tilt={idx === 0 ? "" : idx === 1 ? "rotate-left" : "rotate-right"}
-            swapCreditsLeft={plan.swap_credits_remaining}
-            onRefresh={() => router.refresh()}
-          />
+          <React.Fragment key={dayIdx}>
+            <DaySection
+              dayDate={dayDate}
+              meals={dayMeals}
+              isToday={isToday}
+              tilt={idx === 0 ? "" : idx === 1 ? "rotate-left" : "rotate-right"}
+              swapCreditsLeft={plan.swap_credits_remaining}
+              onRefresh={() => router.refresh()}
+            />
+            {/* Log section injected immediately after today's cards */}
+            {idx === 0 && todayExtra && (
+              <div className="space-y-3">{todayExtra}</div>
+            )}
+          </React.Fragment>
         );
       })}
     </div>

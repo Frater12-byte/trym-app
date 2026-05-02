@@ -206,15 +206,14 @@ export default async function PlanPage() {
           plan={plan}
           today={todayStr}
           unitWeight={profile.unit_weight}
+          todayExtra={
+            <>
+              <StarredFoodsWidget />
+              <FoodLogButton />
+              <WaterTracker />
+            </>
+          }
         />
-
-        {/* Log today — water, starred, unplanned (under today's recipes) */}
-        <div className="mt-6 space-y-3">
-          <p className="eyebrow">Log for today</p>
-          <StarredFoodsWidget />
-          <FoodLogButton />
-          <WaterTracker simple />
-        </div>
 
         {/* Past 2 days */}
         {yesterdayFood.length > 0 && (

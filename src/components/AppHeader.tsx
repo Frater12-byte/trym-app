@@ -84,30 +84,21 @@ export function AppHeader({ firstName }: Props) {
           <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
         </div>
 
-        {/* Row 2 — nav + name — sticky: pins when row 1 scrolls off */}
+        {/* Row 2 — nav links — sticky: pins when row 1 scrolls off */}
         <nav className="sticky top-0 z-40 bg-cream border-b-2 border-ink">
-          <div className="flex items-center px-5 h-11">
-            {/* Nav links */}
-            <div className="flex items-center gap-1 flex-1 overflow-x-auto no-scrollbar">
-              {NAV_ITEMS.map(({ href, label }) => {
-                const active = isActive(href);
-                return (
-                  <Link key={href} href={href}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition flex-none ${
-                      active
-                        ? "bg-ink text-cream"
-                        : "text-ink-soft hover:text-ink"
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-            </div>
-            {/* Name */}
-            <span className="text-xs font-bold text-ink-mute pl-3 whitespace-nowrap flex-none">
-              {firstName}
-            </span>
+          <div className="flex items-center gap-1 px-4 h-11 overflow-x-auto no-scrollbar">
+            {NAV_ITEMS.map(({ href, label }) => {
+              const active = isActive(href);
+              return (
+                <Link key={href} href={href}
+                  className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition flex-none ${
+                    active ? "bg-ink text-cream" : "text-ink-soft"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </div>
         </nav>
       </div>
