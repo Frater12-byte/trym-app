@@ -106,11 +106,11 @@ export function FoodPhotoButton() {
         </button>
       )}
 
+      {/* No capture attribute — lets user choose camera OR gallery */}
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         className="sr-only"
         onChange={handleFileChange}
       />

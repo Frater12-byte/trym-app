@@ -276,7 +276,7 @@ function FoodLogModal({ onClose }: Props) {
                   ref={photoInputRef}
                   type="file"
                   accept="image/*"
-                  capture="environment"
+
                   className="sr-only"
                   onChange={handlePhotoChange}
                 />
