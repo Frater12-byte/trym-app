@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { PlanDays } from "@/components/PlanDays";
 import { GeneratePlanButton } from "@/components/GeneratePlanButton";
+import { WaterTracker } from "@/components/WaterTracker";
+import { FoodLogButton } from "@/components/FoodLogModal";
 import {
   CalendarIcon,
   CartIcon,
@@ -189,14 +191,12 @@ export default async function PlanPage() {
           unitWeight={profile.unit_weight}
         />
 
-        {/* Footer help */}
-        <div className="mt-10 card-saffron">
-          <p className="text-sm font-bold mb-1">How this works</p>
-          <p className="text-sm leading-relaxed">
-            Each meal shows what we planned. Tap a card to log what you actually
-            ate — whether you cooked it, ordered out, or skipped. The grocery
-            list updates automatically.
-          </p>
+        {/* Water + unplanned food */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <WaterTracker />
+          <div className="flex flex-col justify-center">
+            <FoodLogButton />
+          </div>
         </div>
       </div>
     </main>

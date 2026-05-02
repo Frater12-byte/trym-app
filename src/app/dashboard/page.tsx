@@ -2,8 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
-import { WaterTracker } from "@/components/WaterTracker";
-import { FoodLogButton } from "@/components/FoodLogModal";
 import { NotificationPrompt } from "@/components/PwaSetup";
 import {
   CalendarIcon,
@@ -324,14 +322,6 @@ export default async function DashboardPage() {
               Log now <ArrowRightIcon size={16} />
             </p>
           </Link>
-        </section>
-
-        {/* WATER TRACKER + FOOD LOG */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 lg:mb-8">
-          <WaterTracker />
-          <div className="flex flex-col justify-center">
-            <FoodLogButton />
-          </div>
         </section>
 
         {/* PROFILE SUMMARY (compact) */}
