@@ -23,9 +23,15 @@ const NAV_ITEMS = [
   { href: "/activity", label: "Activity", Icon: ActivityIcon },
 ];
 
+// Row 1 height in px (logo bar) — keep in sync with py-3 + content
+const ROW1_H = 52;
+// Row 2 height in px (nav bar h-11)
+const ROW2_H = 44;
+
 export function AppHeader({ firstName }: Props) {
   const pathname = usePathname();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -35,22 +41,32 @@ export function AppHeader({ firstName }: Props) {
     });
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > ROW1_H - 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll(); // check initial position
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   function isActive(href: string) {
     return pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
   }
 
-  const Avatar = () => avatarUrl ? (
-    <img src={avatarUrl} alt={firstName} referrerPolicy="no-referrer"
-      className="w-8 h-8 rounded-full border-2 border-ink object-cover flex-none" />
-  ) : (
-    <div className="w-8 h-8 rounded-full bg-tangerine text-cream border-2 border-ink flex items-center justify-center font-bold text-sm flex-none">
-      {firstName.charAt(0).toUpperCase()}
-    </div>
-  );
+  const Avatar = () =>
+    avatarUrl ? (
+      <img src={avatarUrl} alt={firstName} referrerPolicy="no-referrer"
+        className="w-8 h-8 rounded-full border-2 border-ink object-cover flex-none" />
+    ) : (
+      <div className="w-8 h-8 rounded-full bg-tangerine text-cream border-2 border-ink flex items-center justify-center font-bold text-sm flex-none">
+        {firstName.charAt(0).toUpperCase()}
+      </div>
+    );
 
   return (
     <>
-      {/* ── DESKTOP: single sticky bar (unchanged) ── */}
+      {/* ═══════════════════════════════════════════
+          DESKTOP — single sticky bar
+          ═══════════════════════════════════════════ */}
       <header className="hidden lg:block sticky top-0 z-40 bg-cream/95 backdrop-blur border-b-2 border-ink">
         <div className="max-w-5xl mx-auto px-10 h-16 flex items-center justify-between gap-4">
           <Link href="/dashboard" className="font-display text-3xl tracking-tight">
@@ -74,19 +90,33 @@ export function AppHeader({ firstName }: Props) {
         </div>
       </header>
 
-      {/* ── MOBILE: two-row header ── */}
+      {/* ═══════════════════════════════════════════
+          MOBILE — two-row fixed header
+          Row 1 (logo) slides away on scroll.
+          Row 2 (nav) is always pinned to top.
+          ═══════════════════════════════════════════ */}
       <div className="lg:hidden">
-        {/* Row 1 — logo + avatar — scrolls away naturally (no sticky) */}
-        <div className="bg-cream/95 border-b border-ink/10 px-5 py-3 flex items-center justify-between">
+        {/* Row 1 — logo + avatar */}
+        <div
+          className="fixed left-0 right-0 z-50 bg-cream border-b border-ink/15 px-5 flex items-center justify-between transition-transform duration-200 ease-out"
+          style={{
+            top: 0,
+            height: ROW1_H,
+            transform: scrolled ? `translateY(-${ROW1_H}px)` : "translateY(0)",
+          }}
+        >
           <Link href="/dashboard" className="font-display text-2xl tracking-tight">
             trym<span className="text-tangerine">.</span>
           </Link>
           <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
         </div>
 
-        {/* Row 2 — nav links — sticky: pins when row 1 scrolls off */}
-        <nav className="sticky top-0 z-40 bg-cream border-b-2 border-ink">
-          <div className="flex items-center gap-1 px-4 h-11 overflow-x-auto no-scrollbar">
+        {/* Row 2 — sticky nav */}
+        <nav
+          className="fixed left-0 right-0 z-40 bg-cream border-b-2 border-ink transition-[top] duration-200 ease-out"
+          style={{ top: scrolled ? 0 : ROW1_H, height: ROW2_H }}
+        >
+          <div className="flex items-center gap-1 px-4 h-full overflow-x-auto no-scrollbar">
             {NAV_ITEMS.map(({ href, label }) => {
               const active = isActive(href);
               return (
@@ -101,6 +131,9 @@ export function AppHeader({ firstName }: Props) {
             })}
           </div>
         </nav>
+
+        {/* Spacer so page content clears the fixed header */}
+        <div style={{ height: ROW1_H + ROW2_H }} />
       </div>
     </>
   );

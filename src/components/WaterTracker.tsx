@@ -4,11 +4,7 @@ import { useState, useEffect } from "react";
 
 const GOAL_ML = 2000;
 
-interface Props {
-  simple?: boolean;
-}
-
-export function WaterTracker({ simple = false }: Props) {
+export function WaterTracker() {
   const today = new Date().toISOString().slice(0, 10);
   const key = `trym-water-${today}`;
 

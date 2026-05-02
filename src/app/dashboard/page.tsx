@@ -11,8 +11,6 @@ import {
   CalendarIcon,
   CartIcon,
   ArrowRightIcon,
-  TrendDownIcon,
-  TrendUpIcon,
 } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
@@ -201,28 +199,30 @@ export default async function DashboardPage() {
             </div>
           )}
 
-          {/* Log section — right under today's meal cards */}
+          {/* Log tools — right under meal cards, BEFORE history */}
           <div className="mt-3 space-y-3">
-            {/* Unplanned food already logged today */}
-            {todayFoodLogs.length > 0 && (
-              <div className="space-y-1.5">
-                {todayFoodLogs.map((f) => (
-                  <div key={f.id} className="flex items-center justify-between px-4 py-2.5 rounded-2xl border-2 border-ink/20 bg-cream">
-                    <div>
-                      <p className="font-bold text-sm capitalize">{f.meal_name}</p>
-                      <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
-                    </div>
-                    <p className="text-sm font-bold tabular-nums text-ink-soft">
-                      {f.calories ? `${f.calories} cal` : "—"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
             <StarredFoodsWidget />
             <FoodLogButton />
             <WaterTracker />
           </div>
+
+          {/* Today's logged food — shown below the log tools */}
+          {todayFoodLogs.length > 0 && (
+            <div className="mt-3 space-y-1.5">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-ink-mute px-1">Logged today</p>
+              {todayFoodLogs.map((f) => (
+                <div key={f.id} className="flex items-center justify-between px-4 py-2.5 rounded-2xl border-2 border-ink/20 bg-cream">
+                  <div>
+                    <p className="font-bold text-sm capitalize">{f.meal_name}</p>
+                    <p className="text-xs text-ink-mute capitalize">{f.meal_type}</p>
+                  </div>
+                  <p className="text-sm font-bold tabular-nums text-ink-soft">
+                    {f.calories ? `${f.calories} cal` : "—"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ─── QUICK LOG — photo only ─── */}
