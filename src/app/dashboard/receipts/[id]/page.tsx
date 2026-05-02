@@ -38,7 +38,7 @@ export default async function ReceiptDetailPage({ params }: Props) {
   const noMatch = items?.filter((i) => i.match_status === "no_match") || [];
 
   return (
-    <main className="min-h-screen bg-cream pb-24 md:pb-20">
+    <main className="min-h-screen bg-cream pb-12">
       <nav className="bg-cream border-b border-sun-soft/40 sticky top-0 z-30">
         <div className="max-w-3xl mx-auto px-4 lg:px-8 h-14 lg:h-16 flex items-center justify-between">
           <Link

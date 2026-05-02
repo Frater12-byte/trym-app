@@ -144,7 +144,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <main className="min-h-screen bg-cream pb-24 md:pb-20">
+    <main className="min-h-screen bg-cream pb-12">
       <AppHeader firstName={firstName} />
 
       <div className="max-w-5xl mx-auto px-5 lg:px-10 pt-8 lg:pt-12">

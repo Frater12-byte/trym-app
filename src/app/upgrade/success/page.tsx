@@ -22,7 +22,7 @@ export default async function UpgradeSuccessPage() {
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
   return (
-    <main className="min-h-screen bg-cream pb-24 md:pb-20">
+    <main className="min-h-screen bg-cream pb-12">
       <AppHeader firstName={firstName} />
       <div className="max-w-lg mx-auto px-5 pt-16 text-center">
         <div className="text-7xl mb-6">🎉</div>

@@ -30,99 +30,87 @@ export function AppHeader({ firstName }: Props) {
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
-      const url =
-        user?.user_metadata?.avatar_url ??
-        user?.user_metadata?.picture ??
-        null;
+      const url = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null;
       if (url) setAvatarUrl(url);
     });
   }, []);
 
   function isActive(href: string) {
-    return (
-      pathname === href ||
-      (href !== "/dashboard" && pathname.startsWith(href))
-    );
+    return pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
   }
+
+  const Avatar = () => avatarUrl ? (
+    <img src={avatarUrl} alt={firstName} referrerPolicy="no-referrer"
+      className="w-8 h-8 rounded-full border-2 border-ink object-cover flex-none" />
+  ) : (
+    <div className="w-8 h-8 rounded-full bg-tangerine text-cream border-2 border-ink flex items-center justify-center font-bold text-sm flex-none">
+      {firstName.charAt(0).toUpperCase()}
+    </div>
+  );
 
   return (
     <>
-      {/* TOP NAV */}
-      <header className="sticky top-0 z-30 bg-cream/95 backdrop-blur border-b-2 border-ink">
-        <div className="max-w-5xl mx-auto px-5 lg:px-10 h-16 flex items-center justify-between gap-4">
+      {/* ── DESKTOP: single sticky bar (unchanged) ── */}
+      <header className="hidden lg:block sticky top-0 z-40 bg-cream/95 backdrop-blur border-b-2 border-ink">
+        <div className="max-w-5xl mx-auto px-10 h-16 flex items-center justify-between gap-4">
           <Link href="/dashboard" className="font-display text-3xl tracking-tight">
             trym<span className="text-tangerine">.</span>
           </Link>
-
-          <nav className="hidden lg:flex items-center gap-1">
-            {NAV_ITEMS.map((item) => {
-              const active = isActive(item.href);
-              const Icon = item.Icon;
+          <nav className="flex items-center gap-1">
+            {NAV_ITEMS.map(({ href, label, Icon }) => {
+              const active = isActive(href);
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
+                <Link key={href} href={href}
                   className={`px-4 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 ${
                     active ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
-                  }`}
-                >
+                  }`}>
                   <Icon size={18} active={active} />
-                  {item.label}
+                  {label}
                 </Link>
               );
             })}
           </nav>
-
-          <div className="flex items-center gap-2">
-            <Link href="/settings/profile" className="flex-none">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={firstName}
-                  className="w-10 h-10 rounded-full border-2 border-ink object-cover"
-                  style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div
-                  className="w-10 h-10 bg-tangerine text-cream rounded-full flex items-center justify-center font-bold border-2 border-ink text-base"
-                  style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
-                >
-                  {firstName.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </Link>
-          </div>
+          <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
         </div>
       </header>
 
-      {/* BOTTOM TAB BAR */}
-      <nav
-        style={{
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          position: "fixed",
-          bottom: 0, left: 0, right: 0,
-          zIndex: 50,
-          backgroundColor: "#FFF8EE",
-          borderTop: "2px solid #1A1A1A",
-        }}
-        className="lg:hidden"
-      >
-        <div className="grid grid-cols-4 w-full">
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(item.href);
-            const Icon = item.Icon;
-            return (
-              <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center py-3 gap-0.5">
-                <Icon size={24} active={active} className={active ? "text-tangerine" : "text-ink-mute"} />
-                <span className={`text-[10px] font-bold uppercase tracking-wider leading-tight ${active ? "text-ink" : "text-ink-mute"}`}>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
+      {/* ── MOBILE: two-row header ── */}
+      <div className="lg:hidden">
+        {/* Row 1 — logo + avatar — scrolls away naturally (no sticky) */}
+        <div className="bg-cream/95 border-b border-ink/10 px-5 py-3 flex items-center justify-between">
+          <Link href="/dashboard" className="font-display text-2xl tracking-tight">
+            trym<span className="text-tangerine">.</span>
+          </Link>
+          <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
         </div>
-      </nav>
+
+        {/* Row 2 — nav + name — sticky: pins when row 1 scrolls off */}
+        <nav className="sticky top-0 z-40 bg-cream border-b-2 border-ink">
+          <div className="flex items-center px-5 h-11">
+            {/* Nav links */}
+            <div className="flex items-center gap-1 flex-1 overflow-x-auto no-scrollbar">
+              {NAV_ITEMS.map(({ href, label }) => {
+                const active = isActive(href);
+                return (
+                  <Link key={href} href={href}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition flex-none ${
+                      active
+                        ? "bg-ink text-cream"
+                        : "text-ink-soft hover:text-ink"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+            {/* Name */}
+            <span className="text-xs font-bold text-ink-mute pl-3 whitespace-nowrap flex-none">
+              {firstName}
+            </span>
+          </div>
+        </nav>
+      </div>
     </>
   );
 }

@@ -32,7 +32,7 @@ export default function UpgradePage() {
   }
 
   return (
-    <main className="min-h-screen bg-cream pb-24 md:pb-20">
+    <main className="min-h-screen bg-cream pb-12">
       <div className="max-w-3xl mx-auto px-5 lg:px-10 pt-12 lg:pt-16">
 
         <Link href="/settings/profile" className="text-sm text-ink-soft hover:text-ink mb-8 inline-block">

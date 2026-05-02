@@ -362,3 +362,6 @@ h1.font-display, h2.font-display, h3.font-display {
 .scrollbar-dark::-webkit-scrollbar { height: 10px; }
 .scrollbar-dark::-webkit-scrollbar-track { background: #FFE8DA; border-radius: 10px; }
 .scrollbar-dark::-webkit-scrollbar-thumb { background: #1A1A1A; border-radius: 10px; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
