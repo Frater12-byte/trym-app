@@ -175,10 +175,12 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-3 gap-2 mb-3">
               {["breakfast", "lunch", "dinner"].map((slot) => {
                 const pm = todayMeals.find((m) => m.meal_slot === slot);
+                // Link to recipe if meal exists, otherwise to plan
+                const href = pm?.meal?.id ? `/recipes/${pm.meal.id}` : "/plan";
                 return (
                   <Link
                     key={slot}
-                    href="/plan"
+                    href={href}
                     className={`rounded-2xl border-2 border-ink p-3 text-center transition hover:-translate-y-0.5 ${
                       pm?.status === "cooked" ? "bg-green-tint" :
                       pm?.status === "skipped" ? "opacity-40 bg-cream" : "bg-white"
