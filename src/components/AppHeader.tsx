@@ -27,6 +27,7 @@ const NAV_ITEMS = [
 export function AppHeader({ firstName }: Props) {
   const pathname = usePathname();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -37,6 +38,12 @@ export function AppHeader({ firstName }: Props) {
         null;
       if (url) setAvatarUrl(url);
     });
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 44);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   function isActive(href: string) {
@@ -85,45 +92,50 @@ export function AppHeader({ firstName }: Props) {
           MOBILE — nav always fixed at top, logo scrolls away
           ═══════════════════════════════════════════════════════ */}
       <div className="lg:hidden">
-        {/* Nav bar — ALWAYS fixed, 4-column grid with icons + labels */}
-        <nav
-          className="fixed top-0 left-0 right-0 z-50 bg-cream border-b-2 border-ink"
-          style={{ height: MOBILE_NAV_H }}
+        {/* Fixed header: logo row on top, nav row below.
+            On scroll the logo slides up (overflow:hidden clips it),
+            nav stays visible — shrinking header from 108px → 56px. */}
+        <header
+          className="fixed top-0 left-0 right-0 z-50 bg-cream overflow-hidden transition-all duration-200 ease-out"
+          style={{ height: scrolled ? MOBILE_NAV_H : 52 + MOBILE_NAV_H }}
         >
-          <div className="grid grid-cols-4 h-full">
+          {/* Row 1 — logo + avatar */}
+          <div
+            className="flex items-center justify-between px-5 bg-cream border-b border-ink/10 transition-transform duration-200 ease-out"
+            style={{ height: 52, transform: scrolled ? "translateY(-52px)" : "translateY(0)" }}
+          >
+            <Link href="/dashboard" className="font-display text-2xl tracking-tight">
+              trym<span className="text-tangerine">.</span>
+            </Link>
+            <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
+          </div>
+
+          {/* Row 2 — nav, shifts up with logo */}
+          <nav
+            className="grid grid-cols-4 bg-cream border-b-2 border-ink transition-transform duration-200 ease-out"
+            style={{ height: MOBILE_NAV_H, transform: scrolled ? "translateY(-52px)" : "translateY(0)" }}
+          >
             {NAV_ITEMS.map(({ href, label, Icon }) => {
               const active = isActive(href);
               return (
                 <Link key={href} href={href}
-                  className="flex flex-col items-center justify-center gap-0.5 transition relative"
-                >
-                  <Icon size={22} active={active}
-                    className={active ? "text-tangerine" : "text-ink-mute"} />
-                  <span className={`text-[10px] font-bold uppercase tracking-wide leading-none ${
-                    active ? "text-ink" : "text-ink-mute"
-                  }`}>
+                  className="flex flex-col items-center justify-center gap-0.5 transition relative">
+                  <Icon size={22} active={active} className={active ? "text-tangerine" : "text-ink-mute"} />
+                  <span className={`text-[10px] font-bold uppercase tracking-wide leading-none ${active ? "text-ink" : "text-ink-mute"}`}>
                     {label}
                   </span>
-                  {/* Active dot indicator */}
-                  {active && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-tangerine" />
-                  )}
+                  {active && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-tangerine" />}
                 </Link>
               );
             })}
-          </div>
-        </nav>
+          </nav>
+        </header>
 
-        {/* Spacer — pushes page content below the fixed nav */}
-        <div style={{ height: MOBILE_NAV_H }} />
-
-        {/* Logo bar — normal flow, scrolls away naturally */}
-        <div className="bg-cream border-b border-ink/10 px-5 flex items-center justify-between" style={{ height: 52 }}>
-          <Link href="/dashboard" className="font-display text-2xl tracking-tight">
-            trym<span className="text-tangerine">.</span>
-          </Link>
-          <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
-        </div>
+        {/* Spacer — mirrors header height transition */}
+        <div
+          className="transition-all duration-200 ease-out"
+          style={{ height: scrolled ? MOBILE_NAV_H : 52 + MOBILE_NAV_H }}
+        />
       </div>
     </>
   );
