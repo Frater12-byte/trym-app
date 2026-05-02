@@ -87,7 +87,6 @@ export function AppHeader({ firstName }: Props) {
       <nav
         style={{
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          display: "grid",
           position: "fixed",
           bottom: 0,
           left: 0,
