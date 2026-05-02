@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
 import { ProfileEditor } from "@/components/ProfileEditor";
+import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -210,6 +211,15 @@ export default async function ProfileSettingsPage() {
             </p>
           </div>
         )}
+
+        {/* Starred foods — one-tap log */}
+        <section className="mb-8">
+          <h2 className="font-display text-2xl mb-3">⭐ Starred foods</h2>
+          <StarredFoodsWidget compact />
+          <p className="text-xs text-ink-mute mt-2">
+            Star foods in the Log modal to save them here.
+          </p>
+        </section>
 
         {/* Preferred meals */}
         {preferredMeals.length > 0 && (

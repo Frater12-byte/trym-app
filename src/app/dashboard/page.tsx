@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { DashboardActions } from "@/components/DashboardActions";
+import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
 import { NotificationPrompt } from "@/components/PwaSetup";
 import {
   CalendarIcon,
@@ -197,10 +198,13 @@ export default async function DashboardPage() {
           </Link>
         </section>
 
-        {/* QUICK ACTIONS */}
+        {/* QUICK ACTIONS + STARRED */}
         <section className="mb-6 lg:mb-8">
           <p className="eyebrow mb-3">Quick log</p>
-          <DashboardActions />
+          <div className="space-y-3">
+            <StarredFoodsWidget />
+            <DashboardActions />
+          </div>
         </section>
 
         {/* PLAN + GROCERIES NAV */}

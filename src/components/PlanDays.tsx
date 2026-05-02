@@ -77,7 +77,11 @@ export function PlanDays({ plan, today }: Props) {
     (i) => i >= 0 && i < 7
   );
 
+  // History: yesterday and 2 days ago (within this week)
+  const historyDays = [todayDayIdx - 1, todayDayIdx - 2].filter((i) => i >= 0);
+
   return (
+    <>
     <div className="space-y-6 lg:space-y-8">
       {visibleDays.map((dayIdx, idx) => {
         const dayMeals = dayMap[dayIdx] || [];
@@ -98,6 +102,60 @@ export function PlanDays({ plan, today }: Props) {
         );
       })}
     </div>
+
+    {/* History — past 2 days within this week */}
+    {historyDays.length > 0 && (
+      <div className="mt-10 border-t-2 border-dashed border-ink/20 pt-8">
+        <p className="eyebrow mb-2">What you ate</p>
+        <h2 className="font-display text-2xl mb-5">
+          Yesterday{historyDays.length > 1 ? " & before." : "."}
+        </h2>
+        <div className="space-y-5">
+          {historyDays.map((dayIdx) => {
+            const dayMeals = dayMap[dayIdx] || [];
+            const dayDate = new Date(weekStart);
+            dayDate.setDate(weekStart.getDate() + dayIdx);
+            const label = dayIdx === todayDayIdx - 1 ? "Yesterday" : "2 days ago";
+
+            if (!dayMeals.length) return null;
+
+            const sortedMeals = [...dayMeals].sort(
+              (a, b) => SLOTS.indexOf(a.meal_slot) - SLOTS.indexOf(b.meal_slot)
+            );
+
+            return (
+              <div key={dayIdx}>
+                <p className="text-sm font-bold text-ink-soft mb-2">{label}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {SLOTS.map((slot) => {
+                    const pm = sortedMeals.find((m) => m.meal_slot === slot);
+                    if (!pm || !pm.meal) return (
+                      <div key={slot} className="card-sm border-dashed opacity-30 text-center">
+                        <p className="text-xs capitalize text-ink-mute">{slot}</p>
+                        <p className="text-xs text-ink-mute">—</p>
+                      </div>
+                    );
+                    return (
+                      <div key={pm.id} className={`card-sm flex items-center gap-3 ${pm.status === "skipped" ? "opacity-40" : ""}`}>
+                        <span className="text-2xl">{pm.meal.emoji}</span>
+                        <div className="min-w-0">
+                          <p className="text-[10px] uppercase tracking-widest font-bold text-ink-mute">{slot}</p>
+                          <p className="font-bold text-sm leading-tight truncate">{pm.meal.name}</p>
+                          {pm.status !== "planned" && (
+                            <span className="text-[10px] font-bold text-ink-mute capitalize">{pm.status}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
