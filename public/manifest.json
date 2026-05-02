@@ -1,0 +1,26 @@
+{
+  "name": "Trym — Meal Planner",
+  "short_name": "Trym",
+  "description": "Personalised weekly meal plans for Dubai professionals",
+  "start_url": "/dashboard",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFF8EE",
+  "theme_color": "#FF6B35",
+  "categories": ["food", "health", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

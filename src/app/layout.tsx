@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { PwaSetup } from "@/components/PwaSetup";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -23,6 +24,12 @@ export const metadata: Metadata = {
     "Personalised weekly meal plans that fit your weight goal, your budget, and the 20 minutes you actually have to cook.",
   applicationName: "Trym",
   authors: [{ name: "Tergo Media" }],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Trym",
+  },
   openGraph: {
     title: "Trym — Eat better. Spend less. Hit your goal.",
     description:
@@ -49,6 +56,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="bg-cream text-ink antialiased min-h-screen">
+        <PwaSetup />
         {children}
       </body>
       {process.env.NODE_ENV === "production" && (
