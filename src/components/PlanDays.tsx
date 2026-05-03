@@ -547,13 +547,52 @@ function MealCard({
 }
 
 function EmptySlot({ slot }: { slot: string }) {
+  const router = useRouter();
+  const [showLog, setShowLog] = useState(false);
+  const [name, setName] = useState("");
+  const [cal, setCal] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (!name.trim()) return;
+    setSaving(true);
+    await fetch("/api/food-log/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meal_name: name.trim(), meal_type: slot, calories: parseInt(cal) || null }),
+    });
+    setSaving(false);
+    setShowLog(false);
+    setName(""); setCal("");
+    router.refresh();
+  }
+
+  if (showLog) {
+    return (
+      <div className="card flex flex-col gap-2 min-h-[140px] justify-center">
+        <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute capitalize">{slot}</p>
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+          placeholder="What did you eat?" className="input text-sm" autoFocus />
+        <div className="flex gap-2">
+          <input type="number" value={cal} onChange={(e) => setCal(e.target.value)}
+            placeholder="cal" className="input text-sm tabular-nums w-20" inputMode="numeric" />
+          <button type="button" onClick={() => setShowLog(false)} className="btn btn-secondary flex-1 text-sm py-2">Cancel</button>
+          <button type="button" onClick={save} disabled={!name.trim() || saving} className="btn btn-primary flex-1 text-sm py-2">Log</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="card card-sm border-dashed opacity-50 min-h-[140px] flex flex-col justify-center items-center text-center">
-      <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute mb-1 capitalize">
-        {slot}
-      </p>
-      <p className="text-sm text-ink-mute">No meal planned</p>
-    </div>
+    <button
+      type="button"
+      onClick={() => setShowLog(true)}
+      className="card border-dashed min-h-[140px] flex flex-col justify-center items-center text-center hover:-translate-y-0.5 hover:opacity-70 transition opacity-50 w-full"
+    >
+      <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute mb-1 capitalize">{slot}</p>
+      <p className="text-sm text-ink-mute mb-2">No meal planned</p>
+      <span className="text-xs font-bold text-tangerine">+ Log food</span>
+    </button>
   );
 }
 

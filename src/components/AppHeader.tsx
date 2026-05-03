@@ -97,9 +97,20 @@ export function AppHeader({ firstName }: Props) {
               );
             })}
           </nav>
-          <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
+          <div className="flex items-center gap-3 flex-none">
+            {/* + Quick log — desktop */}
+            <button
+              type="button"
+              onClick={() => setShowQuickLog(true)}
+              className="w-9 h-9 bg-tangerine text-cream rounded-full border-2 border-ink flex items-center justify-center font-black text-xl leading-none hover:-translate-y-0.5 transition"
+              style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
+              title="Quick log"
+            >+</button>
+            <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
+          </div>
         </div>
       </header>
+      {showQuickLog && <QuickLogModal onClose={() => setShowQuickLog(false)} />}
 
       {/* ═══════════════════════════════════════════════════════
           MOBILE — nav always fixed at top, logo scrolls away
@@ -171,7 +182,6 @@ export function AppHeader({ firstName }: Props) {
             })}
           </nav>
 
-          {showQuickLog && <QuickLogModal onClose={() => setShowQuickLog(false)} />}
         </header>
 
         {/* Spacer — mirrors header height transition */}

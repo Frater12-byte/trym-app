@@ -228,25 +228,32 @@ function ItemSheet({ item, onClose, onCheck, onRemove, busy }: ItemSheetProps) {
 export function GroceriesList({ planItems, manualItems }: Props) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
+  const [addingCat, setAddingCat] = useState<string | null>(null); // per-category add
   const [newItemText, setNewItemText] = useState("");
   const [newItemQty, setNewItemQty] = useState("");
   const [newItemUnit, setNewItemUnit] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checkedPlanIds, setCheckedPlanIds] = useState<Set<string>>(new Set());
+  const [hiddenPlanIds, setHiddenPlanIds] = useState<Set<string>>(new Set()); // dismissed plan items
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set()); // bulk select
   const [activeItem, setActiveItem] = useState<DisplayItem | null>(null);
+  const [showDoneShopping, setShowDoneShopping] = useState(false);
 
-  // Persist plan-item check state across navigation
+  // Persist check state and hidden items across navigation
   useEffect(() => {
     try {
       const saved = localStorage.getItem("trym-grocery-checked");
       if (saved) setCheckedPlanIds(new Set(JSON.parse(saved)));
+      const hidden = localStorage.getItem("trym-grocery-hidden");
+      if (hidden) setHiddenPlanIds(new Set(JSON.parse(hidden)));
     } catch {}
   }, []);
 
   const grouped: Record<string, DisplayItem[]> = {};
 
   for (const p of planItems) {
+    if (hiddenPlanIds.has(p.ingredient_id)) continue; // dismissed items hidden
     const cat = p.category || "other";
     if (!grouped[cat]) grouped[cat] = [];
     const cost = p.default_price_aed && p.quantity
@@ -293,6 +300,77 @@ export function GroceriesList({ planItems, manualItems }: Props) {
   const totalCost = allItems.filter((i) => !i.checked_off).reduce((s, i) => s + (i.cost || 0), 0);
   const totalItems = allItems.length;
   const checkedItems = allItems.filter((i) => i.checked_off).length;
+
+  function dismissPlanItem(id: string) {
+    setHiddenPlanIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      try { localStorage.setItem("trym-grocery-hidden", JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  }
+
+  function toggleBulkSelect(key: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }
+
+  async function bulkCheckOff() {
+    const selected = allItems.filter((i) => selectedIds.has(i.key));
+    for (const item of selected) {
+      if (item.type === "plan" && item.manual_id) {
+        setCheckedPlanIds((prev) => {
+          const next = new Set(prev);
+          next.add(item.manual_id!);
+          try { localStorage.setItem("trym-grocery-checked", JSON.stringify([...next])); } catch {}
+          return next;
+        });
+      } else if (item.type === "manual" && item.manual_id) {
+        await fetch("/api/groceries/toggle-check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ item_id: item.manual_id, checked_off: true }),
+        });
+      }
+    }
+    setSelectedIds(new Set());
+    router.refresh();
+  }
+
+  async function bulkRemove() {
+    const selected = allItems.filter((i) => selectedIds.has(i.key));
+    for (const item of selected) {
+      if (item.type === "plan" && item.manual_id) {
+        dismissPlanItem(item.manual_id);
+      } else if (item.type === "manual" && item.manual_id) {
+        await fetch("/api/groceries/remove", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ item_id: item.manual_id }),
+        });
+      }
+    }
+    setSelectedIds(new Set());
+    router.refresh();
+  }
+
+  async function addItemToCategory(category: string) {
+    if (!newItemText.trim()) return;
+    setError(null);
+    try {
+      const res = await fetch("/api/groceries/add-manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ raw_text: newItemText.trim(), quantity: parseFloat(newItemQty) || null, unit: newItemUnit || null, category }),
+      });
+      if (!res.ok) { const d = await res.json(); setError(d.error || "Could not add"); return; }
+      setNewItemText(""); setNewItemQty(""); setNewItemUnit(""); setAddingCat(null);
+      router.refresh();
+    } catch { setError("Network error"); }
+  }
 
   async function toggleCheck(item: DisplayItem) {
     if (!item.manual_id) return;
@@ -372,6 +450,22 @@ export function GroceriesList({ planItems, manualItems }: Props) {
         </div>
       </div>
 
+      {/* Bulk action bar */}
+      {selectedIds.size > 0 && (
+        <div className="sticky top-0 z-30 mb-4 flex gap-2 bg-cream/95 backdrop-blur py-2">
+          <button type="button" onClick={bulkCheckOff}
+            className="flex-1 btn btn-primary py-2.5 text-sm">
+            ✓ Got {selectedIds.size} item{selectedIds.size > 1 ? "s" : ""}
+          </button>
+          <button type="button" onClick={bulkRemove}
+            className="flex-1 btn btn-secondary py-2.5 text-sm text-red-700">
+            🗑️ Remove {selectedIds.size}
+          </button>
+          <button type="button" onClick={() => setSelectedIds(new Set())}
+            className="px-3 text-ink-mute text-sm font-bold hover:text-ink transition">✕</button>
+        </div>
+      )}
+
       {/* Category tile grids */}
       <div className="space-y-6">
         {CATEGORY_ORDER.filter((c) => grouped[c]?.length).map((cat) => {
@@ -382,55 +476,78 @@ export function GroceriesList({ planItems, manualItems }: Props) {
           return (
             <section key={cat}>
               <div className="flex items-center gap-2 mb-3">
-                <span
-                  className="w-7 h-7 rounded-full border-2 border-ink flex items-center justify-center text-sm flex-none"
-                  style={{ background: meta.color, boxShadow: "2px 2px 0 #1A1A1A" }}
-                >
+                <span className="w-7 h-7 rounded-full border-2 border-ink flex items-center justify-center text-sm flex-none"
+                  style={{ background: meta.color, boxShadow: "2px 2px 0 #1A1A1A" }}>
                   {meta.emoji}
                 </span>
                 <h3 className="font-display text-lg capitalize font-bold">{cat}</h3>
-                <span className="text-xs text-ink-mute ml-auto">
-                  {doneCount}/{items.length}
-                </span>
+                <span className="text-xs text-ink-mute ml-auto">{doneCount}/{items.length}</span>
               </div>
 
               {/* Emoji grid */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                {items.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setActiveItem(item)}
-                    className={`relative flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 border-ink transition hover:-translate-y-0.5 text-center ${
-                      item.checked_off ? "opacity-40" : ""
-                    }`}
-                    style={{
-                      background: item.checked_off ? "#D4E8D8" : "white",
-                      boxShadow: "3px 3px 0 #1A1A1A",
-                    }}
-                  >
-                    {item.checked_off && (
-                      <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-green flex items-center justify-center">
-                        <CheckIcon size={10} className="text-cream" />
-                      </span>
-                    )}
-                    <span className="text-3xl leading-none">{item.emoji}</span>
-                    <span className="text-[11px] font-bold leading-tight capitalize line-clamp-2">
-                      {item.name}
-                    </span>
-                    {item.quantity && item.unit && (
-                      <span className="text-[10px] text-ink-mute tabular-nums">
-                        {item.quantity} {item.unit}
-                      </span>
-                    )}
-                    {item.cost && (
-                      <span className="text-[10px] font-semibold text-ink-soft tabular-nums">
-                        {item.cost.toFixed(1)} AED
-                      </span>
-                    )}
-                  </button>
-                ))}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-2">
+                {items.map((item) => {
+                  const isSelected = selectedIds.has(item.key);
+                  return (
+                    <div key={item.key} className="relative">
+                      {/* Tile */}
+                      <button type="button" onClick={() => setActiveItem(item)}
+                        className={`w-full flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 border-ink transition hover:-translate-y-0.5 text-center ${
+                          item.checked_off ? "opacity-40" : ""
+                        }`}
+                        style={{ background: isSelected ? "#FFF3E8" : item.checked_off ? "#D4E8D8" : "white", boxShadow: isSelected ? "3px 3px 0 #FF6B35" : "3px 3px 0 #1A1A1A" }}>
+                        <span className="text-3xl leading-none">{item.emoji}</span>
+                        <span className="text-[11px] font-bold leading-tight capitalize line-clamp-2">{item.name}</span>
+                        {item.quantity && item.unit && (
+                          <span className="text-[10px] text-ink-mute tabular-nums">{item.quantity} {item.unit}</span>
+                        )}
+                        {item.cost && (
+                          <span className="text-[10px] font-semibold text-ink-soft tabular-nums">{item.cost.toFixed(1)} AED</span>
+                        )}
+                      </button>
+
+                      {/* Top-right: bulk select circle */}
+                      <button type="button" onClick={() => toggleBulkSelect(item.key)}
+                        className={`absolute top-1 right-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
+                          isSelected ? "bg-tangerine border-tangerine" : "bg-white border-ink/30 hover:border-ink"
+                        }`}>
+                        {isSelected && <CheckIcon size={10} className="text-cream" />}
+                      </button>
+
+                      {/* X button (top-left) to remove/dismiss */}
+                      <button type="button"
+                        onClick={() => item.type === "manual" ? removeItem(item) : item.manual_id ? dismissPlanItem(item.manual_id) : null}
+                        className="absolute top-1 left-1 w-5 h-5 rounded-full bg-white/90 border border-ink/20 text-ink-mute flex items-center justify-center text-[10px] hover:text-red-500 hover:border-red-400 transition opacity-0 group-hover:opacity-100"
+                        style={{ opacity: 0.7 }}>
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
+
+              {/* Per-category add */}
+              {addingCat === cat ? (
+                <div className="flex gap-2 flex-wrap">
+                  <input type="text" value={newItemText} onChange={(e) => setNewItemText(e.target.value)}
+                    placeholder="Item name…" className="input flex-1 text-sm min-w-0" autoFocus />
+                  <input type="number" value={newItemQty} onChange={(e) => setNewItemQty(e.target.value)}
+                    placeholder="Qty" className="input w-16 text-sm tabular-nums" inputMode="decimal" />
+                  <select value={newItemUnit} onChange={(e) => setNewItemUnit(e.target.value)} className="input w-20 text-sm">
+                    <option value="">Unit</option>
+                    {["g","kg","ml","l","piece","pack"].map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
+                  <button type="button" onClick={() => addItemToCategory(cat)} disabled={!newItemText.trim()}
+                    className="btn btn-primary text-sm py-2 px-4">Add</button>
+                  <button type="button" onClick={() => { setAddingCat(null); setNewItemText(""); setNewItemQty(""); setNewItemUnit(""); }}
+                    className="btn btn-secondary text-sm py-2 px-3">✕</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => setAddingCat(cat)}
+                  className="text-xs text-tangerine font-bold hover:underline flex items-center gap-1">
+                  + Add to {cat}
+                </button>
+              )}
             </section>
           );
         })}
@@ -447,13 +564,64 @@ export function GroceriesList({ planItems, manualItems }: Props) {
         />
       </div>
 
+      {/* Done shopping */}
+      <div className="mt-6">
+        <button type="button" onClick={() => setShowDoneShopping(true)}
+          className="w-full py-4 rounded-3xl border-2 border-ink bg-tangerine text-cream font-display text-xl hover:-translate-y-0.5 transition"
+          style={{ boxShadow: "4px 4px 0 #1A1A1A" }}>
+          🛒 Done shopping
+        </button>
+      </div>
+
+      {/* Done shopping modal */}
+      {showDoneShopping && (
+        <div className="fixed inset-0 z-50 bg-ink/40 flex items-end justify-center" onClick={() => setShowDoneShopping(false)}>
+          <div className="bg-cream w-full max-w-lg rounded-t-3xl border-t-2 border-x-2 border-ink p-6 pb-8"
+            style={{ boxShadow: "0 -6px 0 #1A1A1A" }}
+            onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-5">
+              <p className="text-4xl mb-2">🎉</p>
+              <h2 className="font-display text-3xl mb-1">Well done!</h2>
+              <p className="text-sm text-ink-soft">
+                You checked off {checkedItems} of {totalItems} items.
+              </p>
+            </div>
+            <div className="card-cream mb-4">
+              <p className="font-bold text-sm mb-1">📸 Upload your receipt</p>
+              <p className="text-xs text-ink-mute mb-3">
+                Help us learn real prices in your area. We only read items and prices — nothing personal.
+              </p>
+              <label className="btn btn-primary w-full cursor-pointer">
+                📷 Pick receipt photo
+                <input type="file" accept="image/*" className="sr-only"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (!f) return;
+                    const fd = new FormData(); fd.append("receipt", f);
+                    fetch("/api/receipts/upload", { method: "POST", body: fd });
+                    setShowDoneShopping(false);
+                  }} />
+              </label>
+            </div>
+            <button type="button" onClick={() => setShowDoneShopping(false)}
+              className="w-full text-sm text-ink-mute hover:text-ink text-center py-2">
+              Skip for now
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Tap-to-edit sheet */}
       {activeItem && (
         <ItemSheet
           item={activeItem}
           onClose={() => setActiveItem(null)}
           onCheck={() => toggleCheck(activeItem)}
-          onRemove={activeItem.type === "manual" ? () => removeItem(activeItem) : undefined}
+          onRemove={() => {
+            if (activeItem.type === "manual") removeItem(activeItem);
+            else if (activeItem.manual_id) dismissPlanItem(activeItem.manual_id);
+            setActiveItem(null);
+          }}
           busy={busyId === activeItem.manual_id}
         />
       )}
