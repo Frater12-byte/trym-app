@@ -175,13 +175,6 @@ export default async function ProfileSettingsPage() {
           </Link>
         </div>
 
-        {plan && (
-          <div className="mb-6">
-            <Link href="/plan" className="btn btn-secondary w-full sm:w-auto">
-              View this week&apos;s plan →
-            </Link>
-          </div>
-        )}
 
         {/* Starred foods — view/edit details, no log */}
         <section className="mb-6">

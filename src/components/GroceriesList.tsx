@@ -485,44 +485,43 @@ export function GroceriesList({ planItems, manualItems }: Props) {
                 <span className="text-xs text-ink-mute ml-auto">{doneCount}/{items.length}</span>
               </div>
 
-              {/* Emoji grid */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-2">
+              {/* Emoji grid — add tile is last item in the SAME grid */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                 {items.map((item) => {
                   const isSelected = selectedIds.has(item.key);
                   return (
                     <div key={item.key} className="relative">
-                      {/* Tile — in selection mode, tap anywhere to select */}
                       <button type="button"
                         onClick={() => selectedIds.size > 0 ? toggleBulkSelect(item.key) : setActiveItem(item)}
-                        className={`w-full flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 border-ink transition hover:-translate-y-0.5 text-center ${
-                          item.checked_off ? "opacity-40" : ""
-                        }`}
+                        className={`w-full flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 border-ink transition hover:-translate-y-0.5 text-center ${item.checked_off ? "opacity-40" : ""}`}
                         style={{ background: isSelected ? "#FFF3E8" : item.checked_off ? "#D4E8D8" : "white", boxShadow: isSelected ? "3px 3px 0 #FF6B35" : "3px 3px 0 #1A1A1A" }}>
                         <span className="text-3xl leading-none">{item.emoji}</span>
                         <span className="text-[11px] font-bold leading-tight capitalize line-clamp-2">{item.name}</span>
-                        {item.quantity && item.unit && (
-                          <span className="text-[10px] text-ink-mute tabular-nums">{item.quantity} {item.unit}</span>
-                        )}
-                        {item.cost && (
-                          <span className="text-[10px] font-semibold text-ink-soft tabular-nums">{item.cost.toFixed(1)} AED</span>
-                        )}
+                        {item.quantity && item.unit && <span className="text-[10px] text-ink-mute tabular-nums">{item.quantity} {item.unit}</span>}
+                        {item.cost && <span className="text-[10px] font-semibold text-ink-soft tabular-nums">{item.cost.toFixed(1)} AED</span>}
                       </button>
-
-                      {/* Top-right: select circle (always visible) */}
                       <button type="button" onClick={() => toggleBulkSelect(item.key)}
-                        className={`absolute top-1 right-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                          isSelected ? "bg-tangerine border-tangerine" : "bg-white/90 border-ink/30 hover:border-ink"
-                        }`}>
+                        className={`absolute top-1 right-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${isSelected ? "bg-tangerine border-tangerine" : "bg-white/90 border-ink/30 hover:border-ink"}`}>
                         {isSelected && <CheckIcon size={10} className="text-cream" />}
                       </button>
                     </div>
                   );
                 })}
+
+                {/* Add item tile — in the same grid, right after last ingredient */}
+                {addingCat !== cat && (
+                  <button type="button" onClick={() => setAddingCat(cat)}
+                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-dashed border-ink/25 transition hover:-translate-y-0.5 text-center bg-cream/60"
+                    style={{ minHeight: 90 }}>
+                    <span className="text-2xl leading-none opacity-30">+</span>
+                    <span className="text-[10px] font-bold text-ink-mute">Add item</span>
+                  </button>
+                )}
               </div>
 
-              {/* Per-category add — empty tile in the grid OR inline form */}
-              {addingCat === cat ? (
-                <div className="space-y-2 mt-2">
+              {/* Inline add form (shown below grid when active) */}
+              {addingCat === cat && (
+                <div className="mt-2 space-y-2">
                   <div className="flex gap-2 flex-wrap">
                     <input type="text" value={newItemText} onChange={(e) => setNewItemText(e.target.value)}
                       placeholder="Item name…" className="input flex-1 text-sm min-w-0" autoFocus />
@@ -539,16 +538,6 @@ export function GroceriesList({ planItems, manualItems }: Props) {
                     <button type="button" onClick={() => { setAddingCat(null); setNewItemText(""); setNewItemQty(""); setNewItemUnit(""); }}
                       className="btn btn-secondary text-sm py-2 px-4">Cancel</button>
                   </div>
-                </div>
-              ) : (
-                /* Empty tile that matches the grocery tile style */
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-0">
-                  <button type="button" onClick={() => setAddingCat(cat)}
-                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-dashed border-ink/25 transition hover:-translate-y-0.5 text-center bg-cream/60"
-                    style={{ minHeight: 90 }}>
-                    <span className="text-2xl opacity-30">+</span>
-                    <span className="text-[10px] font-bold text-ink-mute capitalize">Add item</span>
-                  </button>
                 </div>
               )}
             </section>

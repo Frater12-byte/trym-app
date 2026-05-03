@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { PrefetchRoutes } from "@/components/PrefetchRoutes";
 import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
-import { WaterTracker } from "@/components/WaterTracker";
+import { WaterProgressChip } from "@/components/WaterProgressChip";
 import { NotificationPrompt } from "@/components/PwaSetup";
 import {
   CalendarIcon,
@@ -161,73 +161,106 @@ export default async function DashboardPage() {
         {/* NOTIFICATION PROMPT */}
         <NotificationPrompt />
 
-        {/* ─── TODAY — plan meals + logged food + water ─── */}
-        <section className="mb-5">
-          <div className="flex items-baseline justify-between mb-3">
-            <p className="eyebrow">Today</p>
-            <Link href="/plan" className="text-xs text-tangerine font-bold">Full plan →</Link>
+        {/* ─── TODAY OVERVIEW ─── */}
+        <section className="mb-6">
+          <p className="eyebrow mb-3">
+            {today.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+          </p>
+
+          {/* Meal tiles — compact */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {["breakfast", "lunch", "dinner"].map((slot) => {
+              const pm = todayMeals.find((m) => m.meal_slot === slot);
+              const href = pm?.meal?.id ? `/recipes/${pm.meal.id}` : "/plan";
+              return (
+                <Link key={slot} href={href}
+                  className={`rounded-2xl border-2 border-ink p-2.5 text-center transition hover:-translate-y-0.5 ${
+                    pm?.status === "cooked" ? "bg-green-tint" : pm?.status === "skipped" ? "opacity-40 bg-cream" : "bg-white"
+                  }`}
+                  style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
+                  <p className="text-xl mb-0.5">{pm?.meal?.emoji ?? "—"}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-ink-mute capitalize">{slot}</p>
+                  <p className="text-[10px] font-bold leading-tight line-clamp-2 mt-0.5">{pm?.meal?.name ?? "Not planned"}</p>
+                  {pm?.status && pm.status !== "planned" && (
+                    <p className="text-[9px] text-green font-bold uppercase mt-0.5 capitalize">{pm.status}</p>
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Planned meal slots */}
-          {todayMeals.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              {["breakfast", "lunch", "dinner"].map((slot) => {
-                const pm = todayMeals.find((m) => m.meal_slot === slot);
-                // Link to recipe if meal exists, otherwise to plan
-                const href = pm?.meal?.id ? `/recipes/${pm.meal.id}` : "/plan";
-                return (
-                  <Link
-                    key={slot}
-                    href={href}
-                    className={`rounded-2xl border-2 border-ink p-3 text-center transition hover:-translate-y-0.5 ${
-                      pm?.status === "cooked" ? "bg-green-tint" :
-                      pm?.status === "skipped" ? "opacity-40 bg-cream" : "bg-white"
-                    }`}
-                    style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
-                  >
-                    <p className="text-2xl mb-1">{pm?.meal?.emoji ?? "—"}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-ink-mute capitalize">{slot}</p>
-                    <p className="text-xs font-bold mt-0.5 leading-tight line-clamp-2">
-                      {pm?.meal?.name ?? "Not planned"}
-                    </p>
-                    {pm?.status && pm.status !== "planned" && (
-                      <p className="text-[9px] text-green font-bold uppercase tracking-wider mt-1 capitalize">{pm.status}</p>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Off-plan meals logged today — appear AS PART of today's plan */}
+          {/* Off-plan food logged today */}
           {todayFoodLogs.length > 0 && (
-            <div className="mt-2 space-y-1.5">
+            <div className="space-y-1.5 mb-3">
               {todayFoodLogs.map((f) => (
-                <div key={f.id}
-                  className="flex items-center gap-3 px-4 py-3 rounded-2xl border-2 border-ink/20 bg-cream"
-                >
-                  <span className="text-xl flex-none">🍽️</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm capitalize leading-tight">{f.meal_name}</p>
-                    <p className="text-xs text-ink-mute capitalize">{f.meal_type} · off-plan</p>
-                  </div>
-                  <p className="text-sm font-bold tabular-nums text-ink-soft flex-none">
-                    {f.calories ? `${f.calories} cal` : "—"}
-                  </p>
+                <div key={f.id} className="flex items-center gap-3 px-3 py-2 rounded-2xl border border-ink/15 bg-cream text-sm">
+                  <span>🍽️</span>
+                  <span className="flex-1 font-bold capitalize truncate">{f.meal_name}</span>
+                  <span className="text-ink-mute tabular-nums text-xs">{f.calories ? `${f.calories} cal` : "—"}</span>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Log tools */}
-          <div className="mt-3 space-y-3">
-            <StarredFoodsWidget />
-            <WaterTracker />
+          {/* KPI overview chips */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+            <WaterProgressChip />
+
+            <Link href="/weight"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
+              <span className="text-lg">⚖️</span>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Weight</p>
+                <p className="font-bold text-sm tabular-nums leading-tight">{displayWeight(currentWeight)}<span className="text-xs font-normal text-ink-mute"> {unit}</span></p>
+                <p className="text-[10px] text-ink-mute">{weightPct}% to goal</p>
+              </div>
+            </Link>
+
+            <Link href="/groceries"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
+              <span className="text-lg">💰</span>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Budget</p>
+                <p className="font-bold text-sm tabular-nums leading-tight">{Math.round(weekSpent)}<span className="text-xs font-normal text-ink-mute"> / {weekBudget} AED</span></p>
+                <p className="text-[10px] text-ink-mute">{budgetPct}% used</p>
+              </div>
+            </Link>
+
+            <Link href="/plan"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
+              <span className="text-lg">🍽️</span>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Meals</p>
+                <p className="font-bold text-sm tabular-nums leading-tight">{loggedMeals}<span className="text-xs font-normal text-ink-mute"> / {totalMeals} logged</span></p>
+                <p className="text-[10px] text-ink-mute">{mealsPct}%</p>
+              </div>
+            </Link>
+
+            {plan && (
+              <Link href="/plan"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
+                <span className="text-lg">🔄</span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Swaps</p>
+                  <p className="font-bold text-sm tabular-nums leading-tight">{plan.swap_credits_remaining}<span className="text-xs font-normal text-ink-mute"> / {plan.swap_credits_max} left</span></p>
+                </div>
+              </Link>
+            )}
+
+            <Link href="/activity"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
+              <span className="text-lg">🏃</span>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Activity</p>
+                <p className="font-bold text-sm leading-tight">
+                  {todayActivity?.exercise_minutes ? `${todayActivity.exercise_minutes} min` : "Not logged"}
+                </p>
+              </div>
+            </Link>
           </div>
-        </section>
 
-
-        <section className="mb-6 lg:mb-8">
+          {/* Starred usuals — quick log */}
+          <StarredFoodsWidget />
         </section>
 
 

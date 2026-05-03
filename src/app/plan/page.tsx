@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { PlanDays } from "@/components/PlanDays";
 import { GeneratePlanButton } from "@/components/GeneratePlanButton";
 import { WaterTracker } from "@/components/WaterTracker";
@@ -174,20 +174,18 @@ export default async function PlanPage() {
         <header className="mb-6">
           <div className="flex items-baseline justify-between flex-wrap gap-3">
             <div>
-              <p className="eyebrow">Plan</p>
+              <p className="eyebrow">Today&apos;s meals</p>
               <h1 className="font-display text-4xl lg:text-5xl">
-                Today.
+                {today.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
               </h1>
             </div>
-            <div className="card-cream card-sm rotate-right">
+            <div className="card-cream card-sm rotate-right text-center">
               <p className="text-xs uppercase tracking-widest font-bold text-ink-mute mb-1">
-                Swap credits
+                Swaps left
               </p>
               <p className="font-display text-3xl tabular-nums">
                 {plan.swap_credits_remaining}
-                <span className="text-base font-normal text-ink-soft">
-                  /{plan.swap_credits_max}
-                </span>
+                <span className="text-base font-normal text-ink-soft">/{plan.swap_credits_max}</span>
               </p>
             </div>
           </div>

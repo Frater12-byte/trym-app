@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { WeightLogForm } from "@/components/WeightLogForm";
 
 // Weight log page needs fresh data after each log entry

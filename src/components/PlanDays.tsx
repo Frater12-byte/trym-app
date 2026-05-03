@@ -250,7 +250,7 @@ function DaySection({
   onRefresh: () => void;
 }) {
   const dayLabel = isToday
-    ? "Today"
+    ? dayDate.toLocaleDateString("en-US", { weekday: "long" })
     : dayDate.toLocaleDateString("en-US", { weekday: "long" });
   const dateLabel = dayDate.toLocaleDateString("en-US", {
     month: "short",

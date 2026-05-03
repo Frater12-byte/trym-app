@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { GroceriesList } from "@/components/GroceriesList";
 import { CartIcon } from "@/components/icons";
 
