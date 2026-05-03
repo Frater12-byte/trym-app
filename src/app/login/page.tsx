@@ -17,7 +17,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"google" | "facebook" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "facebook" | "apple" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(e: React.FormEvent) {
@@ -57,7 +57,7 @@ function LoginForm() {
     router.refresh();
   }
 
-  async function handleOAuth(provider: "google" | "facebook") {
+  async function handleOAuth(provider: "google" | "facebook" | "apple") {
     setOauthLoading(provider);
     setError(null);
     await supabase.auth.signInWithOAuth({
@@ -87,23 +87,21 @@ function LoginForm() {
     >
       {/* OAuth buttons */}
       <div className="space-y-3 mb-5">
-        <button
-          type="button"
-          onClick={() => handleOAuth("google")}
-          disabled={!!oauthLoading || loading}
+        <button type="button" onClick={() => handleOAuth("apple")} disabled={!!oauthLoading || loading}
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border-2 border-ink bg-ink text-cream font-bold text-sm hover:-translate-y-0.5 transition disabled:opacity-50"
+          style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
+          <AppleIcon />
+          {oauthLoading === "apple" ? "Redirecting…" : "Continue with Apple"}
+        </button>
+        <button type="button" onClick={() => handleOAuth("google")} disabled={!!oauthLoading || loading}
           className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border-2 border-ink bg-cream font-bold text-sm hover:-translate-y-0.5 transition disabled:opacity-50"
-          style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
-        >
+          style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
           <GoogleIcon />
           {oauthLoading === "google" ? "Redirecting…" : "Continue with Google"}
         </button>
-        <button
-          type="button"
-          onClick={() => handleOAuth("facebook")}
-          disabled={!!oauthLoading || loading}
+        <button type="button" onClick={() => handleOAuth("facebook")} disabled={!!oauthLoading || loading}
           className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border-2 border-ink bg-[#1877F2] text-white font-bold text-sm hover:-translate-y-0.5 transition disabled:opacity-50"
-          style={{ boxShadow: "3px 3px 0 #1A1A1A" }}
-        >
+          style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
           <FacebookIcon />
           {oauthLoading === "facebook" ? "Redirecting…" : "Continue with Facebook"}
         </button>
@@ -179,6 +177,14 @@ function Divider({ label }: { label: string }) {
       <span className="text-xs text-ink-mute font-medium">{label}</span>
       <div className="flex-1 h-px bg-ink/10" />
     </div>
+  );
+}
+
+function AppleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 814 1000" fill="currentColor">
+      <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164.3-39.5c-76.5 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46.5 753.6 0 639.2 0 528.4c0-190.5 124.1-291.1 246.2-291.1 64.9 0 118.3 42.8 158.9 42.8 39.5 0 101.4-45.1 174.1-45.1 11.5 0 108.2 1.3 170.5 75.9zm-180.1-140.7c42.8-52.6 71.8-124.5 71.8-196.3 0-9.6-.6-19.8-2.6-28.5-67.8 2.6-148.5 45.7-197.5 105.6-38.7 44.9-72.5 121.5-72.5 198.3 0 10.4 1.9 20.7 2.6 24 4.5.6 11.5 1.3 18.5 1.3 60.3 0 134.4-40.9 179.7-104.4z"/>
+    </svg>
   );
 }
 

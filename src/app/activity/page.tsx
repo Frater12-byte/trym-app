@@ -70,61 +70,7 @@ export default async function ActivityPage() {
           </h1>
         </header>
 
-        {/* Stats row */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 lg:mb-8">
-          <div className="card rotate-left">
-            <div className="flex items-start justify-between mb-2">
-              <FootIcon size={28} className="text-ink" />
-              <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute">
-                Avg/day
-              </p>
-            </div>
-            <div className="font-display text-4xl tabular-nums leading-none">
-              {avgSteps > 0
-                ? `${(avgSteps / 1000).toFixed(1)}k`
-                : "—"}
-            </div>
-            <p className="text-sm text-ink-soft mt-2">
-              steps, last 7 days
-            </p>
-          </div>
-
-          <div className="card-cream rotate-right">
-            <div className="flex items-start justify-between mb-2">
-              <DumbbellIcon size={28} className="text-ink" />
-              <p className="text-[11px] uppercase tracking-widest font-bold text-ink-mute">
-                Last 7 days
-              </p>
-            </div>
-            <div className="font-display text-4xl tabular-nums leading-none">
-              {totalExerciseMin}
-              <span className="unit">min</span>
-            </div>
-            <p className="text-sm text-ink-soft mt-2">exercise total</p>
-          </div>
-
-          <div className="card-saffron rotate-left-2">
-            <div className="flex items-start justify-between mb-2">
-              <HeartIcon size={28} className="text-ink" />
-              <p className="text-[11px] uppercase tracking-widest font-bold">
-                Active days
-              </p>
-            </div>
-            <div className="font-display text-4xl tabular-nums leading-none">
-              {daysActive}
-              <span className="unit">/7</span>
-            </div>
-            <p className="text-sm font-semibold mt-2">
-              {daysActive >= 5
-                ? "Great consistency"
-                : daysActive >= 3
-                ? "On the way"
-                : "Push for more"}
-            </p>
-          </div>
-        </section>
-
-        {/* Log form */}
+        {/* Log form — at the TOP */}
         <section className="mb-6 lg:mb-8">
           <ActivityForm
             today={today}
@@ -141,6 +87,31 @@ export default async function ActivityPage() {
                 : null
             }
           />
+        </section>
+
+        {/* KPIs — compact 3-column single row */}
+        <section className="grid grid-cols-3 gap-2 mb-6">
+          <div className="card text-center py-3 px-2">
+            <FootIcon size={18} className="text-ink mx-auto mb-1" />
+            <p className="font-display text-xl tabular-nums leading-none">
+              {avgSteps > 0 ? `${(avgSteps / 1000).toFixed(1)}k` : "—"}
+            </p>
+            <p className="text-[10px] text-ink-mute mt-1">steps/day avg</p>
+          </div>
+          <div className="card-cream text-center py-3 px-2">
+            <DumbbellIcon size={18} className="text-ink mx-auto mb-1" />
+            <p className="font-display text-xl tabular-nums leading-none">
+              {totalExerciseMin}<span className="text-sm font-normal">m</span>
+            </p>
+            <p className="text-[10px] text-ink-mute mt-1">exercise 7d</p>
+          </div>
+          <div className="card-saffron text-center py-3 px-2">
+            <HeartIcon size={18} className="text-ink mx-auto mb-1" />
+            <p className="font-display text-xl tabular-nums leading-none">
+              {daysActive}<span className="text-sm font-normal">/7</span>
+            </p>
+            <p className="text-[10px] mt-1 font-semibold">active days</p>
+          </div>
         </section>
 
         {/* History */}

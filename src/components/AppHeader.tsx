@@ -12,6 +12,7 @@ import {
   ActivityIcon,
 } from "./icons";
 import { MOBILE_NAV_H, NAV_HREFS } from "@/lib/nav";
+import { QuickLogModal } from "./QuickLogModal";
 
 interface Props {
   firstName: string;
@@ -28,6 +29,7 @@ export function AppHeader({ firstName }: Props) {
   const pathname = usePathname();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [showQuickLog, setShowQuickLog] = useState(false);
 
   useEffect(() => {
     // getSession reads from localStorage — no network call
@@ -121,25 +123,55 @@ export function AppHeader({ firstName }: Props) {
             <Link href="/settings/profile" className="flex-none"><Avatar /></Link>
           </div>
 
-          {/* Row 2 — nav, shifts up with logo */}
+          {/* Row 2 — nav with central + button */}
           <nav
-            className="grid grid-cols-4 bg-cream border-b-2 border-ink transition-transform duration-200 ease-out"
-            style={{ height: MOBILE_NAV_H, transform: scrolled ? "translateY(-52px)" : "translateY(0)" }}
+            className="bg-cream border-b-2 border-ink transition-transform duration-200 ease-out overflow-visible"
+            style={{ height: MOBILE_NAV_H, transform: scrolled ? "translateY(-52px)" : "translateY(0)", display: "grid", gridTemplateColumns: "1fr 1fr 56px 1fr 1fr" }}
           >
-            {NAV_ITEMS.map(({ href, label, Icon }) => {
+            {/* Left 2: Today, Plan */}
+            {NAV_ITEMS.slice(0, 2).map(({ href, label, Icon }) => {
               const active = isActive(href);
               return (
-                <Link key={href} href={href}
-                  className="flex flex-col items-center justify-center gap-0.5 transition relative">
+                <Link key={href} href={href} className="flex flex-col items-center justify-center gap-0.5 transition relative">
                   <Icon size={22} active={active} className={active ? "text-tangerine" : "text-ink-mute"} />
-                  <span className={`text-[10px] font-bold uppercase tracking-wide leading-none ${active ? "text-ink" : "text-ink-mute"}`}>
-                    {label}
-                  </span>
+                  <span className={`text-[10px] font-bold uppercase tracking-wide leading-none ${active ? "text-ink" : "text-ink-mute"}`}>{label}</span>
+                  {active && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-tangerine" />}
+                </Link>
+              );
+            })}
+
+            {/* Center: + quick log button */}
+            <button
+              type="button"
+              onClick={() => setShowQuickLog(true)}
+              className="flex items-center justify-center relative"
+              style={{ overflow: "visible" }}
+            >
+              <div
+                className="w-12 h-12 bg-tangerine text-cream rounded-full border-2 border-ink flex items-center justify-center font-black text-2xl leading-none"
+                style={{
+                  boxShadow: "0 4px 12px rgba(255,107,53,0.4), 3px 3px 0 #1A1A1A",
+                  marginTop: "-18px",
+                }}
+              >
+                +
+              </div>
+            </button>
+
+            {/* Right 2: Groceries, Activity */}
+            {NAV_ITEMS.slice(2).map(({ href, label, Icon }) => {
+              const active = isActive(href);
+              return (
+                <Link key={href} href={href} className="flex flex-col items-center justify-center gap-0.5 transition relative">
+                  <Icon size={22} active={active} className={active ? "text-tangerine" : "text-ink-mute"} />
+                  <span className={`text-[10px] font-bold uppercase tracking-wide leading-none ${active ? "text-ink" : "text-ink-mute"}`}>{label}</span>
                   {active && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-tangerine" />}
                 </Link>
               );
             })}
           </nav>
+
+          {showQuickLog && <QuickLogModal onClose={() => setShowQuickLog(false)} />}
         </header>
 
         {/* Spacer — mirrors header height transition */}

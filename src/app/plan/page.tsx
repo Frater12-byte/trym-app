@@ -33,16 +33,9 @@ export default async function PlanPage() {
 
   // Calculate how many days are visible (today + up to next 2, within current week)
   const todayDayIdx = dow; // 0=Sun … 6=Sat
-  const visibleDayCount = [0, 1, 2]
-    .map((offset) => todayDayIdx + offset)
-    .filter((i) => i < 7).length;
+  
 
-  const planTitle =
-    visibleDayCount === 1
-      ? today.toLocaleDateString("en-US", { weekday: "long" }) + "."
-      : visibleDayCount === 2
-      ? "Next 2 days."
-      : "Next 3 days.";
+  
 
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
@@ -183,7 +176,7 @@ export default async function PlanPage() {
             <div>
               <p className="eyebrow">Plan</p>
               <h1 className="font-display text-4xl lg:text-5xl">
-                {planTitle}
+                Today.
               </h1>
             </div>
             <div className="card-cream card-sm rotate-right">

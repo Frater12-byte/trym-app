@@ -5,7 +5,6 @@ import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { PrefetchRoutes } from "@/components/PrefetchRoutes";
 import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
 import { FoodLogButton } from "@/components/FoodLogModal";
-import { FoodPhotoButton } from "@/components/FoodPhotoButton";
 import { WaterTracker } from "@/components/WaterTracker";
 import { NotificationPrompt } from "@/components/PwaSetup";
 import {
@@ -229,9 +228,8 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* ─── SHARE PHOTO ─── */}
+
         <section className="mb-6 lg:mb-8">
-          <FoodPhotoButton />
         </section>
 
         {/* PLAN + GROCERIES NAV */}

@@ -75,9 +75,8 @@ export function PlanDays({ plan, today, todayExtra }: Props) {
     (todayDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  const visibleDays = [todayDayIdx, todayDayIdx + 1, todayDayIdx + 2].filter(
-    (i) => i >= 0 && i < 7
-  );
+  // Only show TODAY — not next days
+  const visibleDays = [todayDayIdx].filter((i) => i >= 0 && i < 7);
 
   // History: yesterday and 2 days ago (within this week)
   const historyDays = [todayDayIdx - 1, todayDayIdx - 2].filter((i) => i >= 0);
