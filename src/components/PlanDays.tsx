@@ -291,23 +291,24 @@ function DaySection({
         )}
       </div>
 
-      {/* Meal cards — with optional content injected after the first slot */}
-      <div className={`space-y-3 ${tilt}`}>
-        {SLOTS.map((slot, slotIdx) => {
+      {/* Breakfast · Lunch · Dinner — all in one row */}
+      <div className={`grid grid-cols-3 gap-3 ${tilt}`}>
+        {SLOTS.map((slot) => {
           const planMeal = sortedMeals.find((m) => m.meal_slot === slot);
-          const card = planMeal
-            ? <MealCard key={planMeal.id} planMeal={planMeal} swapCreditsLeft={swapCreditsLeft} onRefresh={onRefresh} />
-            : <EmptySlot key={slot} slot={slot} />;
+          if (!planMeal) return <EmptySlot key={slot} slot={slot} />;
           return (
-            <React.Fragment key={slot}>
-              {card}
-              {slotIdx === 0 && afterFirstMeal && (
-                <div>{afterFirstMeal}</div>
-              )}
-            </React.Fragment>
+            <MealCard
+              key={planMeal.id}
+              planMeal={planMeal}
+              swapCreditsLeft={swapCreditsLeft}
+              onRefresh={onRefresh}
+            />
           );
         })}
       </div>
+
+      {/* Water tracker — full width below all three meal cards */}
+      {afterFirstMeal && <div className="mt-3">{afterFirstMeal}</div>}
     </section>
   );
 }
