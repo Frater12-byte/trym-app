@@ -55,12 +55,13 @@ interface Props {
   today: string;
   unitWeight: "kg" | "lbs";
   todayExtra?: React.ReactNode;
+  afterFirstMeal?: React.ReactNode; // injected between breakfast and lunch
 }
 
 const SLOTS = ["breakfast", "lunch", "dinner"];
 const PRICE_X = 2;
 
-export function PlanDays({ plan, today, todayExtra }: Props) {
+export function PlanDays({ plan, today, todayExtra, afterFirstMeal }: Props) {
   const router = useRouter();
 
   const dayMap: Record<number, PlanMeal[]> = {};
@@ -99,6 +100,7 @@ export function PlanDays({ plan, today, todayExtra }: Props) {
               tilt={idx === 0 ? "" : idx === 1 ? "rotate-left" : "rotate-right"}
               swapCreditsLeft={plan.swap_credits_remaining}
               onRefresh={() => router.refresh()}
+              afterFirstMeal={idx === 0 ? afterFirstMeal : undefined}
             />
             {/* Log section injected immediately after today's cards */}
             {idx === 0 && todayExtra && (
@@ -241,6 +243,7 @@ function DaySection({
   tilt,
   swapCreditsLeft,
   onRefresh,
+  afterFirstMeal,
 }: {
   dayDate: Date;
   meals: PlanMeal[];
@@ -248,6 +251,7 @@ function DaySection({
   tilt: string;
   swapCreditsLeft: number;
   onRefresh: () => void;
+  afterFirstMeal?: React.ReactNode;
 }) {
   const dayLabel = isToday
     ? dayDate.toLocaleDateString("en-US", { weekday: "long" })
@@ -287,17 +291,20 @@ function DaySection({
         )}
       </div>
 
-      <div className={`grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 ${tilt}`}>
-        {SLOTS.map((slot) => {
+      {/* Meal cards — with optional content injected after the first slot */}
+      <div className={`space-y-3 ${tilt}`}>
+        {SLOTS.map((slot, slotIdx) => {
           const planMeal = sortedMeals.find((m) => m.meal_slot === slot);
-          if (!planMeal) return <EmptySlot key={slot} slot={slot} />;
+          const card = planMeal
+            ? <MealCard key={planMeal.id} planMeal={planMeal} swapCreditsLeft={swapCreditsLeft} onRefresh={onRefresh} />
+            : <EmptySlot key={slot} slot={slot} />;
           return (
-            <MealCard
-              key={planMeal.id}
-              planMeal={planMeal}
-              swapCreditsLeft={swapCreditsLeft}
-              onRefresh={onRefresh}
-            />
+            <React.Fragment key={slot}>
+              {card}
+              {slotIdx === 0 && afterFirstMeal && (
+                <div>{afterFirstMeal}</div>
+              )}
+            </React.Fragment>
           );
         })}
       </div>

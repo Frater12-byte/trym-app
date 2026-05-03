@@ -195,11 +195,11 @@ export default async function PlanPage() {
           plan={plan}
           today={todayStr}
           unitWeight={profile.unit_weight}
+          afterFirstMeal={<WaterTracker />}
           todayExtra={
             <>
               <StarredFoodsWidget />
               <FoodLogButton />
-              <WaterTracker />
             </>
           }
         />
