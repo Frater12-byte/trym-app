@@ -187,13 +187,11 @@ export default async function WeightPage() {
         </section>
 
         <div className="mt-8 text-center">
-          <Link
-            href="/dashboard"
-            className="text-sm text-ink-soft hover:text-ink"
-          >
+          <Link href="/dashboard" className="text-sm text-ink-soft hover:text-ink">
             ← Back to today
           </Link>
         </div>
+        <footer className="mt-10 text-center pb-4"><LogoutButton /></footer>
       </div>
     </main>
   );

@@ -3,14 +3,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { PrefetchRoutes } from "@/components/PrefetchRoutes";
-import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
 import { WaterProgressChip } from "@/components/WaterProgressChip";
 import { NotificationPrompt } from "@/components/PwaSetup";
-import {
-  CalendarIcon,
-  CartIcon,
-  ArrowRightIcon,
-} from "@/components/icons";
+import { ArrowRightIcon } from "@/components/icons";
 
 
 export default async function DashboardPage() {
@@ -40,7 +35,7 @@ export default async function DashboardPage() {
         .maybeSingle(),
       supabase
         .from("activity_logs")
-        .select("steps_count, exercise_minutes, logged_at")
+        .select("steps_count, exercise_minutes, exercise_type, logged_at")
         .eq("user_id", user.id)
         .order("logged_at", { ascending: false })
         .limit(7),
@@ -161,106 +156,96 @@ export default async function DashboardPage() {
         {/* NOTIFICATION PROMPT */}
         <NotificationPrompt />
 
-        {/* ─── TODAY OVERVIEW ─── */}
+        {/* ─── TODAY KPI OVERVIEW ─── */}
         <section className="mb-6">
-          <p className="eyebrow mb-3">
-            {today.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
 
-          {/* Meal tiles — compact */}
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            {["breakfast", "lunch", "dinner"].map((slot) => {
-              const pm = todayMeals.find((m) => m.meal_slot === slot);
-              const href = pm?.meal?.id ? `/recipes/${pm.meal.id}` : "/plan";
-              return (
-                <Link key={slot} href={href}
-                  className={`rounded-2xl border-2 border-ink p-2.5 text-center transition hover:-translate-y-0.5 ${
-                    pm?.status === "cooked" ? "bg-green-tint" : pm?.status === "skipped" ? "opacity-40 bg-cream" : "bg-white"
-                  }`}
-                  style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
-                  <p className="text-xl mb-0.5">{pm?.meal?.emoji ?? "—"}</p>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-ink-mute capitalize">{slot}</p>
-                  <p className="text-[10px] font-bold leading-tight line-clamp-2 mt-0.5">{pm?.meal?.name ?? "Not planned"}</p>
-                  {pm?.status && pm.status !== "planned" && (
-                    <p className="text-[9px] text-green font-bold uppercase mt-0.5 capitalize">{pm.status}</p>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Off-plan food logged today */}
-          {todayFoodLogs.length > 0 && (
-            <div className="space-y-1.5 mb-3">
-              {todayFoodLogs.map((f) => (
-                <div key={f.id} className="flex items-center gap-3 px-3 py-2 rounded-2xl border border-ink/15 bg-cream text-sm">
-                  <span>🍽️</span>
-                  <span className="flex-1 font-bold capitalize truncate">{f.meal_name}</span>
-                  <span className="text-ink-mute tabular-nums text-xs">{f.calories ? `${f.calories} cal` : "—"}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* KPI overview chips */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+            {/* Water */}
             <WaterProgressChip />
 
+            {/* Weight */}
             <Link href="/weight"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
-              <span className="text-lg">⚖️</span>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Weight</p>
-                <p className="font-bold text-sm tabular-nums leading-tight">{displayWeight(currentWeight)}<span className="text-xs font-normal text-ink-mute"> {unit}</span></p>
-                <p className="text-[10px] text-ink-mute">{weightPct}% to goal</p>
+              className="card hover:-translate-y-1 transition flex flex-col gap-2">
+              <div className="flex items-start justify-between">
+                <span className="text-2xl">⚖️</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-ink-mute">Weight</span>
               </div>
+              <p className="font-display text-3xl tabular-nums leading-none">
+                {displayWeight(currentWeight)}<span className="unit text-base">{unit}</span>
+              </p>
+              <p className="text-xs text-ink-mute">Goal {displayWeight(goalWeight)} {unit}</p>
+              <div className="h-1.5 bg-cream rounded-full overflow-hidden mt-auto">
+                <div className="h-full rounded-full transition-all" style={{ width: `${weightPct}%`, background: "#0E4D3F" }} />
+              </div>
+              <p className="text-[10px] text-ink-mute">{weightPct}% to goal</p>
             </Link>
 
+            {/* Budget */}
             <Link href="/groceries"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
-              <span className="text-lg">💰</span>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Budget</p>
-                <p className="font-bold text-sm tabular-nums leading-tight">{Math.round(weekSpent)}<span className="text-xs font-normal text-ink-mute"> / {weekBudget} AED</span></p>
-                <p className="text-[10px] text-ink-mute">{budgetPct}% used</p>
+              className="card-saffron hover:-translate-y-1 transition flex flex-col gap-2">
+              <div className="flex items-start justify-between">
+                <span className="text-2xl">💰</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold">Budget</span>
               </div>
+              <p className="font-display text-3xl tabular-nums leading-none">
+                {Math.round(weekSpent)}<span className="unit text-base">AED</span>
+              </p>
+              <p className="text-xs font-semibold opacity-75">of {weekBudget} AED / week</p>
+              <div className="h-1.5 rounded-full overflow-hidden mt-auto" style={{ background: "rgba(0,0,0,0.15)" }}>
+                <div className="h-full rounded-full" style={{ width: `${budgetPct}%`, background: "#1A1A1A" }} />
+              </div>
+              <p className="text-[10px] font-semibold opacity-70">{budgetPct}% used</p>
             </Link>
 
+            {/* Meals */}
             <Link href="/plan"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
-              <span className="text-lg">🍽️</span>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Meals</p>
-                <p className="font-bold text-sm tabular-nums leading-tight">{loggedMeals}<span className="text-xs font-normal text-ink-mute"> / {totalMeals} logged</span></p>
-                <p className="text-[10px] text-ink-mute">{mealsPct}%</p>
+              className="card-cream hover:-translate-y-1 transition flex flex-col gap-2">
+              <div className="flex items-start justify-between">
+                <span className="text-2xl">🍽️</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-ink-mute">Meals</span>
               </div>
+              <p className="font-display text-3xl tabular-nums leading-none">
+                {loggedMeals}<span className="text-base font-normal text-ink-soft">/{totalMeals}</span>
+              </p>
+              <p className="text-xs text-ink-mute">logged this week</p>
+              <div className="h-1.5 bg-cream rounded-full overflow-hidden mt-auto">
+                <div className="h-full rounded-full" style={{ width: `${mealsPct}%`, background: "#FF6B35" }} />
+              </div>
+              <p className="text-[10px] text-ink-mute">{mealsPct}%</p>
             </Link>
 
+            {/* Swaps */}
             {plan && (
               <Link href="/plan"
-                className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
-                <span className="text-lg">🔄</span>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Swaps</p>
-                  <p className="font-bold text-sm tabular-nums leading-tight">{plan.swap_credits_remaining}<span className="text-xs font-normal text-ink-mute"> / {plan.swap_credits_max} left</span></p>
+                className="card hover:-translate-y-1 transition flex flex-col gap-2">
+                <div className="flex items-start justify-between">
+                  <span className="text-2xl">🔄</span>
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-ink-mute">Swaps</span>
                 </div>
+                <p className="font-display text-3xl tabular-nums leading-none">
+                  {plan.swap_credits_remaining}<span className="text-base font-normal text-ink-soft">/{plan.swap_credits_max}</span>
+                </p>
+                <p className="text-xs text-ink-mute">left this week</p>
               </Link>
             )}
 
+            {/* Activity */}
             <Link href="/activity"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-ink/20 bg-white hover:-translate-y-0.5 transition">
-              <span className="text-lg">🏃</span>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider font-bold text-ink-mute">Activity</p>
-                <p className="font-bold text-sm leading-tight">
-                  {todayActivity?.exercise_minutes ? `${todayActivity.exercise_minutes} min` : "Not logged"}
-                </p>
+              className="card hover:-translate-y-1 transition flex flex-col gap-2">
+              <div className="flex items-start justify-between">
+                <span className="text-2xl">🏃</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-ink-mute">Activity</span>
               </div>
+              <p className="font-display text-3xl tabular-nums leading-none">
+                {todayActivity?.exercise_minutes ?? "—"}
+                {todayActivity?.exercise_minutes && <span className="unit text-base">min</span>}
+              </p>
+              <p className="text-xs text-ink-mute">
+                {todayActivity ? `${todayActivity.exercise_type ?? "exercise"} today` : "Not logged yet"}
+              </p>
             </Link>
-          </div>
 
-          {/* Starred usuals — quick log */}
-          <StarredFoodsWidget />
+          </div>
         </section>
 
 

@@ -129,6 +129,7 @@ export default async function GroceriesPage() {
           planItems={planItems}
           manualItems={manualItems || []}
         />
+        <footer className="mt-10 text-center pb-4"><LogoutButton /></footer>
       </div>
     </main>
   );

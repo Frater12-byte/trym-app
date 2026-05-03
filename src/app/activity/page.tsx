@@ -165,6 +165,7 @@ export default async function ActivityPage() {
             </ul>
           )}
         </section>
+        <footer className="mt-10 text-center pb-4"><LogoutButton /></footer>
       </div>
     </main>
   );

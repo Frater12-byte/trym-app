@@ -239,6 +239,9 @@ export default async function PlanPage() {
             })}
           </section>
         )}
+        <footer className="mt-10 text-center pb-4">
+          <LogoutButton />
+        </footer>
       </div>
     </main>
   );
