@@ -451,14 +451,15 @@ export function GroceriesList({ planItems, manualItems }: Props) {
       </div>
 
       {/* Bulk action bar */}
+      {/* Bulk action bar — fixed at bottom so it's always visible while scrolling */}
       {selectedIds.size > 0 && (
-        <div className="sticky top-0 z-30 mb-4 flex gap-2 bg-cream/95 backdrop-blur py-2">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-cream/95 backdrop-blur border-t-2 border-ink px-4 py-3 flex gap-2">
           <button type="button" onClick={bulkCheckOff}
-            className="flex-1 btn btn-primary py-2.5 text-sm">
+            className="flex-1 btn btn-primary py-3 text-sm">
             ✓ Got {selectedIds.size} item{selectedIds.size > 1 ? "s" : ""}
           </button>
           <button type="button" onClick={bulkRemove}
-            className="flex-1 btn btn-secondary py-2.5 text-sm text-red-700">
+            className="flex-1 btn btn-secondary py-3 text-sm text-red-700">
             🗑️ Remove {selectedIds.size}
           </button>
           <button type="button" onClick={() => setSelectedIds(new Set())}
@@ -490,8 +491,9 @@ export function GroceriesList({ planItems, manualItems }: Props) {
                   const isSelected = selectedIds.has(item.key);
                   return (
                     <div key={item.key} className="relative">
-                      {/* Tile */}
-                      <button type="button" onClick={() => setActiveItem(item)}
+                      {/* Tile — in selection mode, tap anywhere to select */}
+                      <button type="button"
+                        onClick={() => selectedIds.size > 0 ? toggleBulkSelect(item.key) : setActiveItem(item)}
                         className={`w-full flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 border-ink transition hover:-translate-y-0.5 text-center ${
                           item.checked_off ? "opacity-40" : ""
                         }`}
@@ -506,47 +508,48 @@ export function GroceriesList({ planItems, manualItems }: Props) {
                         )}
                       </button>
 
-                      {/* Top-right: bulk select circle */}
+                      {/* Top-right: select circle (always visible) */}
                       <button type="button" onClick={() => toggleBulkSelect(item.key)}
                         className={`absolute top-1 right-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                          isSelected ? "bg-tangerine border-tangerine" : "bg-white border-ink/30 hover:border-ink"
+                          isSelected ? "bg-tangerine border-tangerine" : "bg-white/90 border-ink/30 hover:border-ink"
                         }`}>
                         {isSelected && <CheckIcon size={10} className="text-cream" />}
-                      </button>
-
-                      {/* X button (top-left) to remove/dismiss */}
-                      <button type="button"
-                        onClick={() => item.type === "manual" ? removeItem(item) : item.manual_id ? dismissPlanItem(item.manual_id) : null}
-                        className="absolute top-1 left-1 w-5 h-5 rounded-full bg-white/90 border border-ink/20 text-ink-mute flex items-center justify-center text-[10px] hover:text-red-500 hover:border-red-400 transition opacity-0 group-hover:opacity-100"
-                        style={{ opacity: 0.7 }}>
-                        ✕
                       </button>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Per-category add */}
+              {/* Per-category add — empty tile in the grid OR inline form */}
               {addingCat === cat ? (
-                <div className="flex gap-2 flex-wrap">
-                  <input type="text" value={newItemText} onChange={(e) => setNewItemText(e.target.value)}
-                    placeholder="Item name…" className="input flex-1 text-sm min-w-0" autoFocus />
-                  <input type="number" value={newItemQty} onChange={(e) => setNewItemQty(e.target.value)}
-                    placeholder="Qty" className="input w-16 text-sm tabular-nums" inputMode="decimal" />
-                  <select value={newItemUnit} onChange={(e) => setNewItemUnit(e.target.value)} className="input w-20 text-sm">
-                    <option value="">Unit</option>
-                    {["g","kg","ml","l","piece","pack"].map(u => <option key={u} value={u}>{u}</option>)}
-                  </select>
-                  <button type="button" onClick={() => addItemToCategory(cat)} disabled={!newItemText.trim()}
-                    className="btn btn-primary text-sm py-2 px-4">Add</button>
-                  <button type="button" onClick={() => { setAddingCat(null); setNewItemText(""); setNewItemQty(""); setNewItemUnit(""); }}
-                    className="btn btn-secondary text-sm py-2 px-3">✕</button>
+                <div className="space-y-2 mt-2">
+                  <div className="flex gap-2 flex-wrap">
+                    <input type="text" value={newItemText} onChange={(e) => setNewItemText(e.target.value)}
+                      placeholder="Item name…" className="input flex-1 text-sm min-w-0" autoFocus />
+                    <input type="number" value={newItemQty} onChange={(e) => setNewItemQty(e.target.value)}
+                      placeholder="Qty" className="input w-16 text-sm tabular-nums" inputMode="decimal" />
+                    <select value={newItemUnit} onChange={(e) => setNewItemUnit(e.target.value)} className="input w-20 text-sm">
+                      <option value="">Unit</option>
+                      {["g","kg","ml","l","piece","pack"].map(u => <option key={u} value={u}>{u}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => addItemToCategory(cat)} disabled={!newItemText.trim()}
+                      className="btn btn-primary text-sm py-2 flex-1">Add</button>
+                    <button type="button" onClick={() => { setAddingCat(null); setNewItemText(""); setNewItemQty(""); setNewItemUnit(""); }}
+                      className="btn btn-secondary text-sm py-2 px-4">Cancel</button>
+                  </div>
                 </div>
               ) : (
-                <button type="button" onClick={() => setAddingCat(cat)}
-                  className="text-xs text-tangerine font-bold hover:underline flex items-center gap-1">
-                  + Add to {cat}
-                </button>
+                /* Empty tile that matches the grocery tile style */
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-0">
+                  <button type="button" onClick={() => setAddingCat(cat)}
+                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-dashed border-ink/25 transition hover:-translate-y-0.5 text-center bg-cream/60"
+                    style={{ minHeight: 90 }}>
+                    <span className="text-2xl opacity-30">+</span>
+                    <span className="text-[10px] font-bold text-ink-mute capitalize">Add item</span>
+                  </button>
+                </div>
               )}
             </section>
           );

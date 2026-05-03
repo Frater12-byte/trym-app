@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { AppHeader, LogoutButton } from "@/components/AppHeader";
 import { PrefetchRoutes } from "@/components/PrefetchRoutes";
 import { StarredFoodsWidget } from "@/components/StarredFoodsWidget";
-import { FoodLogButton } from "@/components/FoodLogModal";
 import { WaterTracker } from "@/components/WaterTracker";
 import { NotificationPrompt } from "@/components/PwaSetup";
 import {
@@ -223,7 +222,6 @@ export default async function DashboardPage() {
           {/* Log tools */}
           <div className="mt-3 space-y-3">
             <StarredFoodsWidget />
-            <FoodLogButton />
             <WaterTracker />
           </div>
         </section>
@@ -232,40 +230,6 @@ export default async function DashboardPage() {
         <section className="mb-6 lg:mb-8">
         </section>
 
-        {/* PLAN + GROCERIES NAV */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <Link href="/plan" className="card-tangerine rotate-left hover:-translate-y-1 transition">
-            <div className="flex items-start justify-between mb-3">
-              <CalendarIcon size={32} className="text-cream" />
-              {plan && (
-                <div className="pill" style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "var(--color-cream)", borderColor: "rgba(255,255,255,0.4)" }}>
-                  {plan.swap_credits_remaining}/{plan.swap_credits_max} swaps left
-                </div>
-              )}
-            </div>
-            <h3 className="font-display text-2xl lg:text-3xl mb-2">This week&apos;s plan</h3>
-            <p className="text-sm opacity-90 leading-relaxed">
-              See meals, swap anything, log what you ate.
-            </p>
-            <p className="font-bold mt-4 text-sm flex items-center gap-1">
-              Open plan <ArrowRightIcon size={16} />
-            </p>
-          </Link>
-
-          <Link href="/groceries" className="card hover:-translate-y-1 transition">
-            <div className="flex items-start justify-between mb-3">
-              <CartIcon size={32} className="text-ink" />
-              <div className="pill">From your plan</div>
-            </div>
-            <h3 className="font-display text-2xl lg:text-3xl mb-2">Groceries</h3>
-            <p className="text-sm text-ink-soft leading-relaxed">
-              Shopping list by aisle. Check off as you go.
-            </p>
-            <p className="text-tangerine font-bold mt-4 text-sm flex items-center gap-1">
-              Open list <ArrowRightIcon size={16} />
-            </p>
-          </Link>
-        </section>
 
         {/* PROFILE SUMMARY */}
         <section className="card mb-6">
