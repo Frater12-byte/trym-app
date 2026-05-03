@@ -17,7 +17,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"google" | "facebook" | "apple" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(e: React.FormEvent) {
@@ -57,7 +57,7 @@ function LoginForm() {
     router.refresh();
   }
 
-  async function handleOAuth(provider: "google" | "facebook" | "apple") {
+  async function handleOAuth(provider: "google") {
     setOauthLoading(provider);
     setError(null);
     await supabase.auth.signInWithOAuth({
@@ -86,24 +86,12 @@ function LoginForm() {
       }
     >
       {/* OAuth buttons */}
-      <div className="space-y-3 mb-5">
-        <button type="button" onClick={() => handleOAuth("apple")} disabled={!!oauthLoading || loading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border-2 border-ink bg-ink text-cream font-bold text-sm hover:-translate-y-0.5 transition disabled:opacity-50"
-          style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
-          <AppleIcon />
-          {oauthLoading === "apple" ? "Redirecting…" : "Continue with Apple"}
-        </button>
+      <div className="mb-5">
         <button type="button" onClick={() => handleOAuth("google")} disabled={!!oauthLoading || loading}
           className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border-2 border-ink bg-cream font-bold text-sm hover:-translate-y-0.5 transition disabled:opacity-50"
           style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
           <GoogleIcon />
           {oauthLoading === "google" ? "Redirecting…" : "Continue with Google"}
-        </button>
-        <button type="button" onClick={() => handleOAuth("facebook")} disabled={!!oauthLoading || loading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border-2 border-ink bg-[#1877F2] text-white font-bold text-sm hover:-translate-y-0.5 transition disabled:opacity-50"
-          style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
-          <FacebookIcon />
-          {oauthLoading === "facebook" ? "Redirecting…" : "Continue with Facebook"}
         </button>
       </div>
 
